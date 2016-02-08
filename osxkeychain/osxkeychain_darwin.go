@@ -20,6 +20,7 @@ import (
 
 type osxkeychain struct{}
 
+// New creates a new osxkeychain.
 func New() credentials.Helper {
 	return osxkeychain{}
 }
