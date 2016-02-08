@@ -8,5 +8,5 @@
   go:
     - 1.5
   install: make deps
-  before_script: test -z "$(make validate | tee /dev/stderr)"
+  before_script: make validate
   script: make test
