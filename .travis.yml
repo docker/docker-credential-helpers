@@ -7,12 +7,6 @@
     email: false
   go:
     - 1.5
-  install:
-    - go get -t ./...
-    - go get github.com/golang/lint/golint
-  before_script:
-    - go vet ./...
-    - test -z "$(golint ./... | tee /dev/stderr)"
-    - test -z "$(gofmt -s -l . | tee /dev/stderr)"
-  script:
-    - go test -v ./...
+  install: make deps
+  before_script: test -z "$(make validate | tee /dev/stderr)"
+  script: make test
