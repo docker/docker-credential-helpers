@@ -1,0 +1,17 @@
+---
+  sudo: false
+  language: go
+  os:
+    - osx
+  notifications:
+    email: false
+  go:
+    - 1.5
+  install:
+    - go get github.com/golang/lint/golint
+  before_script:
+    - go vet ./...
+    - test -z "$(golint ./... | tee /dev/stderr)"
+    - test -z "$(gofmt -s -l . | tee /dev/stderr)"
+  script:
+    - go test -v ./...
