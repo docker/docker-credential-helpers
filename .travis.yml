@@ -8,6 +8,7 @@
   go:
     - 1.5
   install:
+    - go get -t ./...
     - go get github.com/golang/lint/golint
   before_script:
     - go vet ./...
