@@ -41,7 +41,13 @@ Set the `credsStore` option in your `.docker/config.json` file with the suffix o
 
 ## Development
 
-Adding a new helper program is pretty easy. You can see how the OS X keychain helper works in the [osxkeychain](osxkeychain) directory.
+A credential helper can be any program that can read values from the standard input. We use the first argument in the command line to differentiate the kind of command to execute. There are three valid values:
+
+- `store`: Adds credentials to the keychain. The payload in the standard input is a JSON document with `ServerURL`, `Username` and `Password`.
+- `get`: Retrieves credentials from the keychain. The payload in the standard input is the raw value for the `ServerURL`.
+- `erase`: Removes credentials from the keychain. The payload in the standard input is the raw value for the `ServerURL`.
+
+This repository also includes libraries to implement new credentials programs in Go. Adding a new helper program is pretty easy. You can see how the OS X keychain helper works in the [osxkeychain](osxkeychain) directory.
 
 1. Implement the interface `credentials.Helper` in `YOUR_PACKAGE/YOUR_PACKAGE_$GOOS.go`
 2. Create a main program in `YOUR_PACKAGE/cmd/main_$GOOS.go`.

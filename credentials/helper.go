@@ -1,5 +1,7 @@
 package credentials
 
+import "errors"
+
 // Credentials holds the information shared between docker and the credentials store.
 type Credentials struct {
 	ServerURL string
@@ -13,3 +15,7 @@ type Helper interface {
 	Delete(serverURL string) error
 	Get(serverURL string) (string, string, error)
 }
+
+// Standarize the not found error, so every helper returns
+// the same message and docker can handle it properly.
+var NotFoundError = errors.New("credentials not found in native keychain")

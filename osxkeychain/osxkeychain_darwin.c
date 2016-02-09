@@ -4,7 +4,7 @@ char *get_error(OSStatus status) {
   char *buf = malloc(128);
   CFStringRef str = SecCopyErrorMessageString(status, NULL);
   int success = CFStringGetCString(str, buf, 128, kCFStringEncodingUTF8);
-  if (success) {
+  if (!success) {
     strncpy(buf, "Unknown error", 128);
   }
   return buf;

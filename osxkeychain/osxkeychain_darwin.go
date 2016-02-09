@@ -18,6 +18,10 @@ import (
 	"github.com/calavera/docker-credential-helpers/credentials"
 )
 
+// notFoundError is the specific error message returned by OS X
+// when the credentials are not in the keychain.
+const notFoundError = "The specified item could not be found in the keychain."
+
 type osxkeychain struct{}
 
 // New creates a new osxkeychain.
@@ -82,7 +86,13 @@ func (h osxkeychain) Get(serverURL string) (string, string, error) {
 	errMsg := C.keychain_get(s, &usernameLen, &username, &passwordLen, &password)
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
-		return "", "", errors.New(C.GoString(errMsg))
+		goMsg := C.GoString(errMsg)
+
+		if goMsg == notFoundError {
+			return "", "", credentials.NotFoundError
+		}
+
+		return "", "", errors.New(goMsg)
 	}
 
 	user := C.GoStringN(username, C.int(usernameLen))
