@@ -89,7 +89,7 @@ func (h osxkeychain) Get(serverURL string) (string, string, error) {
 		goMsg := C.GoString(errMsg)
 
 		if goMsg == notFoundError {
-			return "", "", credentials.NotFoundError
+			return "", "", credentials.ErrCredentialsNotFound
 		}
 
 		return "", "", errors.New(goMsg)

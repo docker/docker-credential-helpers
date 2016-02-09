@@ -1,4 +1,4 @@
-package plugin
+package credentials
 
 import (
 	"bufio"
@@ -8,8 +8,6 @@ import (
 	"io"
 	"os"
 	"strings"
-
-	"github.com/calavera/docker-credential-helpers/credentials"
 )
 
 type credentialsGetResponse struct {
@@ -17,15 +15,15 @@ type credentialsGetResponse struct {
 	Password string
 }
 
-// Serve initializes the store helper and parses the action argument.
-func Serve(helper credentials.Helper) {
+// Serve initializes the credentials helper and parses the action argument.
+func Serve(helper Helper) {
 	if err := handleCommand(helper); err != nil {
 		fmt.Fprintf(os.Stdout, "%v\n", err)
 		os.Exit(1)
 	}
 }
 
-func handleCommand(helper credentials.Helper) error {
+func handleCommand(helper Helper) error {
 	if len(os.Args) != 2 {
 		return fmt.Errorf("Usage: %s <store|get|erase>", os.Args[0])
 	}
@@ -41,7 +39,7 @@ func handleCommand(helper credentials.Helper) error {
 	return fmt.Errorf("Usage: %s <store|get|erase>", os.Args[0])
 }
 
-func store(helper credentials.Helper, reader io.Reader) error {
+func store(helper Helper, reader io.Reader) error {
 	scanner := bufio.NewScanner(reader)
 
 	buffer := new(bytes.Buffer)
@@ -53,7 +51,7 @@ func store(helper credentials.Helper, reader io.Reader) error {
 		return err
 	}
 
-	var creds credentials.Credentials
+	var creds Credentials
 	if err := json.NewDecoder(buffer).Decode(&creds); err != nil {
 		return err
 	}
@@ -61,7 +59,7 @@ func store(helper credentials.Helper, reader io.Reader) error {
 	return helper.Add(&creds)
 }
 
-func get(helper credentials.Helper, reader io.Reader, writer io.Writer) error {
+func get(helper Helper, reader io.Reader, writer io.Writer) error {
 	scanner := bufio.NewScanner(reader)
 
 	buffer := new(bytes.Buffer)
@@ -94,7 +92,7 @@ func get(helper credentials.Helper, reader io.Reader, writer io.Writer) error {
 	return nil
 }
 
-func erase(helper credentials.Helper, reader io.Reader) error {
+func erase(helper Helper, reader io.Reader) error {
 	scanner := bufio.NewScanner(reader)
 
 	buffer := new(bytes.Buffer)

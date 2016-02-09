@@ -1,4 +1,4 @@
-package plugin
+package credentials
 
 import (
 	"bytes"
@@ -6,21 +6,19 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-
-	"github.com/calavera/docker-credential-helpers/credentials"
 )
 
 type memoryStore struct {
-	creds map[string]*credentials.Credentials
+	creds map[string]*Credentials
 }
 
 func newMemoryStore() *memoryStore {
 	return &memoryStore{
-		creds: make(map[string]*credentials.Credentials),
+		creds: make(map[string]*Credentials),
 	}
 }
 
-func (m *memoryStore) Add(creds *credentials.Credentials) error {
+func (m *memoryStore) Add(creds *Credentials) error {
 	m.creds[creds.ServerURL] = creds
 	return nil
 }
@@ -40,7 +38,7 @@ func (m *memoryStore) Get(serverURL string) (string, string, error) {
 
 func TestStore(t *testing.T) {
 	serverURL := "https://index.docker.io/v1/"
-	creds := &credentials.Credentials{
+	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
 		Password:  "bar",
@@ -72,7 +70,7 @@ func TestStore(t *testing.T) {
 
 func TestGet(t *testing.T) {
 	serverURL := "https://index.docker.io/v1/"
-	creds := &credentials.Credentials{
+	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
 		Password:  "bar",
@@ -114,7 +112,7 @@ func TestGet(t *testing.T) {
 
 func TestErase(t *testing.T) {
 	serverURL := "https://index.docker.io/v1/"
-	creds := &credentials.Credentials{
+	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
 		Password:  "bar",

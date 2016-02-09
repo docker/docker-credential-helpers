@@ -16,6 +16,6 @@ type Helper interface {
 	Get(serverURL string) (string, string, error)
 }
 
-// Standarize the not found error, so every helper returns
+// ErrCredentialsNotFound standarizes the not found error, so every helper returns
 // the same message and docker can handle it properly.
-var NotFoundError = errors.New("credentials not found in native keychain")
+var ErrCredentialsNotFound = errors.New("credentials not found in native keychain")
