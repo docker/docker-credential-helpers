@@ -40,6 +40,6 @@ func TestMissingCredentials(t *testing.T) {
 	helper := New()
 	_, _, err := helper.Get("https://adsfasdf.wrewerwer.com/asdfsdddd")
 	if err != credentials.ErrCredentialsNotFound {
-		t.Fatal("exptected ErrCredentialsNotFound, got %v", err)
+		t.Fatalf("exptected ErrCredentialsNotFound, got %v", err)
 	}
 }
