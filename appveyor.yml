@@ -1,0 +1,48 @@
+version: "{build}"
+
+# Source Config
+clone_folder: c:\gopath\src\github.com\docker\docker-credential-helpers
+
+# Build host
+
+os: Windows Server 2012 R2
+
+environment:
+  GOPATH: c:\gopath
+  CGO_ENABLED: 1
+  GOVERSION: 1.6
+
+init:
+  - git config --global core.autocrlf input
+
+# Build
+
+install:
+  # Install Go 1.6.
+  - rmdir c:\go /s /q
+  - appveyor DownloadFile https://storage.googleapis.com/golang/go%GOVERSION%.windows-amd64.msi
+  - msiexec /i go%GOVERSION%.windows-amd64.msi /q
+  # Install MinGW.
+  - ps: |
+      $url = "https://bintray.com/artifact/download/drewwells/generic/x86_64-5.1.0-release-win32-seh-rt_v4-rev0.7z"
+      $strFileName="C:\mingw64\bin\mingw32-make.exe"
+      If (Test-Path $strFileName){
+        Write-Host "Using cached mingw64"
+      }Else{
+        Write-Host "Fetching mingw64"
+        Invoke-WebRequest -UserAgent wget -Uri $url -OutFile ming32-64.7z
+        &7z x -oC:\ ming32-64.7z > $null
+      }
+  - set Path=c:\mingw64\bin;c:\go\bin;%Path%
+  - go version
+  - go env
+  - go get -v -t ./...
+
+build_script:
+  - go test -v github.com/docker/docker-credential-helpers/wincred
+
+# Disable automatic tests
+test: off
+
+# Disable deployment
+deploy: off
