@@ -1,4 +1,5 @@
 ---
+  # See appveyor.yml for windows build.
   sudo: false
   language: go
   os:
@@ -6,7 +7,7 @@
   notifications:
     email: false
   go:
-    - 1.5
+    - 1.6
   install: make deps
   before_script: make validate
   script: make test
