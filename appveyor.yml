@@ -36,9 +36,9 @@ install:
   - set Path=c:\mingw64\bin;c:\go\bin;%Path%
   - go version
   - go env
-  - go get -v -t ./...
 
 build_script:
+  - go vet ./wincred
   - go test -v github.com/docker/docker-credential-helpers/wincred
 
 # Disable automatic tests
