@@ -3,7 +3,7 @@ package osxkeychain
 import (
 	"testing"
 
-	"github.com/calavera/docker-credential-helpers/credentials"
+	"github.com/docker/docker-credential-helpers/credentials"
 )
 
 func TestOSXKeychainHelper(t *testing.T) {
