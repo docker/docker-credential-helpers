@@ -39,5 +39,32 @@ build_script:
 # Disable automatic tests
 test: off
 
-# Disable deployment
-deploy: off
+# Equivalent to `before_deploy` phase
+after_test:
+    # build binary
+  - mkdir bin
+  - go build -o bin/docker-credential-wincred wincred/cmd/main_windows.go
+    # build zipfile, will look like docker-credential-wincred-v0.1.0-amd64.zip in the root directory
+  - cd bin
+  - 7z a ../docker-credential-wincred-%APPVEYOR_REPO_TAG_NAME%-%GOARCH%.zip docker-credential-wincred
+
+# IMPORTANT All the artifacts need to be listed here, or they won't be uploaded to GitHub
+artifacts:
+  - path: docker-credential-wincred-$(APPVEYOR_REPO_TAG_NAME)-$(GOARCH).zip
+    name: docker-credential-wincred-$(APPVEYOR_REPO_TAG_NAME)-$(GOARCH).zip
+    type: zip
+
+deploy:
+  description: 'Windows release'
+  # All the zipped artifacts will be deployed
+  artifact: /.*\.zip/
+  auth_token:
+    secure: ixWmTXZs8aV5+9s6vPXziIcdMMLd+lBVINJ0K/Sy++2wllpRxUec4/TPVKUGLqvL
+  provider: GitHub
+  # deploy when a new tag is pushed
+  on:
+    appveyor_repo_tag: true
+
+branches:
+  only:
+    - master
