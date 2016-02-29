@@ -45,17 +45,16 @@ after_test:
   - mkdir bin
   - go build -o bin/docker-credential-wincred wincred/cmd/main_windows.go
     # build zipfile, will look like docker-credential-wincred-v0.1.0-amd64.zip in the root directory
-  - cd bin
-  - 7z a ../docker-credential-wincred-%APPVEYOR_REPO_TAG_NAME%-%GOARCH%.zip docker-credential-wincred
+  - cd bin && 7z a ../docker-credential-wincred-%APPVEYOR_REPO_TAG_NAME%-%GOARCH%.zip docker-credential-wincred
 
 # IMPORTANT All the artifacts need to be listed here, or they won't be uploaded to GitHub
 artifacts:
-  - path: docker-credential-wincred-$(APPVEYOR_REPO_TAG_NAME)-$(GOARCH).zip
-    name: docker-credential-wincred-$(APPVEYOR_REPO_TAG_NAME)-$(GOARCH).zip
+  - path: docker-credential-wincred-%APPVEYOR_REPO_TAG_NAME%-%GOARCH%.zip
+    name: docker-credential-wincred-%APPVEYOR_REPO_TAG_NAME%-%GOARCH%.zip
     type: zip
 
 deploy:
-  description: 'Windows release'
+  description: "Credential helpers release %APPVEYOR_REPO_TAG_NAME%"
   # All the zipped artifacts will be deployed
   artifact: /.*\.zip/
   auth_token:
