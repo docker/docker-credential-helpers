@@ -32,12 +32,11 @@ install:
   - go version
   - go env
 
-build_script:
+build: false
+
+test_script:
   - go vet ./wincred
   - go test -v github.com/docker/docker-credential-helpers/wincred
-
-# Disable automatic tests
-test: off
 
 # Equivalent to `before_deploy` phase
 after_test:
@@ -49,12 +48,10 @@ after_test:
 
 # IMPORTANT All the artifacts need to be listed here, or they won't be uploaded to GitHub
 artifacts:
-  - path: docker-credential-wincred-%APPVEYOR_REPO_TAG_NAME%-%GOARCH%.zip
-    name: docker-credential-wincred-%APPVEYOR_REPO_TAG_NAME%-%GOARCH%.zip
-    type: zip
+  - path: docker-credential-wincred-$(APPVEYOR_REPO_TAG_NAME)-$(GOARCH).zip
+    name: docker-credential-wincred-$(APPVEYOR_REPO_TAG_NAME)-$(GOARCH).zip
 
 deploy:
-  description: "Credential helpers release %APPVEYOR_REPO_TAG_NAME%"
   # All the zipped artifacts will be deployed
   artifact: /.*\.zip/
   auth_token:
