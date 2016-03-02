@@ -1,19 +1,28 @@
 ---
   # See appveyor.yml for windows build.
-  sudo: false
+  sudo: required
   language: go
+  dist: trusty
   os:
+    - linux
     - osx
   notifications:
     email: false
   go:
     - 1.6
   install: make deps
-  before_script: make validate
+  addons:
+    apt:
+      packages:
+        - libsecret-1-dev
+  before_script:
+    - "export DISPLAY=:99.0"
+    - if [[ "$TRAVIS_OS_NAME" == "linux"  ]]; then sh ci/before_script_linux.sh; fi
+    - make validate
   script: make test
 
   before_deploy:
-    - sh ci/before_deploy.sh
+    - if [[ "$TRAVIS_OS_NAME" == "osx"  ]]; then sh ci/before_deploy_osx.sh; fi
 
   deploy:
     provider: releases
@@ -25,7 +34,7 @@
     # deploy when a new tag is pushed
     on:
       tags: true
-  
+
   branches:
     only:
       # Pushes and PR to the master branch
