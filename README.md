@@ -38,6 +38,7 @@ Set the `credsStore` option in your `.docker/config.json` file with the suffix o
 ### Available programs
 
 1. osxkeychain: Provides a helper to use the OS X keychain as credentials store.
+1. secretservice: Provides a helper to use the D-Bus secret service as credentials store.
 2. wincred: Provides a helper to use Windows credentials manager as store.
 
 ## Development
