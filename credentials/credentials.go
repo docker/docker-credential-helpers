@@ -12,7 +12,7 @@ import (
 
 type credentialsGetResponse struct {
 	Username string
-	Password string
+	Secret   string
 }
 
 // Serve initializes the credentials helper and parses the action argument.
@@ -73,14 +73,14 @@ func get(helper Helper, reader io.Reader, writer io.Writer) error {
 
 	serverURL := strings.TrimSpace(buffer.String())
 
-	username, password, err := helper.Get(serverURL)
+	username, secret, err := helper.Get(serverURL)
 	if err != nil {
 		return err
 	}
 
 	resp := credentialsGetResponse{
 		Username: username,
-		Password: password,
+		Secret:   secret,
 	}
 
 	buffer.Reset()

@@ -10,7 +10,7 @@ char *get_error(OSStatus status) {
   return buf;
 }
 
-char *keychain_add(struct Server *server, char *username, char *password) {
+char *keychain_add(struct Server *server, char *username, char *secret) {
   OSStatus status = SecKeychainAddInternetPassword(
     NULL,
     strlen(server->host), server->host,
@@ -20,7 +20,7 @@ char *keychain_add(struct Server *server, char *username, char *password) {
     server->port,
     server->proto,
     kSecAuthenticationTypeDefault,
-    strlen(password), password,
+    strlen(secret), secret,
     NULL
   );
   if (status) {
@@ -29,7 +29,7 @@ char *keychain_add(struct Server *server, char *username, char *password) {
   return NULL;
 }
 
-char *keychain_get(struct Server *server, unsigned int *username_l, char **username, unsigned int *password_l, char **password) {
+char *keychain_get(struct Server *server, unsigned int *username_l, char **username, unsigned int *secret_l, char **secret) {
   char *tmp;
   SecKeychainItemRef item;
 
@@ -42,14 +42,14 @@ char *keychain_get(struct Server *server, unsigned int *username_l, char **usern
     server->port,
     server->proto,
     kSecAuthenticationTypeDefault,
-    password_l, (void **)&tmp,
+    secret_l, (void **)&tmp,
     &item);
 
   if (status) {
     return get_error(status);
   }
 
-  *password = strdup(tmp);
+  *secret = strdup(tmp);
   SecKeychainItemFreeContent(NULL, tmp);
 
   SecKeychainAttributeList list;

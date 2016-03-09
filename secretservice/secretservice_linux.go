@@ -30,10 +30,10 @@ func (h secretservice) Add(creds *credentials.Credentials) error {
 	defer C.free(unsafe.Pointer(server))
 	username := C.CString(creds.Username)
 	defer C.free(unsafe.Pointer(username))
-	password := C.CString(creds.Password)
-	defer C.free(unsafe.Pointer(password))
+	secret := C.CString(creds.Secret)
+	defer C.free(unsafe.Pointer(secret))
 
-	if err := C.add(server, username, password); err != nil {
+	if err := C.add(server, username, secret); err != nil {
 		defer C.g_error_free(err)
 		errMsg := (*C.char)(unsafe.Pointer(err.message))
 		return errors.New(C.GoString(errMsg))
@@ -57,26 +57,26 @@ func (h secretservice) Delete(serverURL string) error {
 	return nil
 }
 
-// Get returns the username and password to use for a given registry server URL.
+// Get returns the username and secret to use for a given registry server URL.
 func (h secretservice) Get(serverURL string) (string, string, error) {
 	if serverURL == "" {
 		return "", "", errors.New("missing server url")
 	}
 	var username *C.char
 	defer C.free(unsafe.Pointer(username))
-	var password *C.char
-	defer C.free(unsafe.Pointer(password))
+	var secret *C.char
+	defer C.free(unsafe.Pointer(secret))
 	server := C.CString(serverURL)
 	defer C.free(unsafe.Pointer(server))
 
-	err := C.get(server, &username, &password)
+	err := C.get(server, &username, &secret)
 	if err != nil {
 		defer C.g_error_free(err)
 		errMsg := (*C.char)(unsafe.Pointer(err.message))
 		return "", "", errors.New(C.GoString(errMsg))
 	}
 	user := C.GoString(username)
-	pass := C.GoString(password)
+	pass := C.GoString(secret)
 	if pass == "" {
 		return "", "", credentials.ErrCredentialsNotFound
 	}

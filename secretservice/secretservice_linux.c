@@ -15,11 +15,11 @@ const SecretSchema *docker_get_schema(void)
 	return &docker_schema;
 }
 
-GError *add(char *server, char *username, char *password) {
+GError *add(char *server, char *username, char *secret) {
 	GError *err = NULL;
 
 	secret_password_store_sync (DOCKER_SCHEMA, SECRET_COLLECTION_DEFAULT,
-			server, password, NULL, &err,
+			server, secret, NULL, &err,
 			"server", server,
 			"username", username,
 			"docker_cli", "1",
@@ -54,13 +54,13 @@ char *get_username(SecretItem *item) {
 	return NULL;
 }
 
-GError *get(char *server, char **username, char **password) {
+GError *get(char *server, char **username, char **secret) {
 	GError *err = NULL;
 	GHashTable *attributes;
 	SecretService *service;
 	GList *items, *l;
 	SecretSearchFlags flags = SECRET_SEARCH_LOAD_SECRETS | SECRET_SEARCH_ALL | SECRET_SEARCH_UNLOCK;
-	SecretValue *secret;
+	SecretValue *secretValue;
 	gsize length;
 	gchar *value;
 
@@ -79,10 +79,10 @@ GError *get(char *server, char **username, char **password) {
 					continue;
 				}
 				g_free(value);
-				secret = secret_item_get_secret(l->data);
+				secretValue = secret_item_get_secret(l->data);
 				if (secret != NULL) {
-					*password = strdup(secret_value_get(secret, &length));
-					secret_value_unref(secret);
+					*secret = strdup(secret_value_get(secretValue, &length));
+					secret_value_unref(secretValue);
 				}
 				*username = get_username(l->data);
 			}

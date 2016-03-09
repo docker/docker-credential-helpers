@@ -39,10 +39,10 @@ func (h osxkeychain) Add(creds *credentials.Credentials) error {
 
 	username := C.CString(creds.Username)
 	defer C.free(unsafe.Pointer(username))
-	password := C.CString(creds.Password)
-	defer C.free(unsafe.Pointer(password))
+	secret := C.CString(creds.Secret)
+	defer C.free(unsafe.Pointer(secret))
 
-	errMsg := C.keychain_add(s, username, password)
+	errMsg := C.keychain_add(s, username, secret)
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
 		return errors.New(C.GoString(errMsg))
@@ -68,7 +68,7 @@ func (h osxkeychain) Delete(serverURL string) error {
 	return nil
 }
 
-// Get returns the username and password to use for a given registry server URL.
+// Get returns the username and secret to use for a given registry server URL.
 func (h osxkeychain) Get(serverURL string) (string, string, error) {
 	s, err := splitServer(serverURL)
 	if err != nil {
@@ -78,12 +78,12 @@ func (h osxkeychain) Get(serverURL string) (string, string, error) {
 
 	var usernameLen C.uint
 	var username *C.char
-	var passwordLen C.uint
-	var password *C.char
+	var secretLen C.uint
+	var secret *C.char
 	defer C.free(unsafe.Pointer(username))
-	defer C.free(unsafe.Pointer(password))
+	defer C.free(unsafe.Pointer(secret))
 
-	errMsg := C.keychain_get(s, &usernameLen, &username, &passwordLen, &password)
+	errMsg := C.keychain_get(s, &usernameLen, &username, &secretLen, &secret)
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
 		goMsg := C.GoString(errMsg)
@@ -96,7 +96,7 @@ func (h osxkeychain) Get(serverURL string) (string, string, error) {
 	}
 
 	user := C.GoStringN(username, C.int(usernameLen))
-	pass := C.GoStringN(password, C.int(passwordLen))
+	pass := C.GoStringN(secret, C.int(secretLen))
 	return user, pass, nil
 }
 

@@ -16,7 +16,7 @@ func New() credentials.Helper {
 func (h wincred) Add(creds *credentials.Credentials) error {
 	g := winc.NewGenericCredential(creds.ServerURL)
 	g.UserName = creds.Username
-	g.CredentialBlob = []byte(creds.Password)
+	g.CredentialBlob = []byte(creds.Secret)
 	g.Persist = winc.PersistLocalMachine
 	return g.Write()
 }
