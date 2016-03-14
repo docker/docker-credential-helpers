@@ -45,7 +45,7 @@ Set the `credsStore` option in your `.docker/config.json` file with the suffix o
 
 A credential helper can be any program that can read values from the standard input. We use the first argument in the command line to differentiate the kind of command to execute. There are three valid values:
 
-- `store`: Adds credentials to the keychain. The payload in the standard input is a JSON document with `ServerURL`, `Username` and `Password`.
+- `store`: Adds credentials to the keychain. The payload in the standard input is a JSON document with `ServerURL`, `Username` and `Secret`.
 - `get`: Retrieves credentials from the keychain. The payload in the standard input is the raw value for the `ServerURL`.
 - `erase`: Removes credentials from the keychain. The payload in the standard input is the raw value for the `ServerURL`.
 

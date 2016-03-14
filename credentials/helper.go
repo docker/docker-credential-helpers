@@ -6,7 +6,7 @@ import "errors"
 type Credentials struct {
 	ServerURL string
 	Username  string
-	Password  string
+	Secret    string
 }
 
 // Helper is the interface a credentials store helper must implement.

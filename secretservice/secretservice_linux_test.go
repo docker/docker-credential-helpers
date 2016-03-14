@@ -12,7 +12,7 @@ func TestSecretServiceHelper(t *testing.T) {
 	creds := &credentials.Credentials{
 		ServerURL: "https://foobar.docker.io:2376/v1",
 		Username:  "foobar",
-		Password:  "foobarbaz",
+		Secret:    "foobarbaz",
 	}
 
 	helper := New()
@@ -20,7 +20,7 @@ func TestSecretServiceHelper(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	username, password, err := helper.Get(creds.ServerURL)
+	username, secret, err := helper.Get(creds.ServerURL)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -29,8 +29,8 @@ func TestSecretServiceHelper(t *testing.T) {
 		t.Fatalf("expected %s, got %s\n", "foobar", username)
 	}
 
-	if password != "foobarbaz" {
-		t.Fatalf("expected %s, got %s\n", "foobarbaz", password)
+	if secret != "foobarbaz" {
+		t.Fatalf("expected %s, got %s\n", "foobarbaz", secret)
 	}
 
 	if err := helper.Delete(creds.ServerURL); err != nil {

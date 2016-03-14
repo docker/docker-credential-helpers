@@ -33,7 +33,7 @@ func (m *memoryStore) Get(serverURL string) (string, string, error) {
 	if !ok {
 		return "", "", fmt.Errorf("creds not found for %s", serverURL)
 	}
-	return c.Username, c.Password, nil
+	return c.Username, c.Secret, nil
 }
 
 func TestStore(t *testing.T) {
@@ -41,7 +41,7 @@ func TestStore(t *testing.T) {
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
-		Password:  "bar",
+		Secret:    "bar",
 	}
 	b, err := json.Marshal(creds)
 	if err != nil {
@@ -63,8 +63,8 @@ func TestStore(t *testing.T) {
 		t.Fatalf("expected username foo, got %s\n", c.Username)
 	}
 
-	if c.Password != "bar" {
-		t.Fatalf("expected username bar, got %s\n", c.Password)
+	if c.Secret != "bar" {
+		t.Fatalf("expected username bar, got %s\n", c.Secret)
 	}
 }
 
@@ -73,7 +73,7 @@ func TestGet(t *testing.T) {
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
-		Password:  "bar",
+		Secret:    "bar",
 	}
 	b, err := json.Marshal(creds)
 	if err != nil {
@@ -105,8 +105,8 @@ func TestGet(t *testing.T) {
 		t.Fatalf("expected username foo, got %s\n", c.Username)
 	}
 
-	if c.Password != "bar" {
-		t.Fatalf("expected username bar, got %s\n", c.Password)
+	if c.Secret != "bar" {
+		t.Fatalf("expected username bar, got %s\n", c.Secret)
 	}
 }
 
@@ -115,7 +115,7 @@ func TestErase(t *testing.T) {
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
-		Password:  "bar",
+		Secret:    "bar",
 	}
 	b, err := json.Marshal(creds)
 	if err != nil {
