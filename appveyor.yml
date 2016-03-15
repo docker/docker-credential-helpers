@@ -53,6 +53,7 @@ artifacts:
 
 deploy:
   # All the zipped artifacts will be deployed
+  description: "Visit the [Changelog](https://github.com/docker/docker-credential-helpers/blob/master/CHANGELOG.md) for a detailed description of what's new in this release."
   artifact: /.*\.zip/
   auth_token:
     secure: ixWmTXZs8aV5+9s6vPXziIcdMMLd+lBVINJ0K/Sy++2wllpRxUec4/TPVKUGLqvL
