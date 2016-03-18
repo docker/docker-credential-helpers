@@ -4,7 +4,7 @@ docker-credential-helpers is a suite of programs to use native stores to keep Do
 
 ## Installation
 
-Go to the [Releases](https://github.com/calavera/docker-credential-helpers/releases) page and download the binary that works better for you. Put that binary in your `$PATH`, so Docker can find it.
+Go to the [Releases](https://github.com/docker/docker-credential-helpers/releases) page and download the binary that works better for you. Put that binary in your `$PATH`, so Docker can find it.
 
 ### Building from scratch
 
@@ -13,13 +13,13 @@ The programs in this repository are written with the Go programming language. Th
 1 - Download the source and put it in your `$GOPATH` with `go get`.
 
 ```
-$ go get github.com/calavera/docker-credential-helpers
+$ go get github.com/docker/docker-credential-helpers
 ```
 
 2 - Use `make` to build the program you want. That will leave any executable in the `bin` directory inside the repository.
 
 ```
-$ cd $GOPATH/calavera/docker-credentials-helpers
+$ cd $GOPATH/docker/docker-credentials-helpers
 $ make osxkeychain
 ```
 
