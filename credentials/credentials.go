@@ -10,36 +10,43 @@ import (
 	"strings"
 )
 
-type credentialsGetResponse struct {
-	Username string
-	Secret   string
-}
-
 // Serve initializes the credentials helper and parses the action argument.
+// This function is designed to be called from a command line interface.
+// It uses os.Args[1] as the key for the action.
+// It uses os.Stdin as input and os.Stdout as output.
+// This function terminates the program with os.Exit(1) if there is an error.
 func Serve(helper Helper) {
-	if err := handleCommand(helper); err != nil {
+	var err error
+	if len(os.Args) != 2 {
+		err = fmt.Errorf("Usage: %s <store|get|erase>", os.Args[0])
+	}
+
+	if err == nil {
+		err = HandleCommand(helper, os.Args[1], os.Stdin, os.Stdout)
+	}
+
+	if err != nil {
 		fmt.Fprintf(os.Stdout, "%v\n", err)
 		os.Exit(1)
 	}
 }
 
-func handleCommand(helper Helper) error {
-	if len(os.Args) != 2 {
-		return fmt.Errorf("Usage: %s <store|get|erase>", os.Args[0])
-	}
-
-	switch os.Args[1] {
+// HandleCommand uses a helper and a key to run a credential action.
+func HandleCommand(helper Helper, key string, in io.Reader, out io.Writer) error {
+	switch key {
 	case "store":
-		return store(helper, os.Stdin)
+		return Store(helper, in)
 	case "get":
-		return get(helper, os.Stdin, os.Stdout)
+		return Get(helper, in, out)
 	case "erase":
-		return erase(helper, os.Stdin)
+		return Erase(helper, in)
 	}
-	return fmt.Errorf("Usage: %s <store|get|erase>", os.Args[0])
+	return fmt.Errorf("Unknown credential action `%s`", key)
 }
 
-func store(helper Helper, reader io.Reader) error {
+// Store uses a helper and an input reader to save credentials.
+// The reader must contain the JSON serialization of a Credentials struct.
+func Store(helper Helper, reader io.Reader) error {
 	scanner := bufio.NewScanner(reader)
 
 	buffer := new(bytes.Buffer)
@@ -59,7 +66,10 @@ func store(helper Helper, reader io.Reader) error {
 	return helper.Add(&creds)
 }
 
-func get(helper Helper, reader io.Reader, writer io.Writer) error {
+// Get retrieves the credentials for a given server url.
+// The reader must contain the server URL to search.
+// The writer is used to write the JSON serialization of the credentials.
+func Get(helper Helper, reader io.Reader, writer io.Writer) error {
 	scanner := bufio.NewScanner(reader)
 
 	buffer := new(bytes.Buffer)
@@ -78,7 +88,7 @@ func get(helper Helper, reader io.Reader, writer io.Writer) error {
 		return err
 	}
 
-	resp := credentialsGetResponse{
+	resp := Credentials{
 		Username: username,
 		Secret:   secret,
 	}
@@ -92,7 +102,9 @@ func get(helper Helper, reader io.Reader, writer io.Writer) error {
 	return nil
 }
 
-func erase(helper Helper, reader io.Reader) error {
+// Erase removes credentials from the store.
+// The reader must contain the server URL to remove.
+func Erase(helper Helper, reader io.Reader) error {
 	scanner := bufio.NewScanner(reader)
 
 	buffer := new(bytes.Buffer)

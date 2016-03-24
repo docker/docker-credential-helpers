@@ -50,7 +50,7 @@ func TestStore(t *testing.T) {
 	in := bytes.NewReader(b)
 
 	h := newMemoryStore()
-	if err := store(h, in); err != nil {
+	if err := Store(h, in); err != nil {
 		t.Fatal(err)
 	}
 
@@ -82,13 +82,13 @@ func TestGet(t *testing.T) {
 	in := bytes.NewReader(b)
 
 	h := newMemoryStore()
-	if err := store(h, in); err != nil {
+	if err := Store(h, in); err != nil {
 		t.Fatal(err)
 	}
 
 	buf := strings.NewReader(serverURL)
 	w := new(bytes.Buffer)
-	if err := get(h, buf, w); err != nil {
+	if err := Get(h, buf, w); err != nil {
 		t.Fatal(err)
 	}
 
@@ -96,7 +96,7 @@ func TestGet(t *testing.T) {
 		t.Fatalf("expected output in the writer, got %d", w.Len())
 	}
 
-	var c credentialsGetResponse
+	var c Credentials
 	if err := json.NewDecoder(w).Decode(&c); err != nil {
 		t.Fatal(err)
 	}
@@ -124,17 +124,17 @@ func TestErase(t *testing.T) {
 	in := bytes.NewReader(b)
 
 	h := newMemoryStore()
-	if err := store(h, in); err != nil {
+	if err := Store(h, in); err != nil {
 		t.Fatal(err)
 	}
 
 	buf := strings.NewReader(serverURL)
-	if err := erase(h, buf); err != nil {
+	if err := Erase(h, buf); err != nil {
 		t.Fatal(err)
 	}
 
 	w := new(bytes.Buffer)
-	if err := get(h, buf, w); err == nil {
+	if err := Get(h, buf, w); err == nil {
 		t.Fatal("expected error getting missing creds, got empty")
 	}
 }
