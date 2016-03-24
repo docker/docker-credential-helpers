@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	credentials.Serve(wincred.New())
+	credentials.Serve(wincred.Wincred{})
 }
