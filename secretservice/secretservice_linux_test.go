@@ -15,7 +15,7 @@ func TestSecretServiceHelper(t *testing.T) {
 		Secret:    "foobarbaz",
 	}
 
-	helper := New()
+	helper := Secretservice{}
 	if err := helper.Add(creds); err != nil {
 		t.Fatal(err)
 	}
@@ -41,7 +41,7 @@ func TestSecretServiceHelper(t *testing.T) {
 func TestMissingCredentials(t *testing.T) {
 	t.Skip("test requires gnome-keyring but travis CI doesn't have it")
 
-	helper := New()
+	helper := Secretservice{}
 	_, _, err := helper.Get("https://adsfasdf.wrewerwer.com/asdfsdddd")
 	if err != credentials.ErrCredentialsNotFound {
 		t.Fatalf("exptected ErrCredentialsNotFound, got %v", err)

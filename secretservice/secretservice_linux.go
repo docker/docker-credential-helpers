@@ -14,15 +14,11 @@ import (
 	"github.com/docker/docker-credential-helpers/credentials"
 )
 
-type secretservice struct{}
-
-// New creates a new secretservice.
-func New() credentials.Helper {
-	return secretservice{}
-}
+// Secretservice handles secrets using Linux secret-service as a store.
+type Secretservice struct{}
 
 // Add adds new credentials to the keychain.
-func (h secretservice) Add(creds *credentials.Credentials) error {
+func (h Secretservice) Add(creds *credentials.Credentials) error {
 	if creds == nil {
 		return errors.New("missing credentials")
 	}
@@ -41,8 +37,8 @@ func (h secretservice) Add(creds *credentials.Credentials) error {
 	return nil
 }
 
-// Delete removes credentials from the keychain.
-func (h secretservice) Delete(serverURL string) error {
+// Delete removes credentials from the store.
+func (h Secretservice) Delete(serverURL string) error {
 	if serverURL == "" {
 		return errors.New("missing server url")
 	}
@@ -58,7 +54,7 @@ func (h secretservice) Delete(serverURL string) error {
 }
 
 // Get returns the username and secret to use for a given registry server URL.
-func (h secretservice) Get(serverURL string) (string, string, error) {
+func (h Secretservice) Get(serverURL string) (string, string, error) {
 	if serverURL == "" {
 		return "", "", errors.New("missing server url")
 	}

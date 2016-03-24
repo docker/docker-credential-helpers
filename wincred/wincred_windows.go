@@ -5,15 +5,11 @@ import (
 	"github.com/docker/docker-credential-helpers/credentials"
 )
 
-type wincred struct{}
-
-// New creates a new wincred.
-func New() credentials.Helper {
-	return wincred{}
-}
+// Wincred handles secrets using the Windows credential service.
+type Wincred struct{}
 
 // Add adds new credentials to the windows credentials manager.
-func (h wincred) Add(creds *credentials.Credentials) error {
+func (h Wincred) Add(creds *credentials.Credentials) error {
 	g := winc.NewGenericCredential(creds.ServerURL)
 	g.UserName = creds.Username
 	g.CredentialBlob = []byte(creds.Secret)
@@ -22,7 +18,7 @@ func (h wincred) Add(creds *credentials.Credentials) error {
 }
 
 // Delete removes credentials from the windows credentials manager.
-func (h wincred) Delete(serverURL string) error {
+func (h Wincred) Delete(serverURL string) error {
 	g, err := winc.GetGenericCredential(serverURL)
 	if g == nil {
 		return nil
@@ -34,7 +30,7 @@ func (h wincred) Delete(serverURL string) error {
 }
 
 // Get retrieves credentials from the windows credentials manager.
-func (h wincred) Get(serverURL string) (string, string, error) {
+func (h Wincred) Get(serverURL string) (string, string, error) {
 	g, _ := winc.GetGenericCredential(serverURL)
 	if g == nil {
 		return "", "", credentials.ErrCredentialsNotFound

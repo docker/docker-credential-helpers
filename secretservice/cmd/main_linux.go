@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	credentials.Serve(secretservice.New())
+	credentials.Serve(secretservice.Secretservice{})
 }

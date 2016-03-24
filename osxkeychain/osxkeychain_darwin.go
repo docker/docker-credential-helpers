@@ -22,15 +22,11 @@ import (
 // when the credentials are not in the keychain.
 const errCredentialsNotFound = "The specified item could not be found in the keychain."
 
-type osxkeychain struct{}
-
-// New creates a new osxkeychain.
-func New() credentials.Helper {
-	return osxkeychain{}
-}
+// Osxkeychain handles secrets using the OS X Keychain as store.
+type Osxkeychain struct{}
 
 // Add adds new credentials to the keychain.
-func (h osxkeychain) Add(creds *credentials.Credentials) error {
+func (h Osxkeychain) Add(creds *credentials.Credentials) error {
 	s, err := splitServer(creds.ServerURL)
 	if err != nil {
 		return err
@@ -52,7 +48,7 @@ func (h osxkeychain) Add(creds *credentials.Credentials) error {
 }
 
 // Delete removes credentials from the keychain.
-func (h osxkeychain) Delete(serverURL string) error {
+func (h Osxkeychain) Delete(serverURL string) error {
 	s, err := splitServer(serverURL)
 	if err != nil {
 		return err
@@ -69,7 +65,7 @@ func (h osxkeychain) Delete(serverURL string) error {
 }
 
 // Get returns the username and secret to use for a given registry server URL.
-func (h osxkeychain) Get(serverURL string) (string, string, error) {
+func (h Osxkeychain) Get(serverURL string) (string, string, error) {
 	s, err := splitServer(serverURL)
 	if err != nil {
 		return "", "", err

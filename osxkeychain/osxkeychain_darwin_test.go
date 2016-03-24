@@ -13,7 +13,7 @@ func TestOSXKeychainHelper(t *testing.T) {
 		Secret:    "foobarbaz",
 	}
 
-	helper := New()
+	helper := Osxkeychain{}
 	if err := helper.Add(creds); err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestOSXKeychainHelper(t *testing.T) {
 }
 
 func TestMissingCredentials(t *testing.T) {
-	helper := New()
+	helper := Osxkeychain{}
 	_, _, err := helper.Get("https://adsfasdf.wrewerwer.com/asdfsdddd")
 	if err != credentials.ErrCredentialsNotFound {
 		t.Fatalf("exptected ErrCredentialsNotFound, got %v", err)

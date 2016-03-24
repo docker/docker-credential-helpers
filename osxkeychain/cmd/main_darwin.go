@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	credentials.Serve(osxkeychain.New())
+	credentials.Serve(osxkeychain.Osxkeychain{})
 }
