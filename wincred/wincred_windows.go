@@ -33,7 +33,7 @@ func (h Wincred) Delete(serverURL string) error {
 func (h Wincred) Get(serverURL string) (string, string, error) {
 	g, _ := winc.GetGenericCredential(serverURL)
 	if g == nil {
-		return "", "", credentials.ErrCredentialsNotFound
+		return "", "", credentials.NewErrCredentialsNotFound()
 	}
 	return g.UserName, string(g.CredentialBlob), nil
 }

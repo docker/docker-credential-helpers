@@ -10,6 +10,13 @@ import (
 	"strings"
 )
 
+// Credentials holds the information shared between docker and the credentials store.
+type Credentials struct {
+	ServerURL string
+	Username  string
+	Secret    string
+}
+
 // Serve initializes the credentials helper and parses the action argument.
 // This function is designed to be called from a command line interface.
 // It uses os.Args[1] as the key for the action.

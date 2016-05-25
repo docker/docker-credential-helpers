@@ -43,7 +43,7 @@ func TestMissingCredentials(t *testing.T) {
 
 	helper := Secretservice{}
 	_, _, err := helper.Get("https://adsfasdf.wrewerwer.com/asdfsdddd")
-	if err != credentials.ErrCredentialsNotFound {
-		t.Fatalf("exptected ErrCredentialsNotFound, got %v", err)
+	if !credentials.IsErrCredentialsNotFound(err) {
+		t.Fatalf("expected ErrCredentialsNotFound, got %v", err)
 	}
 }
