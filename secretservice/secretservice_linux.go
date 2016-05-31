@@ -74,7 +74,7 @@ func (h Secretservice) Get(serverURL string) (string, string, error) {
 	user := C.GoString(username)
 	pass := C.GoString(secret)
 	if pass == "" {
-		return "", "", credentials.ErrCredentialsNotFound
+		return "", "", credentials.NewErrCredentialsNotFound()
 	}
 	return user, pass, nil
 }
