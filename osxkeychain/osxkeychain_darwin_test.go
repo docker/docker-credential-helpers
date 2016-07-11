@@ -2,7 +2,6 @@ package osxkeychain
 
 import (
 	"testing"
-
 	"github.com/docker/docker-credential-helpers/credentials"
 )
 
@@ -32,6 +31,11 @@ func TestOSXKeychainHelper(t *testing.T) {
 	}
 
 	if err := helper.Delete(creds.ServerURL); err != nil {
+		t.Fatal(err)
+	}
+
+	_, _, err = helper.List();
+	if err != nil {
 		t.Fatal(err)
 	}
 }

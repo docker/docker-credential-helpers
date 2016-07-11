@@ -14,7 +14,6 @@ import (
 	"strconv"
 	"strings"
 	"unsafe"
-
 	"github.com/docker/docker-credential-helpers/credentials"
 )
 
@@ -83,7 +82,6 @@ func (h Osxkeychain) Get(serverURL string) (string, string, error) {
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
 		goMsg := C.GoString(errMsg)
-
 		if goMsg == errCredentialsNotFound {
 			return "", "", credentials.NewErrCredentialsNotFound()
 		}
@@ -94,6 +92,42 @@ func (h Osxkeychain) Get(serverURL string) (string, string, error) {
 	user := C.GoStringN(username, C.int(usernameLen))
 	pass := C.GoStringN(secret, C.int(secretLen))
 	return user, pass, nil
+}
+
+func (h Osxkeychain) List() ([]string, []string, error){
+	var pathsC** C.char
+	defer C.free(unsafe.Pointer(pathsC))
+	var acctsC** C.char
+	defer C.free(unsafe.Pointer(acctsC))
+	var listLenC C.uint
+	errMsg := C.keychain_list(&pathsC, &acctsC, &listLenC)
+	if errMsg!=nil {
+		defer C.free(unsafe.Pointer(errMsg))
+		goMsg := C.GoString(errMsg)
+		return nil, nil, errors.New(goMsg)
+	}
+	var listLen int;
+	listLen = int(listLenC)
+	pathTmp := (*[1 << 30]*C.char)(unsafe.Pointer(pathsC))[:listLen:listLen]
+	acctTmp := (*[1 << 30]*C.char)(unsafe.Pointer(acctsC))[:listLen:listLen]
+	//taking the array of c strings into go while ignoring all the stuff irrelevant to credentials-helper
+	paths := make([]string, listLen)
+	accts := make([]string, listLen)
+	at := 0
+	for i := 0; i < listLen ; i++ {
+		if C.GoString(pathTmp[i])=="0" {
+			continue
+		}
+		paths[at] = C.GoString(pathTmp[i])
+		accts[at] = C.GoString(acctTmp[i])
+		at = at + 1
+	}
+	paths = paths[:at]
+	accts = accts[:at]
+	//still need to free all the memory we allocated in the c file
+	//do it here >>
+	C.freeListData(&pathsC, listLenC)
+	return paths, accts, nil
 }
 
 func splitServer(serverURL string) (*C.struct_Server, error) {
@@ -130,3 +164,4 @@ func freeServer(s *C.struct_Server) {
 	C.free(unsafe.Pointer(s.host))
 	C.free(unsafe.Pointer(s.path))
 }
+

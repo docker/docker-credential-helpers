@@ -36,6 +36,11 @@ func (m *memoryStore) Get(serverURL string) (string, string, error) {
 	return c.Username, c.Secret, nil
 }
 
+func (m *memoryStore) List() ([]string, []string, error) {
+	//Simply a placeholder to let memoryStore be a valid implementation of Helper interface
+	return nil, nil, nil
+}
+
 func TestStore(t *testing.T) {
 	serverURL := "https://index.docker.io/v1/"
 	creds := &Credentials{
@@ -136,5 +141,18 @@ func TestErase(t *testing.T) {
 	w := new(bytes.Buffer)
 	if err := Get(h, buf, w); err == nil {
 		t.Fatal("expected error getting missing creds, got empty")
+	}
+}
+
+func TestList(t *testing.T) {
+	//This tests that there is proper input an output into the byte stream
+	//Individual stores are very OS specific and have been tested in osxkeychain and secretservice respectively
+	out := new(bytes.Buffer)
+	h := newMemoryStore()
+	if err := List(h, out); err != nil {
+		t.Fatal(err)
+	}
+	if out.Len() == 0 {
+		t.Fatalf("expected output in the writer, got %d", 0)
 	}
 }
