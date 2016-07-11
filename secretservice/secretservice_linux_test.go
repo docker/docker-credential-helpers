@@ -36,6 +36,9 @@ func TestSecretServiceHelper(t *testing.T) {
 	if err := helper.Delete(creds.ServerURL); err != nil {
 		t.Fatal(err)
 	}
+	if _, _, err := helper.List(); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestMissingCredentials(t *testing.T) {

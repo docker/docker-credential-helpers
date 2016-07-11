@@ -140,7 +140,7 @@ char *keychain_list(char *** paths, char *** accts, unsigned int *list_l) {
             CFStringRef pathTmp = CFDictionaryGetValue(currKey, CFSTR("path"));
             CFStringRef acctTmp = CFDictionaryGetValue(currKey, CFSTR("acct"));
             if (acctTmp == NULL) {
-                acctTmp = CFSTR("<unknown>");
+                acctTmp = CFSTR("account not defined");
             }
             char * path = (char *) malloc(CFStringGetLength(pathTmp)+1);
             path = CFStringToCharArr(pathTmp);

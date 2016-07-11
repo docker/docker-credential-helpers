@@ -9,3 +9,4 @@ const SecretSchema *docker_get_schema(void) G_GNUC_CONST;
 GError *add(char *server, char *username, char *secret);
 GError *delete(char *server);
 GError *get(char *server, char **username, char **secret);
+GError *list(char *** paths, char *** accts, unsigned int *list_l);
