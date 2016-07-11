@@ -99,5 +99,7 @@ func (h Secretservice) List() ([]string, []string, error) {
 		paths[i] = C.GoString(pathTmp[i])
 		accts[i] = C.GoString(acctTmp[i])
 	}
+	C.freeListData(&pathsC, listLenC)
+	C.freeListData(&acctsC, listLenC)
 	return paths, accts, nil
 }

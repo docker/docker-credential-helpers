@@ -10,11 +10,11 @@ package osxkeychain
 import "C"
 import (
 	"errors"
+	"github.com/docker/docker-credential-helpers/credentials"
 	"net/url"
 	"strconv"
 	"strings"
 	"unsafe"
-	"github.com/docker/docker-credential-helpers/credentials"
 )
 
 // errCredentialsNotFound is the specific error message returned by OS X
@@ -94,19 +94,19 @@ func (h Osxkeychain) Get(serverURL string) (string, string, error) {
 	return user, pass, nil
 }
 
-func (h Osxkeychain) List() ([]string, []string, error){
-	var pathsC** C.char
+func (h Osxkeychain) List() ([]string, []string, error) {
+	var pathsC **C.char
 	defer C.free(unsafe.Pointer(pathsC))
-	var acctsC** C.char
+	var acctsC **C.char
 	defer C.free(unsafe.Pointer(acctsC))
 	var listLenC C.uint
 	errMsg := C.keychain_list(&pathsC, &acctsC, &listLenC)
-	if errMsg!=nil {
+	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
 		goMsg := C.GoString(errMsg)
 		return nil, nil, errors.New(goMsg)
 	}
-	var listLen int;
+	var listLen int
 	listLen = int(listLenC)
 	pathTmp := (*[1 << 30]*C.char)(unsafe.Pointer(pathsC))[:listLen:listLen]
 	acctTmp := (*[1 << 30]*C.char)(unsafe.Pointer(acctsC))[:listLen:listLen]
@@ -114,8 +114,8 @@ func (h Osxkeychain) List() ([]string, []string, error){
 	paths := make([]string, listLen)
 	accts := make([]string, listLen)
 	at := 0
-	for i := 0; i < listLen ; i++ {
-		if C.GoString(pathTmp[i])=="0" {
+	for i := 0; i < listLen; i++ {
+		if C.GoString(pathTmp[i]) == "0" {
 			continue
 		}
 		paths[at] = C.GoString(pathTmp[i])
@@ -124,9 +124,8 @@ func (h Osxkeychain) List() ([]string, []string, error){
 	}
 	paths = paths[:at]
 	accts = accts[:at]
-	//still need to free all the memory we allocated in the c file
-	//do it here >>
 	C.freeListData(&pathsC, listLenC)
+	C.freeListData(&acctsC, listLenC)
 	return paths, accts, nil
 }
 
@@ -164,4 +163,3 @@ func freeServer(s *C.struct_Server) {
 	C.free(unsafe.Pointer(s.host))
 	C.free(unsafe.Pointer(s.path))
 }
-

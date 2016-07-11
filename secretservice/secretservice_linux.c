@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include "secretservice_linux.h"
 
 const SecretSchema *docker_get_schema(void)
@@ -136,4 +137,11 @@ GError *list(char *** paths, char *** accts, unsigned int *list_l) {
 	}
 	*list_l = numKeys;
 	return NULL;
+}
+
+void freeListData(char *** data, unsigned int length) {
+	for(int i=0; i<length; i++) {
+		free((*data)[i]);
+	}
+	free(*data);
 }
