@@ -140,7 +140,8 @@ GError *list(char *** paths, char *** accts, unsigned int *list_l) {
 }
 
 void freeListData(char *** data, unsigned int length) {
-	for(int i=0; i<length; i++) {
+	int i;
+	for(i=0; i<length; i++) {
 		free((*data)[i]);
 	}
 	free(*data);
