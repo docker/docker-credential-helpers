@@ -41,7 +41,7 @@ func TestOSXKeychainHelper(t *testing.T) {
 	helper.Add(creds)
 	newpaths, newaccts, err := helper.List()
 	if len(newpaths)-len(paths) != 1 || len(newaccts)-len(accts) != 1 {
-		t.Fatal()
+		t.Fatal(err)
 	}
 	helper.Delete(creds.ServerURL)
 }
