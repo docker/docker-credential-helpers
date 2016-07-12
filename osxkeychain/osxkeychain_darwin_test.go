@@ -11,7 +11,11 @@ func TestOSXKeychainHelper(t *testing.T) {
 		Username:  "foobar",
 		Secret:    "foobarbaz",
 	}
-
+	creds1 := &credentials.Credentials{
+		ServerURL: "https://foobar.docker.io:2376/v2",
+		Username:  "foobarbaz",
+		Secret:    "foobar",
+	}
 	helper := Osxkeychain{}
 	if err := helper.Add(creds); err != nil {
 		t.Fatal(err)
@@ -33,17 +37,18 @@ func TestOSXKeychainHelper(t *testing.T) {
 	if err := helper.Delete(creds.ServerURL); err != nil {
 		t.Fatal(err)
 	}
-
+	helper.Add(creds);
+	defer helper.Delete(creds.ServerURL)
 	paths, accts, err := helper.List()
 	if err != nil || len(paths) == 0 || len(accts) == 0 {
 		t.Fatal(err)
 	}
-	helper.Add(creds)
+	helper.Add(creds1)
 	newpaths, newaccts, err := helper.List()
 	if len(newpaths)-len(paths) != 1 || len(newaccts)-len(accts) != 1 {
 		t.Fatal(err)
 	}
-	helper.Delete(creds.ServerURL)
+	helper.Delete(creds1.ServerURL)
 }
 
 func TestMissingCredentials(t *testing.T) {

@@ -104,6 +104,7 @@ func (h Osxkeychain) List() ([]string, []string, error) {
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
 		goMsg := C.GoString(errMsg)
+		goMsg = "Error is here"
 		return nil, nil, errors.New(goMsg)
 	}
 	var listLen int
