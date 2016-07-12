@@ -1,8 +1,8 @@
 package osxkeychain
 
 import (
-	"testing"
 	"github.com/docker/docker-credential-helpers/credentials"
+	"testing"
 )
 
 func TestOSXKeychainHelper(t *testing.T) {
@@ -34,10 +34,16 @@ func TestOSXKeychainHelper(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, _, err = helper.List();
-	if err != nil {
+	paths, accts, err := helper.List()
+	if err != nil || len(paths) == 0 || len(accts) == 0 {
 		t.Fatal(err)
 	}
+	helper.Add(creds)
+	newpaths, newaccts, err := helper.List()
+	if len(newpaths)-len(paths) != 1 || len(newaccts)-len(accts) != 1 {
+		t.Fatal()
+	}
+	helper.Delete(creds.ServerURL)
 }
 
 func TestMissingCredentials(t *testing.T) {

@@ -17,9 +17,9 @@ type Credentials struct {
 	Secret    string
 }
 
-type KeyData struct{
-	Path	  string
-	Username  string
+type KeyData struct {
+	Path     string
+	Username string
 }
 
 // Serve initializes the credentials helper and parses the action argument.
@@ -133,18 +133,18 @@ func Erase(helper Helper, reader io.Reader) error {
 	return helper.Delete(serverURL)
 }
 
- //List returns all the serverURLs of keys in
- //the OS store as a list of strings
+//List returns all the serverURLs of keys in
+//the OS store as a list of strings
 func List(helper Helper, writer io.Writer) error {
-	x, y, err := helper.List()
+	paths, accts, err := helper.List()
 	if err != nil {
 		return err
 	}
 	keyDataList := []KeyData{}
-	for index, _ := range(x) {
+	for index := 0; index < len(paths); index++ {
 		keyDataObj := KeyData{
-			Path:x[index],
-			Username:y[index],
+			Path:     paths[index],
+			Username: accts[index],
 		}
 		keyDataList = append([]KeyData{keyDataObj}, keyDataList...)
 	}

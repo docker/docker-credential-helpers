@@ -145,7 +145,7 @@ char *keychain_list(char *** paths, char *** accts, unsigned int *list_l) {
             char * path = (char *) malloc(CFStringGetLength(pathTmp)+1);
             path = CFStringToCharArr(pathTmp);
             path[strlen(path)] = '\0';
-            char * acct = (char *) malloc(CFStringGetLength(acctTmp)+1); //<- problem line in 38th iteration
+            char * acct = (char *) malloc(CFStringGetLength(acctTmp)+1);
             acct = CFStringToCharArr(acctTmp);
             acct[strlen(acct)] = '\0';
             //We now have all we need, username and servername. Now export this to .go

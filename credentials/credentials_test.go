@@ -152,6 +152,7 @@ func TestList(t *testing.T) {
 	if err := List(h, out); err != nil {
 		t.Fatal(err)
 	}
+	//testing that there is an output
 	if out.Len() == 0 {
 		t.Fatalf("expected output in the writer, got %d", 0)
 	}
