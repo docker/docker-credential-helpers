@@ -70,6 +70,9 @@ func (m *mockProgram) Output() ([]byte, error) {
 		default:
 			return []byte("error storing credentials"), errProgramExited
 		}
+	case "list":
+		return []byte(`{"Path":"e237574ae22fd53ddb9490dc1f72139946fd5372d42ba54d1eeb3ae5068fd22b","Username":"http://example.com/collections\u003cnotary_key\u003eSnapshot"}`), nil
+
 	}
 
 	return []byte(fmt.Sprintf("unknown argument %q with %q", m.arg, inS)), errProgramExited
@@ -188,5 +191,11 @@ func TestErase(t *testing.T) {
 
 	if err := Erase(mockProgramFn, invalidServerAddress); err == nil {
 		t.Fatalf("Expected error for server %s, got nil", invalidServerAddress)
+	}
+}
+
+func TestList(t *testing.T) {
+	if err := List(mockProgramFn); err != nil {
+		t.Fatal(err)
 	}
 }

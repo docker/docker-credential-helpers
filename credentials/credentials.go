@@ -30,7 +30,7 @@ type KeyData struct {
 func Serve(helper Helper) {
 	var err error
 	if len(os.Args) != 2 {
-		err = fmt.Errorf("Usage: %s <store|get|erase>", os.Args[0])
+		err = fmt.Errorf("Usage: %s <store|get|erase|list>", os.Args[0])
 	}
 
 	if err == nil {
@@ -52,6 +52,8 @@ func HandleCommand(helper Helper, key string, in io.Reader, out io.Writer) error
 		return Get(helper, in, out)
 	case "erase":
 		return Erase(helper, in)
+	case "list":
+		return List(helper, out)
 	}
 	return fmt.Errorf("Unknown credential action `%s`", key)
 }
