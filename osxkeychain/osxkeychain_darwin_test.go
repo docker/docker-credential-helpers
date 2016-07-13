@@ -37,18 +37,18 @@ func TestOSXKeychainHelper(t *testing.T) {
 	if err := helper.Delete(creds.ServerURL); err != nil {
 		t.Fatal(err)
 	}
-	helper.Add(creds);
+	helper.Add(creds)
 	defer helper.Delete(creds.ServerURL)
 	paths, accts, err := helper.List()
 	if err != nil || len(paths) == 0 || len(accts) == 0 {
 		t.Fatal(err)
 	}
 	helper.Add(creds1)
+	defer helper.Delete(creds1.ServerURL)
 	newpaths, newaccts, err := helper.List()
 	if len(newpaths)-len(paths) != 1 || len(newaccts)-len(accts) != 1 {
 		t.Fatal(err)
 	}
-	helper.Delete(creds1.ServerURL)
 }
 
 func TestMissingCredentials(t *testing.T) {
