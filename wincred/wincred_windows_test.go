@@ -12,6 +12,11 @@ func TestWinCredHelper(t *testing.T) {
 		Username:  "foobar",
 		Secret:    "foobarbaz",
 	}
+	creds1 := &credentials.Credentials{
+		ServerURL: "https://foobar.docker.io:2376/v2",
+		Username:  "foobarbaz",
+		Secret:    "foobar",
+	}
 
 	helper := Wincred{}
 	if err := helper.Add(creds); err != nil {
