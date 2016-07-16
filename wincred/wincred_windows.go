@@ -43,7 +43,7 @@ func (h Wincred) List() ([]string, []string, error) {
 	paths := make([]string, len(creds))
 	accts := make([]string, len(creds))
 	if err != nil {
-		return err
+		nil, nil, return err
 	}
 	for i := range(creds) {
 		paths[i] = creds[i].TargetName
