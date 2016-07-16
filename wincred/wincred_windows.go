@@ -45,7 +45,7 @@ func (h Wincred) List() ([]string, []string, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	for i := range(creds) {
+	for i := range creds {
 		paths[i] = creds[i].TargetName
 		accts[i] = creds[i].UserName
 	}
