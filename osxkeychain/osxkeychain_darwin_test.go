@@ -34,15 +34,15 @@ func TestOSXKeychainHelper(t *testing.T) {
 		t.Fatalf("expected %s, got %s\n", "foobarbaz", secret)
 	}
 
-	if err := helper.Delete(creds.ServerURL); err != nil {
-		t.Fatal(err)
-	}
-	helper.Add(creds)
-	defer helper.Delete(creds.ServerURL)
 	paths, accts, err := helper.List()
 	if err != nil || len(paths) == 0 || len(accts) == 0 {
 		t.Fatal(err)
 	}
+
+	if err := helper.Delete(creds.ServerURL); err != nil {
+		t.Fatal(err)
+	}
+
 	helper.Add(creds1)
 	defer helper.Delete(creds1.ServerURL)
 	newpaths, newaccts, err := helper.List()
