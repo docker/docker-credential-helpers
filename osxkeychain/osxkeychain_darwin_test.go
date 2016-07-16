@@ -44,7 +44,7 @@ func TestOSXKeychainHelper(t *testing.T) {
 	newpaths, newaccts, err := helper.List()
 	if len(newpaths)-len(paths) != 1 || len(newaccts)-len(accts) != 1 {
 		if(err == nil) {
-			t.Fatalf("Error: len(newpaths): %d, len(paths): %d\n len(newaccts): %d, len(accts): %d\n Error= %s", len(newpaths), len(paths), len(newaccts), len(accts), nil)
+			t.Fatalf("Error: len(newpaths): %d, len(paths): %d\n len(newaccts): %d, len(accts): %d\n Error= %s", len(newpaths), len(paths), len(newaccts), len(accts), "")
 		}
 		t.Fatalf("Error: len(newpaths): %d, len(paths): %d\n len(newaccts): %d, len(accts): %d\n Error= %s", len(newpaths), len(paths), len(newaccts), len(accts), err.Error())
 	}
