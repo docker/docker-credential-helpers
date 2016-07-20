@@ -37,3 +37,17 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 	}
 	return g.UserName, string(g.CredentialBlob), nil
 }
+
+func (h Wincred) List() ([]string, []string, error) {
+	creds, err := winc.List()
+	paths := make([]string, len(creds))
+	accts := make([]string, len(creds))
+	if err != nil {
+		return nil, nil, err
+	}
+	for i := range creds {
+		paths[i] = creds[i].TargetName
+		accts[i] = creds[i].UserName
+	}
+	return paths, accts, nil
+}

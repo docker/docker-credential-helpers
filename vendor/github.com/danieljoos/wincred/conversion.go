@@ -58,7 +58,6 @@ func nativeToCredential(cred *nativeCREDENTIAL) (result *Credential) {
 		resultAttr.Keyword = utf16PtrToString(attr.Keyword)
 		resultAttr.Value = C.GoBytes(unsafe.Pointer(attr.Value), C.int(attr.ValueSize))
 	}
-
 	return result
 }
 

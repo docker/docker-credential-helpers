@@ -1,6 +1,7 @@
 package wincred
 
 import (
+	"C"
 	"syscall"
 	"unsafe"
 )
@@ -8,10 +9,11 @@ import (
 var (
 	modadvapi32 = syscall.NewLazyDLL("advapi32.dll")
 
-	procCredRead   = modadvapi32.NewProc("CredReadW")
-	procCredWrite  = modadvapi32.NewProc("CredWriteW")
-	procCredDelete = modadvapi32.NewProc("CredDeleteW")
-	procCredFree   = modadvapi32.NewProc("CredFree")
+	procCredRead      = modadvapi32.NewProc("CredReadW")
+	procCredWrite     = modadvapi32.NewProc("CredWriteW")
+	procCredDelete    = modadvapi32.NewProc("CredDeleteW")
+	procCredFree      = modadvapi32.NewProc("CredFree")
+	procCredEnumerate = modadvapi32.NewProc("CredEnumerateW")
 )
 
 // http://msdn.microsoft.com/en-us/library/windows/desktop/aa374788(v=vs.85).aspx
@@ -96,4 +98,34 @@ func nativeCredDelete(cred *Credential, typ nativeCRED_TYPE) error {
 	}
 
 	return nil
+}
+
+// https://msdn.microsoft.com/en-us/library/windows/desktop/aa374794(v=vs.85).aspx
+func nativeCredEnumerate(filter string, all bool) ([]*Credential, error) {
+	var count int
+	var pcreds uintptr
+	var filterPtr uintptr
+	if !all {
+		filterUtf16Ptr, _ := syscall.UTF16PtrFromString(filter)
+		filterPtr = uintptr(unsafe.Pointer(filterUtf16Ptr))
+	} else {
+		filterPtr = 0
+	}
+	ret, _, err := procCredEnumerate.Call(
+		filterPtr,
+		0,
+		uintptr(unsafe.Pointer(&count)),
+		uintptr(unsafe.Pointer(&pcreds)),
+	)
+	if ret == 0 {
+		return nil, err
+	}
+	defer procCredFree.Call(pcreds)
+	pcredsSlice := (*[1 << 30]uintptr)(unsafe.Pointer(pcreds))[:count:count]
+	creds := make([]*Credential, count)
+	for i := range creds {
+		creds[i] = nativeToCredential((*nativeCREDENTIAL)(unsafe.Pointer(pcredsSlice[i])))
+	}
+
+	return creds, nil
 }
