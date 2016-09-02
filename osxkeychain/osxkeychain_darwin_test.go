@@ -34,19 +34,19 @@ func TestOSXKeychainHelper(t *testing.T) {
 		t.Fatalf("expected %s, got %s\n", "foobarbaz", secret)
 	}
 
-	paths, accts, err := helper.List()
-	if err != nil || len(paths) == 0 || len(accts) == 0 {
+	auths, err := helper.List()
+	if err != nil || len(auths) == 0 {
 		t.Fatal(err)
 	}
 
 	helper.Add(creds1)
 	defer helper.Delete(creds1.ServerURL)
-	newpaths, newaccts, err := helper.List()
-	if len(newpaths)-len(paths) != 1 || len(newaccts)-len(accts) != 1 {
+	newauths, err := helper.List()
+	if len(newauths)-len(auths) != 1 {
 		if err == nil {
-			t.Fatalf("Error: len(newpaths): %d, len(paths): %d\n len(newaccts): %d, len(accts): %d\n Error= %s", len(newpaths), len(paths), len(newaccts), len(accts), "")
+			t.Fatalf("Error: len(newauths): %d, len(auths): %d", len(newauths), len(auths))
 		}
-		t.Fatalf("Error: len(newpaths): %d, len(paths): %d\n len(newaccts): %d, len(accts): %d\n Error= %s", len(newpaths), len(paths), len(newaccts), len(accts), err.Error())
+		t.Fatalf("Error: len(newauths): %d, len(auths): %d\n Error= %v", len(newauths), len(auths), err)
 	}
 
 	if err := helper.Delete(creds.ServerURL); err != nil {

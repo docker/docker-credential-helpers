@@ -13,6 +13,7 @@ import (
 
 const (
 	validServerAddress   = "https://index.docker.io/v1"
+	validUsername        = "linus"
 	validServerAddress2  = "https://example.com:5002"
 	invalidServerAddress = "https://foobar.example.com"
 	missingCredsAddress  = "https://missing.docker.io/v1"
@@ -71,7 +72,7 @@ func (m *mockProgram) Output() ([]byte, error) {
 			return []byte("error storing credentials"), errProgramExited
 		}
 	case "list":
-		return []byte(`{"Path":"e237574ae22fd53ddb9490dc1f72139946fd5372d42ba54d1eeb3ae5068fd22b","Username":"http://example.com/collections\u003cnotary_key\u003eSnapshot"}`), nil
+		return []byte(fmt.Sprintf(`{"%s": "%s"}`, validServerAddress, validUsername)), nil
 
 	}
 
@@ -195,7 +196,12 @@ func TestErase(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	if err := List(mockProgramFn); err != nil {
+	auths, err := List(mockProgramFn)
+	if err != nil {
 		t.Fatal(err)
+	}
+
+	if username, exists := auths[validServerAddress]; !exists || username != validUsername {
+		t.Fatalf("auths[%s] returned %s, %t; expected %s, %t", validServerAddress, username, exists, validUsername, true)
 	}
 }

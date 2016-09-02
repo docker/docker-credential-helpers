@@ -36,12 +36,12 @@ func TestSecretServiceHelper(t *testing.T) {
 	if err := helper.Delete(creds.ServerURL); err != nil {
 		t.Fatal(err)
 	}
-	paths, accts, err := helper.List()
-	if err != nil || len(paths) == 0 || len(accts) == 0 {
+	auths, err := helper.List()
+	if err != nil || len(auths) == 0 {
 		t.Fatal(err)
 	}
 	helper.Add(creds)
-	if newpaths, newaccts, err := helper.List(); (len(newpaths)-len(paths)) != 1 || (len(newaccts)-len(accts)) != 1 {
+	if newauths, err := helper.List(); (len(newauths) - len(auths)) != 1 {
 		t.Fatal(err)
 	}
 }

@@ -94,7 +94,8 @@ func (h Osxkeychain) Get(serverURL string) (string, string, error) {
 	return user, pass, nil
 }
 
-func (h Osxkeychain) List() ([]string, []string, error) {
+// List returns the stored URLs and corresponding usernames.
+func (h Osxkeychain) List() (map[string]string, error) {
 	var pathsC **C.char
 	defer C.free(unsafe.Pointer(pathsC))
 	var acctsC **C.char
@@ -104,29 +105,25 @@ func (h Osxkeychain) List() ([]string, []string, error) {
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
 		goMsg := C.GoString(errMsg)
-		return nil, nil, errors.New(goMsg)
+		return nil, errors.New(goMsg)
 	}
+
+	defer C.freeListData(&pathsC, listLenC)
+	defer C.freeListData(&acctsC, listLenC)
+
 	var listLen int
 	listLen = int(listLenC)
 	pathTmp := (*[1 << 30]*C.char)(unsafe.Pointer(pathsC))[:listLen:listLen]
 	acctTmp := (*[1 << 30]*C.char)(unsafe.Pointer(acctsC))[:listLen:listLen]
 	//taking the array of c strings into go while ignoring all the stuff irrelevant to credentials-helper
-	paths := make([]string, listLen)
-	accts := make([]string, listLen)
-	at := 0
+	resp := make(map[string]string)
 	for i := 0; i < listLen; i++ {
 		if C.GoString(pathTmp[i]) == "0" {
 			continue
 		}
-		paths[at] = C.GoString(pathTmp[i])
-		accts[at] = C.GoString(acctTmp[i])
-		at = at + 1
+		resp[C.GoString(pathTmp[i])] = C.GoString(acctTmp[i])
 	}
-	paths = paths[:at]
-	accts = accts[:at]
-	C.freeListData(&pathsC, listLenC)
-	C.freeListData(&acctsC, listLenC)
-	return paths, accts, nil
+	return resp, nil
 }
 
 func splitServer(serverURL string) (*C.struct_Server, error) {

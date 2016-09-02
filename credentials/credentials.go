@@ -17,11 +17,6 @@ type Credentials struct {
 	Secret    string
 }
 
-type KeyData struct {
-	Path     string
-	Username string
-}
-
 // Serve initializes the credentials helper and parses the action argument.
 // This function is designed to be called from a command line interface.
 // It uses os.Args[1] as the key for the action.
@@ -138,22 +133,9 @@ func Erase(helper Helper, reader io.Reader) error {
 //List returns all the serverURLs of keys in
 //the OS store as a list of strings
 func List(helper Helper, writer io.Writer) error {
-	paths, accts, err := helper.List()
+	accts, err := helper.List()
 	if err != nil {
 		return err
 	}
-	keyDataList := []KeyData{}
-	for index := 0; index < len(paths); index++ {
-		keyDataObj := KeyData{
-			Path:     paths[index],
-			Username: accts[index],
-		}
-		keyDataList = append([]KeyData{keyDataObj}, keyDataList...)
-	}
-	buffer := new(bytes.Buffer)
-	if err := json.NewEncoder(buffer).Encode(keyDataList); err != nil {
-		return err
-	}
-	fmt.Fprint(writer, buffer.String())
-	return nil
+	return json.NewEncoder(writer).Encode(accts)
 }
