@@ -79,7 +79,8 @@ func (h Secretservice) Get(serverURL string) (string, string, error) {
 	return user, pass, nil
 }
 
-func (h Secretservice) List() ([]string, []string, error) {
+// List returns the stored URLs and corresponding usernames.
+func (h Secretservice) List() (map[string]string, error) {
 	var pathsC **C.char
 	defer C.free(unsafe.Pointer(pathsC))
 	var acctsC **C.char
@@ -88,18 +89,18 @@ func (h Secretservice) List() ([]string, []string, error) {
 	err := C.list(&pathsC, &acctsC, &listLenC)
 	if err != nil {
 		defer C.free(unsafe.Pointer(err))
-		return nil, nil, errors.New("Error from list function in secretservice_linux.c likely due to error in secretservice library")
+		return nil, errors.New("Error from list function in secretservice_linux.c likely due to error in secretservice library")
 	}
+	defer C.freeListData(&pathsC, listLenC)
+	defer C.freeListData(&acctsC, listLenC)
+
 	listLen := int(listLenC)
 	pathTmp := (*[1 << 30]*C.char)(unsafe.Pointer(pathsC))[:listLen:listLen]
 	acctTmp := (*[1 << 30]*C.char)(unsafe.Pointer(acctsC))[:listLen:listLen]
-	paths := make([]string, listLen)
-	accts := make([]string, listLen)
+	resp := make(map[string]string)
 	for i := 0; i < listLen; i++ {
-		paths[i] = C.GoString(pathTmp[i])
-		accts[i] = C.GoString(acctTmp[i])
+		resp[C.GoString(pathTmp[i])] = C.GoString(acctTmp[i])
 	}
-	C.freeListData(&pathsC, listLenC)
-	C.freeListData(&acctsC, listLenC)
-	return paths, accts, nil
+
+	return resp, nil
 }

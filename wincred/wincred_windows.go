@@ -38,16 +38,18 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 	return g.UserName, string(g.CredentialBlob), nil
 }
 
-func (h Wincred) List() ([]string, []string, error) {
+// List returns the stored URLs and corresponding usernames.
+func (h Wincred) List() (map[string]string, error) {
 	creds, err := winc.List()
 	paths := make([]string, len(creds))
 	accts := make([]string, len(creds))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
+
+	resp := make(map[string]string)
 	for i := range creds {
-		paths[i] = creds[i].TargetName
-		accts[i] = creds[i].UserName
+		resp[creds[i].TargetName] = creds[i].UserName
 	}
-	return paths, accts, nil
+	return resp, nil
 }
