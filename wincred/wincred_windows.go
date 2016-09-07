@@ -41,8 +41,6 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 // List returns the stored URLs and corresponding usernames.
 func (h Wincred) List() (map[string]string, error) {
 	creds, err := winc.List()
-	paths := make([]string, len(creds))
-	accts := make([]string, len(creds))
 	if err != nil {
 		return nil, err
 	}
