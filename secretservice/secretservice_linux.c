@@ -112,8 +112,8 @@ GError *list(char *** paths, char *** accts, unsigned int *list_l) {
 	if (err != NULL) {
 		return err;
 	}
-	*paths = (char **) malloc((int)sizeof(char *)*numKeys);
-	*accts = (char **) malloc((int)sizeof(char *)*numKeys);
+	*paths = (char **) malloc(sizeof(char *)*numKeys);
+	*accts = (char **) malloc(sizeof(char *)*numKeys);
 	// items now contains our keys from the gnome keyring
 	// we will now put it in our two lists to return it to go
 	GList *current;
@@ -125,14 +125,11 @@ GError *list(char *** paths, char *** accts, unsigned int *list_l) {
 		if (acctTmp==NULL) {
 			acctTmp = "account not defined";
 		}
-		char *path = (char *) malloc(strlen(pathTmp));
-		char *acct = (char *) malloc(strlen(acctTmp));
-		path = pathTmp;
-		acct = acctTmp;
-		(*paths)[listNumber] = (char *) malloc(sizeof(char)*(strlen(path)));
-		memcpy((*paths)[listNumber], path, sizeof(char)*(strlen(path)));
-		(*accts)[listNumber] = (char *) malloc(sizeof(char)*(strlen(acct)));
-		memcpy((*accts)[listNumber], acct, sizeof(char)*(strlen(acct)));
+
+		(*paths)[listNumber] = (char*)malloc(strlen(pathTmp) + 1);
+		strcpy((*paths)[listNumber], pathTmp);
+		(*accts)[listNumber] = (char*)malloc(strlen(acctTmp) + 1);
+		strcpy((*accts)[listNumber], acctTmp);
 		listNumber = listNumber + 1;
 	}
 	*list_l = numKeys;
