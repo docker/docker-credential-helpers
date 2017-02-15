@@ -10,11 +10,12 @@ package osxkeychain
 import "C"
 import (
 	"errors"
-	"github.com/docker/docker-credential-helpers/credentials"
 	"net/url"
 	"strconv"
 	"strings"
 	"unsafe"
+
+	"github.com/docker/docker-credential-helpers/credentials"
 )
 
 // errCredentialsNotFound is the specific error message returned by OS X
@@ -26,6 +27,8 @@ type Osxkeychain struct{}
 
 // Add adds new credentials to the keychain.
 func (h Osxkeychain) Add(creds *credentials.Credentials) error {
+	h.Delete(creds.ServerURL)
+
 	s, err := splitServer(creds.ServerURL)
 	if err != nil {
 		return err
