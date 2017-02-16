@@ -1,7 +1,6 @@
 package wincred
 
 import (
-	"C"
 	"syscall"
 	"unsafe"
 )
@@ -9,12 +8,17 @@ import (
 var (
 	modadvapi32 = syscall.NewLazyDLL("advapi32.dll")
 
-	procCredRead      = modadvapi32.NewProc("CredReadW")
-	procCredWrite     = modadvapi32.NewProc("CredWriteW")
-	procCredDelete    = modadvapi32.NewProc("CredDeleteW")
-	procCredFree      = modadvapi32.NewProc("CredFree")
-	procCredEnumerate = modadvapi32.NewProc("CredEnumerateW")
+	procCredRead      proc = modadvapi32.NewProc("CredReadW")
+	procCredWrite     proc = modadvapi32.NewProc("CredWriteW")
+	procCredDelete    proc = modadvapi32.NewProc("CredDeleteW")
+	procCredFree      proc = modadvapi32.NewProc("CredFree")
+	procCredEnumerate proc = modadvapi32.NewProc("CredEnumerateW")
 )
+
+// Interface for syscall.Proc: helps testing
+type proc interface {
+	Call(a ...uintptr) (r1, r2 uintptr, lastErr error)
+}
 
 // http://msdn.microsoft.com/en-us/library/windows/desktop/aa374788(v=vs.85).aspx
 type nativeCREDENTIAL struct {
@@ -50,6 +54,8 @@ const (
 	naCRED_TYPE_DOMAIN_VISIBLE_PASSWORD nativeCRED_TYPE = 0x4
 	naCRED_TYPE_GENERIC_CERTIFICATE     nativeCRED_TYPE = 0x5
 	naCRED_TYPE_DOMAIN_EXTENDED         nativeCRED_TYPE = 0x6
+
+	naERROR_NOT_FOUND = "Element not found."
 )
 
 // http://msdn.microsoft.com/en-us/library/windows/desktop/aa374804(v=vs.85).aspx

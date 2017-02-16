@@ -70,5 +70,11 @@ func (t *DomainPassword) SetPassword(pw string) {
 
 // List the contents of the Credentials store
 func List() ([]*Credential, error) {
-	return nativeCredEnumerate("", true)
+	creds, err := nativeCredEnumerate("", true)
+	if err != nil && err.Error() == naERROR_NOT_FOUND {
+		// Ignore ERROR_NOT_FOUND and return an empty list instead
+		creds = []*Credential{}
+		err = nil
+	}
+	return creds, err
 }
