@@ -4,6 +4,14 @@ This changelog tracks the releases of docker-credential-helpers.
 This project includes different binaries per platform.
 The platform released is identified after the tag name.
 
+## v0.4.0 (Go client, Mac OS X, Windows, Linux)
+
+- Full implementation for OSX ready
+- Fix some windows issues
+- Implement client.List, change list API
+- mac: delete credentials before adding them to avoid already exist error (fixes #37)
+
+
 ## v0.3.0 (Go client)
 
 - Add Go client library to talk with the native programs.
