@@ -9,7 +9,12 @@ deps:
 
 osxkeychain:
 	mkdir -p bin
-	go build -o bin/docker-credential-osxkeychain osxkeychain/cmd/main_darwin.go
+	go build -ldflags -s -o bin/docker-credential-osxkeychain osxkeychain/cmd/main_darwin.go
+
+codesign: osxkeychain
+	$(eval SIGNINGHASH = $(shell security find-identity -v -p codesigning | grep "Developer ID Application: Docker Inc" | cut -d ' ' -f 4))
+	xcrun -log codesign -s $(SIGNINGHASH) --force --verbose bin/docker-credential-osxkeychain
+	xcrun codesign --verify --deep --strict --verbose=2 --display bin/docker-credential-osxkeychain
 
 secretservice:
 	mkdir -p bin
