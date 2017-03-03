@@ -8,7 +8,7 @@ deps:
 	go get github.com/golang/lint/golint
 
 osxkeychain:
-	mkdir -p bin
+	mkdir bin
 	go build -ldflags -s -o bin/docker-credential-osxkeychain osxkeychain/cmd/main_darwin.go
 
 codesign: osxkeychain
@@ -17,11 +17,11 @@ codesign: osxkeychain
 	xcrun codesign --verify --deep --strict --verbose=2 --display bin/docker-credential-osxkeychain
 
 secretservice:
-	mkdir -p bin
+	mkdir bin
 	go build -o bin/docker-credential-secretservice secretservice/cmd/main_linux.go
 
 wincred:
-	mkdir -p bin
+	mkdir bin
 	go build -o bin/docker-credential-wincred.exe wincred/cmd/main_windows.go
 
 test:
