@@ -22,7 +22,7 @@ secretservice:
 
 wincred:
 	mkdir -p bin
-	go build -o bin/docker-credential-wincred wincred/cmd/main_windows.go
+	go build -o bin/docker-credential-wincred.exe wincred/cmd/main_windows.go
 
 test:
 	# tests all packages except vendor
