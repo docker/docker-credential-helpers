@@ -22,6 +22,8 @@ func (h Secretservice) Add(creds *credentials.Credentials) error {
 	if creds == nil {
 		return errors.New("missing credentials")
 	}
+	credsLabel := C.CString(creds.Label)
+	defer C.free(unsafe.Pointer(credsLabel))
 	server := C.CString(creds.ServerURL)
 	defer C.free(unsafe.Pointer(server))
 	username := C.CString(creds.Username)
@@ -29,7 +31,7 @@ func (h Secretservice) Add(creds *credentials.Credentials) error {
 	secret := C.CString(creds.Secret)
 	defer C.free(unsafe.Pointer(secret))
 
-	if err := C.add(server, username, secret); err != nil {
+	if err := C.add(credsLabel, server, username, secret); err != nil {
 		defer C.g_error_free(err)
 		errMsg := (*C.char)(unsafe.Pointer(err.message))
 		return errors.New(C.GoString(errMsg))
@@ -79,14 +81,17 @@ func (h Secretservice) Get(serverURL string) (string, string, error) {
 	return user, pass, nil
 }
 
-// List returns the stored URLs and corresponding usernames.
-func (h Secretservice) List() (map[string]string, error) {
+// List returns the stored URLs and corresponding usernames for a given credentials label
+func (h Secretservice) List(credsLabel string) (map[string]string, error) {
+	credsLabelC := C.CString(credsLabel)
+	defer C.free(unsafe.Pointer(credsLabelC))
+
 	var pathsC **C.char
 	defer C.free(unsafe.Pointer(pathsC))
 	var acctsC **C.char
 	defer C.free(unsafe.Pointer(acctsC))
 	var listLenC C.uint
-	err := C.list(&pathsC, &acctsC, &listLenC)
+	err := C.list(credsLabelC, &pathsC, &acctsC, &listLenC)
 	if err != nil {
 		defer C.free(unsafe.Pointer(err))
 		return nil, errors.New("Error from list function in secretservice_linux.c likely due to error in secretservice library")

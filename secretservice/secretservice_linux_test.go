@@ -13,6 +13,7 @@ func TestSecretServiceHelper(t *testing.T) {
 		ServerURL: "https://foobar.docker.io:2376/v1",
 		Username:  "foobar",
 		Secret:    "foobarbaz",
+		Label: credentials.CredsLabel,
 	}
 
 	helper := Secretservice{}
@@ -36,12 +37,12 @@ func TestSecretServiceHelper(t *testing.T) {
 	if err := helper.Delete(creds.ServerURL); err != nil {
 		t.Fatal(err)
 	}
-	auths, err := helper.List()
+	auths, err := helper.List(credentials.CredsLabel)
 	if err != nil || len(auths) == 0 {
 		t.Fatal(err)
 	}
 	helper.Add(creds)
-	if newauths, err := helper.List(); (len(newauths) - len(auths)) != 1 {
+	if newauths, err := helper.List(credentials.CredsLabel); (len(newauths) - len(auths)) != 1 {
 		t.Fatal(err)
 	}
 }

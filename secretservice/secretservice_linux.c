@@ -7,6 +7,7 @@ const SecretSchema *docker_get_schema(void)
 	static const SecretSchema docker_schema = {
 		"io.docker.Credentials", SECRET_SCHEMA_NONE,
 		{
+		    { "label", SECRET_SCHEMA_ATTRIBUTE_STRING },
 			{ "server", SECRET_SCHEMA_ATTRIBUTE_STRING },
 			{ "username", SECRET_SCHEMA_ATTRIBUTE_STRING },
 			{ "docker_cli", SECRET_SCHEMA_ATTRIBUTE_STRING },
@@ -16,11 +17,12 @@ const SecretSchema *docker_get_schema(void)
 	return &docker_schema;
 }
 
-GError *add(char *server, char *username, char *secret) {
+GError *add(char *label, char *server, char *username, char *secret) {
 	GError *err = NULL;
 
 	secret_password_store_sync (DOCKER_SCHEMA, SECRET_COLLECTION_DEFAULT,
 			server, secret, NULL, &err,
+			"label", label,
 			"server", server,
 			"username", username,
 			"docker_cli", "1",
@@ -98,14 +100,15 @@ GError *get(char *server, char **username, char **secret) {
 	return NULL;
 }
 
-GError *list(char *** paths, char *** accts, unsigned int *list_l) {
+GError *list(char *label, char *** paths, char *** accts, unsigned int *list_l) {
 	GList *items;
 	GError *err = NULL;
 	SecretService *service;
 	SecretSearchFlags flags = SECRET_SEARCH_LOAD_SECRETS | SECRET_SEARCH_ALL | SECRET_SEARCH_UNLOCK;
-	GHashTable *attributes;
-	g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-	attributes = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+	GHashTable *attributes = secret_attributes_build(NULL,
+                                 "label", label,
+                                 NULL);
+
 	service = secret_service_get_sync(SECRET_SERVICE_NONE, NULL, &err);
 	items = secret_service_search_sync(service, NULL, attributes, flags, NULL, &err);
 	int numKeys = g_list_length(items);
