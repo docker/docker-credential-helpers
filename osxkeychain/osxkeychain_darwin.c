@@ -135,16 +135,20 @@ char * CFStringToCharArr(CFStringRef aString) {
 }
 
 char *keychain_list(char *credsLabel, char *** paths, char *** accts, unsigned int *list_l) {
+    CFStringRef credsLabelCF = CFStringCreateWithCString(NULL, credsLabel, kCFStringEncodingUTF8);
     CFMutableDictionaryRef query = CFDictionaryCreateMutable (NULL, 1, NULL, NULL);
     CFDictionaryAddValue(query, kSecClass, kSecClassInternetPassword);
     CFDictionaryAddValue(query, kSecReturnAttributes, kCFBooleanTrue);
     CFDictionaryAddValue(query, kSecMatchLimit, kSecMatchLimitAll);
-    CFDictionaryAddValue(query, kSecAttrLabel, CFSTR(credsLabel));
+    CFDictionaryAddValue(query, kSecAttrLabel, credsLabelCF);
     //Use this query dictionary
     CFTypeRef result= NULL;
     OSStatus status = SecItemCopyMatching(
                                           query,
                                           &result);
+
+    CFRelease(credsLabelCF);
+
     //Ran a search and store the results in result
     if (status) {
         return get_error(status);

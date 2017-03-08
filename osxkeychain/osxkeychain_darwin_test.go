@@ -7,13 +7,13 @@ import (
 
 func TestOSXKeychainHelper(t *testing.T) {
 	creds := &credentials.Credentials{
-		Label:	   credentials.CredsLabel,
+		Label:     credentials.CredsLabel,
 		ServerURL: "https://foobar.docker.io:2376/v1",
 		Username:  "foobar",
 		Secret:    "foobarbaz",
 	}
 	creds1 := &credentials.Credentials{
-		Label:	   credentials.CredsLabel,
+		Label:     credentials.CredsLabel,
 		ServerURL: "https://foobar.docker.io:2376/v2",
 		Username:  "foobarbaz",
 		Secret:    "foobar",
