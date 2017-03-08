@@ -36,7 +36,7 @@ func (m *memoryStore) Get(serverURL string) (string, string, error) {
 	return c.Username, c.Secret, nil
 }
 
-func (m *memoryStore) List() (map[string]string, error) {
+func (m *memoryStore) List(credsLabel string) (map[string]string, error) {
 	//Simply a placeholder to let memoryStore be a valid implementation of Helper interface
 	return nil, nil
 }
