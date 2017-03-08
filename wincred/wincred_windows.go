@@ -1,9 +1,9 @@
 package wincred
 
 import (
+	"bytes"
 	winc "github.com/danieljoos/wincred"
 	"github.com/docker/docker-credential-helpers/credentials"
-	"bytes"
 	"strings"
 )
 
@@ -16,7 +16,7 @@ func (h Wincred) Add(creds *credentials.Credentials) error {
 	g.UserName = creds.Username
 	g.CredentialBlob = []byte(creds.Secret)
 	g.Persist = winc.PersistLocalMachine
-	g.Attributes = []winc.CredentialAttribute{winc.CredentialAttribute{"label", []byte(creds.Label)}}
+	g.Attributes = []winc.CredentialAttribute{{"label", []byte(creds.Label)}}
 
 	return g.Write()
 }

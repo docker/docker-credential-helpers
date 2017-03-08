@@ -13,7 +13,7 @@ func TestSecretServiceHelper(t *testing.T) {
 		ServerURL: "https://foobar.docker.io:2376/v1",
 		Username:  "foobar",
 		Secret:    "foobarbaz",
-		Label: credentials.CredsLabel,
+		Label:     credentials.CredsLabel,
 	}
 
 	helper := Secretservice{}

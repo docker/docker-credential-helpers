@@ -12,7 +12,7 @@ import (
 
 // Credentials holds the information shared between docker and the credentials store.
 type Credentials struct {
-	Label string
+	Label     string
 	ServerURL string
 	Username  string
 	Secret    string
@@ -20,7 +20,7 @@ type Credentials struct {
 
 // Docker credentials should be labeled as such in credential stores, this label
 // allow us to filter out non-Docker credentials at lookup
-const CredsLabel  = "Docker Credentials"
+const CredsLabel = "Docker Credentials"
 
 // Serve initializes the credentials helper and parses the action argument.
 // This function is designed to be called from a command line interface.
