@@ -35,12 +35,14 @@ func (h Osxkeychain) Add(creds *credentials.Credentials) error {
 	}
 	defer freeServer(s)
 
+	label := C.CString(creds.Label)
+	defer C.free(unsafe.Pointer(label))
 	username := C.CString(creds.Username)
 	defer C.free(unsafe.Pointer(username))
 	secret := C.CString(creds.Secret)
 	defer C.free(unsafe.Pointer(secret))
 
-	errMsg := C.keychain_add(s, username, secret)
+	errMsg := C.keychain_add(s, label, username, secret)
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
 		return errors.New(C.GoString(errMsg))
@@ -98,13 +100,16 @@ func (h Osxkeychain) Get(serverURL string) (string, string, error) {
 }
 
 // List returns the stored URLs and corresponding usernames.
-func (h Osxkeychain) List() (map[string]string, error) {
+func (h Osxkeychain) List(credsLabel string) (map[string]string, error) {
+	credsLabelC := C.CString(credsLabel)
+	defer C.free(unsafe.Pointer(credsLabelC))
+
 	var pathsC **C.char
 	defer C.free(unsafe.Pointer(pathsC))
 	var acctsC **C.char
 	defer C.free(unsafe.Pointer(acctsC))
 	var listLenC C.uint
-	errMsg := C.keychain_list(&pathsC, &acctsC, &listLenC)
+	errMsg := C.keychain_list(credsLabelC, &pathsC, &acctsC, &listLenC)
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
 		goMsg := C.GoString(errMsg)
