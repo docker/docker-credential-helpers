@@ -35,7 +35,7 @@ func (h Osxkeychain) Add(creds *credentials.Credentials) error {
 	}
 	defer freeServer(s)
 
-	label := C.CString(creds.Label)
+	label := C.CString(credentials.CredsLabel)
 	defer C.free(unsafe.Pointer(label))
 	username := C.CString(creds.Username)
 	defer C.free(unsafe.Pointer(username))
@@ -100,8 +100,8 @@ func (h Osxkeychain) Get(serverURL string) (string, string, error) {
 }
 
 // List returns the stored URLs and corresponding usernames.
-func (h Osxkeychain) List(credsLabel string) (map[string]string, error) {
-	credsLabelC := C.CString(credsLabel)
+func (h Osxkeychain) List() (map[string]string, error) {
+	credsLabelC := C.CString(credentials.CredsLabel)
 	defer C.free(unsafe.Pointer(credsLabelC))
 
 	var pathsC **C.char

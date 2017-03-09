@@ -16,7 +16,7 @@ func (h Wincred) Add(creds *credentials.Credentials) error {
 	g.UserName = creds.Username
 	g.CredentialBlob = []byte(creds.Secret)
 	g.Persist = winc.PersistLocalMachine
-	g.Attributes = []winc.CredentialAttribute{{"label", []byte(creds.Label)}}
+	g.Attributes = []winc.CredentialAttribute{{"label", []byte(credentials.CredsLabel)}}
 
 	return g.Write()
 }
@@ -43,7 +43,7 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 }
 
 // List returns the stored URLs and corresponding usernames for a given credentials label.
-func (h Wincred) List(credsLabel string) (map[string]string, error) {
+func (h Wincred) List() (map[string]string, error) {
 	creds, err := winc.List()
 	if err != nil {
 		return nil, err

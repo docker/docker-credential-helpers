@@ -22,7 +22,7 @@ func (h Secretservice) Add(creds *credentials.Credentials) error {
 	if creds == nil {
 		return errors.New("missing credentials")
 	}
-	credsLabel := C.CString(creds.Label)
+	credsLabel := C.CString(credentials.CredsLabel)
 	defer C.free(unsafe.Pointer(credsLabel))
 	server := C.CString(creds.ServerURL)
 	defer C.free(unsafe.Pointer(server))
@@ -82,8 +82,8 @@ func (h Secretservice) Get(serverURL string) (string, string, error) {
 }
 
 // List returns the stored URLs and corresponding usernames for a given credentials label
-func (h Secretservice) List(credsLabel string) (map[string]string, error) {
-	credsLabelC := C.CString(credsLabel)
+func (h Secretservice) List() (map[string]string, error) {
+	credsLabelC := C.CString(credentials.CredsLabel)
 	defer C.free(unsafe.Pointer(credsLabelC))
 
 	var pathsC **C.char

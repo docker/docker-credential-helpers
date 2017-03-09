@@ -106,8 +106,8 @@ func ExampleStore() {
 
 func TestStore(t *testing.T) {
 	valid := []credentials.Credentials{
-		{credentials.CredsLabel, validServerAddress, "foo", "bar"},
-		{credentials.CredsLabel, validServerAddress2, "<token>", "abcd1234"},
+		{validServerAddress, "foo", "bar"},
+		{validServerAddress2, "<token>", "abcd1234"},
 	}
 
 	for _, v := range valid {
@@ -117,7 +117,7 @@ func TestStore(t *testing.T) {
 	}
 
 	invalid := []credentials.Credentials{
-		{credentials.CredsLabel, invalidServerAddress, "foo", "bar"},
+		{invalidServerAddress, "foo", "bar"},
 	}
 
 	for _, v := range invalid {
@@ -140,8 +140,8 @@ func ExampleGet() {
 
 func TestGet(t *testing.T) {
 	valid := []credentials.Credentials{
-		{credentials.CredsLabel, validServerAddress, "foo", "bar"},
-		{credentials.CredsLabel, validServerAddress2, "<token>", "abcd1234"},
+		{validServerAddress, "foo", "bar"},
+		{validServerAddress2, "<token>", "abcd1234"},
 	}
 
 	for _, v := range valid {

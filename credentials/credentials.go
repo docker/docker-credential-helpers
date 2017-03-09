@@ -12,14 +12,14 @@ import (
 
 // Credentials holds the information shared between docker and the credentials store.
 type Credentials struct {
-	Label     string
 	ServerURL string
 	Username  string
 	Secret    string
 }
 
-// Docker credentials should be labeled as such in credential stores, this label
-// allow us to filter out non-Docker credentials at lookup
+// Docker credentials should be labeled as such in credentials stores that allow labelling.
+// That label allows to filter out non-Docker credentials too at lookup/search in macOS keychain,
+// Windows credentials manager and Linux libsecret.
 const CredsLabel = "Docker Credentials"
 
 // Serve initializes the credentials helper and parses the action argument.
@@ -76,8 +76,6 @@ func Store(helper Helper, reader io.Reader) error {
 	if err := json.NewDecoder(buffer).Decode(&creds); err != nil {
 		return err
 	}
-
-	creds.Label = CredsLabel
 
 	return helper.Add(&creds)
 }
@@ -140,7 +138,7 @@ func Erase(helper Helper, reader io.Reader) error {
 //List returns all the serverURLs of keys in
 //the OS store as a list of strings
 func List(helper Helper, writer io.Writer) error {
-	accts, err := helper.List(CredsLabel)
+	accts, err := helper.List()
 	if err != nil {
 		return err
 	}
