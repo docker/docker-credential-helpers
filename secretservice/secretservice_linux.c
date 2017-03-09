@@ -42,7 +42,7 @@ GError *delete(char *server) {
 	return NULL;
 }
 
-char *get_username(SecretItem *item) {
+char *get_attribute(const char *attribute, SecretItem *item) {
 	GHashTable *attributes;
 	GHashTableIter iter;
 	gchar *value, *key;
@@ -50,7 +50,7 @@ char *get_username(SecretItem *item) {
 	attributes = secret_item_get_attributes(item);
 	g_hash_table_iter_init(&iter, attributes);
 	while (g_hash_table_iter_next(&iter, (void **)&key, (void **)&value)) {
-		if (strncmp(key, "username", strlen(key)) == 0)
+		if (strncmp(key, attribute, strlen(key)) == 0)
 			return (char *)value;
 	}
 	g_hash_table_unref(attributes);
@@ -87,7 +87,7 @@ GError *get(char *server, char **username, char **secret) {
 					*secret = strdup(secret_value_get(secretValue, &length));
 					secret_value_unref(secretValue);
 				}
-				*username = get_username(l->data);
+				*username = get_attribute("username", l->data);
 			}
 			g_list_free_full(items, g_object_unref);
 		}
@@ -100,14 +100,12 @@ GError *get(char *server, char **username, char **secret) {
 	return NULL;
 }
 
-GError *list(char *label, char *** paths, char *** accts, unsigned int *list_l) {
+GError *list(char *ref_label, char *** paths, char *** accts, unsigned int *list_l) {
 	GList *items;
 	GError *err = NULL;
 	SecretService *service;
 	SecretSearchFlags flags = SECRET_SEARCH_LOAD_SECRETS | SECRET_SEARCH_ALL | SECRET_SEARCH_UNLOCK;
-	GHashTable *attributes = secret_attributes_build(NULL,
-                                 "label", label,
-                                 NULL);
+	GHashTable *attributes = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 
 	service = secret_service_get_sync(SECRET_SERVICE_NONE, NULL, &err);
 	items = secret_service_search_sync(service, NULL, attributes, flags, NULL, &err);
@@ -115,8 +113,8 @@ GError *list(char *label, char *** paths, char *** accts, unsigned int *list_l) 
 	if (err != NULL) {
 		return err;
 	}
-	*paths = (char **) malloc((int)sizeof(char *)*numKeys);
-	*accts = (char **) malloc((int)sizeof(char *)*numKeys);
+	char **tmp_paths = (char **) malloc((int)sizeof(char *)*numKeys);
+	char **tmp_accts = (char **) malloc((int)sizeof(char *)*numKeys);
 	// items now contains our keys from the gnome keyring
 	// we will now put it in our two lists to return it to go
 	GList *current;
@@ -124,21 +122,29 @@ GError *list(char *label, char *** paths, char *** accts, unsigned int *list_l) 
 	for(current = items; current!=NULL; current = current->next) {
 		char *pathTmp = secret_item_get_label(current->data);
 		// you cannot have a key without a label in the gnome keyring
-		char *acctTmp = get_username(current->data);
+		char *acctTmp = get_attribute("username",current->data);
 		if (acctTmp==NULL) {
 			acctTmp = "account not defined";
+		}
+		char *labelTmp = get_attribute("label", current->data);
+		if (strcmp(labelTmp, ref_label)) {
+		    continue;
 		}
 		char *path = (char *) malloc(strlen(pathTmp));
 		char *acct = (char *) malloc(strlen(acctTmp));
 		path = pathTmp;
 		acct = acctTmp;
-		(*paths)[listNumber] = (char *) malloc(sizeof(char)*(strlen(path)));
-		memcpy((*paths)[listNumber], path, sizeof(char)*(strlen(path)));
-		(*accts)[listNumber] = (char *) malloc(sizeof(char)*(strlen(acct)));
-		memcpy((*accts)[listNumber], acct, sizeof(char)*(strlen(acct)));
+		tmp_paths[listNumber] = (char *) malloc(sizeof(char)*(strlen(path)));
+		memcpy(tmp_paths[listNumber], path, sizeof(char)*(strlen(path)));
+		tmp_accts[listNumber] = (char *) malloc(sizeof(char)*(strlen(acct)));
+		memcpy(tmp_accts[listNumber], acct, sizeof(char)*(strlen(acct)));
 		listNumber = listNumber + 1;
 	}
-	*list_l = numKeys;
+
+	*paths = (char **) realloc(tmp_paths, listNumber);
+	*accts = (char **) realloc(tmp_accts, listNumber);
+	*list_l = listNumber;
+
 	return NULL;
 }
 
