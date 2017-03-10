@@ -107,7 +107,14 @@ GError *list(char *ref_label, char *** paths, char *** accts, unsigned int *list
 	SecretSearchFlags flags = SECRET_SEARCH_LOAD_SECRETS | SECRET_SEARCH_ALL | SECRET_SEARCH_UNLOCK;
 	GHashTable *attributes = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
 
+	// List credentials with the right label only
+	g_hash_table_insert(attributes, g_strdup("label"), g_strdup(ref_label));
+
 	service = secret_service_get_sync(SECRET_SERVICE_NONE, NULL, &err);
+	if (err != NULL) {
+		return err;
+	}
+
 	items = secret_service_search_sync(service, NULL, attributes, flags, NULL, &err);
 	int numKeys = g_list_length(items);
 	if (err != NULL) {
