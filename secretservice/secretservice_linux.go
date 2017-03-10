@@ -99,10 +99,14 @@ func (h Secretservice) List() (map[string]string, error) {
 	defer C.freeListData(&pathsC, listLenC)
 	defer C.freeListData(&acctsC, listLenC)
 
+	resp := make(map[string]string)
+
 	listLen := int(listLenC)
+	if listLen == 0 {
+		return resp, nil
+	}
 	pathTmp := (*[1 << 30]*C.char)(unsafe.Pointer(pathsC))[:listLen:listLen]
 	acctTmp := (*[1 << 30]*C.char)(unsafe.Pointer(acctsC))[:listLen:listLen]
-	resp := make(map[string]string)
 	for i := 0; i < listLen; i++ {
 		resp[C.GoString(pathTmp[i])] = C.GoString(acctTmp[i])
 	}
