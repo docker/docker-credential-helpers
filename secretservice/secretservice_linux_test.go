@@ -26,16 +26,13 @@ func TestSecretServiceHelper(t *testing.T) {
 
 	// If any docker credentials with the tests values we are providing, we
 	// remove them as they probably come from a previous failed test
-	if len(old_auths) >= 1 {
-		for k, v := range old_auths {
-			if strings.Compare(k, creds.ServerURL) == 0 && strings.Compare(v, creds.Username) == 0 {
+	for k, v := range old_auths {
+		if strings.Compare(k, creds.ServerURL) == 0 && strings.Compare(v, creds.Username) == 0 {
 
-				if err := helper.Delete(creds.ServerURL); err != nil {
-					t.Fatal(err)
-				}
+			if err := helper.Delete(creds.ServerURL); err != nil {
+				t.Fatal(err)
 			}
 		}
-
 	}
 
 	// Check again how many docker credentials we have when starting the test
