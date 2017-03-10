@@ -73,7 +73,7 @@ GError *get(char *server, char **username, char **secret) {
 
 	service = secret_service_get_sync(SECRET_SERVICE_NONE, NULL, &err);
 	if (err == NULL) {
-		items = secret_service_search_sync(service, NULL, attributes, flags, NULL, &err);
+		items = secret_service_search_sync(service, DOCKER_SCHEMA, attributes, flags, NULL, &err);
 		if (err == NULL) {
 			for (l = items; l != NULL; l = g_list_next(l)) {
 				value = secret_item_get_schema_name(l->data);
