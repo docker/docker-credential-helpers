@@ -120,8 +120,10 @@ GError *list(char *ref_label, char *** paths, char *** accts, unsigned int *list
 	if (err != NULL) {
 		return err;
 	}
-	char **tmp_paths = (char **) malloc((int)sizeof(char *)*numKeys);
-	char **tmp_accts = (char **) malloc((int)sizeof(char *)*numKeys);
+
+	char **tmp_paths = (char **) calloc(1,(int)sizeof(char *)*numKeys);
+	char **tmp_accts = (char **) calloc(1,(int)sizeof(char *)*numKeys);
+
 	// items now contains our keys from the gnome keyring
 	// we will now put it in our two lists to return it to go
 	GList *current;
@@ -133,23 +135,19 @@ GError *list(char *ref_label, char *** paths, char *** accts, unsigned int *list
 		if (acctTmp==NULL) {
 			acctTmp = "account not defined";
 		}
-		char *labelTmp = get_attribute("label", current->data);
-		if (strcmp(labelTmp, ref_label)) {
-		    continue;
-		}
-		char *path = (char *) malloc(strlen(pathTmp));
-		char *acct = (char *) malloc(strlen(acctTmp));
-		path = pathTmp;
-		acct = acctTmp;
-		tmp_paths[listNumber] = (char *) malloc(sizeof(char)*(strlen(path)));
-		memcpy(tmp_paths[listNumber], path, sizeof(char)*(strlen(path)));
-		tmp_accts[listNumber] = (char *) malloc(sizeof(char)*(strlen(acct)));
-		memcpy(tmp_accts[listNumber], acct, sizeof(char)*(strlen(acct)));
+
+		tmp_paths[listNumber] = (char *) calloc(1, sizeof(char)*(strlen(pathTmp)+1));
+		tmp_accts[listNumber] = (char *) calloc(1, sizeof(char)*(strlen(acctTmp)+1));
+
+		memcpy(tmp_paths[listNumber], pathTmp, sizeof(char)*(strlen(pathTmp)+1));
+		memcpy(tmp_accts[listNumber], acctTmp, sizeof(char)*(strlen(acctTmp)+1));
+
 		listNumber = listNumber + 1;
 	}
 
-	*paths = (char **) realloc(tmp_paths, listNumber);
-	*accts = (char **) realloc(tmp_accts, listNumber);
+	*paths = (char **) realloc(tmp_paths, (int)sizeof(char *)*listNumber);
+	*accts = (char **) realloc(tmp_accts, (int)sizeof(char *)*listNumber);
+
 	*list_l = listNumber;
 
 	return NULL;
