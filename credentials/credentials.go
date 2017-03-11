@@ -19,8 +19,12 @@ type Credentials struct {
 
 // Docker credentials should be labeled as such in credentials stores that allow labelling.
 // That label allows to filter out non-Docker credentials too at lookup/search in macOS keychain,
-// Windows credentials manager and Linux libsecret.
-const CredsLabel = "Docker Credentials"
+// Windows credentials manager and Linux libsecret. Default value is "Docker Credentials"
+var CredsLabel = "Docker Credentials"
+
+func SetCredsLabel(label string) {
+	CredsLabel = label
+}
 
 // Serve initializes the credentials helper and parses the action argument.
 // This function is designed to be called from a command line interface.
