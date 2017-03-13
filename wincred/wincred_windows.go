@@ -51,10 +51,10 @@ func (h Wincred) List() (map[string]string, error) {
 
 	resp := make(map[string]string)
 	for i := range creds {
-		attrs = creds[i].Attributes
+		attrs := creds[i].Attributes
 		for _, attr := range attrs {
-			if !strings.Compare(attr.Keyword, "label") &&
-				!bytes.Compare(attr.Value, []byte(credentials.CredsLabel)) {
+			if strings.Compare(attr.Keyword, "label") == 0 &&
+				bytes.Compare(attr.Value, []byte(credentials.CredsLabel)) == 0 {
 
 				resp[creds[i].TargetName] = creds[i].UserName
 			}
