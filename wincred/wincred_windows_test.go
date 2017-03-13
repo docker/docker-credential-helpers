@@ -2,6 +2,7 @@ package wincred
 
 import (
 	"testing"
+	"strings"
 
 	"github.com/docker/docker-credential-helpers/credentials"
 )
@@ -19,6 +20,31 @@ func TestWinCredHelper(t *testing.T) {
 	}
 
 	helper := Wincred{}
+
+	// check for and remove remaining credentials from previous fail tests
+	oldauths, err := helper.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for k, v := range oldauths {
+		if strings.Compare(k, creds.ServerURL) == 0 && strings.Compare(v, creds.Username) == 0 {
+			if err := helper.Delete(creds.ServerURL); err != nil {
+				t.Fatal(err)
+			}
+		} else if strings.Compare(k, creds1.ServerURL) == 0 && strings.Compare(v, creds1.Username) == 0 {
+			if err := helper.Delete(creds1.ServerURL); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+
+	// recount for credentials
+	oldauths, err = helper.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	if err := helper.Add(creds); err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +63,7 @@ func TestWinCredHelper(t *testing.T) {
 	}
 
 	auths, err := helper.List()
-	if err != nil || len(auths) == 0 {
+	if err != nil || len(auths) - len(oldauths) != 1 {
 		t.Fatal(err)
 	}
 
