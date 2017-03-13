@@ -14,7 +14,9 @@ char *get_error(OSStatus status) {
   return buf;
 }
 
-char *keychain_add(struct Server *server, char *username, char *secret) {
+char *keychain_add(struct Server *server, char *label, char *username, char *secret) {
+  SecKeychainItemRef item;
+
   OSStatus status = SecKeychainAddInternetPassword(
     NULL,
     strlen(server->host), server->host,
@@ -25,11 +27,27 @@ char *keychain_add(struct Server *server, char *username, char *secret) {
     server->proto,
     kSecAuthenticationTypeDefault,
     strlen(secret), secret,
-    NULL
+    &item
   );
+
   if (status) {
     return get_error(status);
   }
+
+  SecKeychainAttribute attribute;
+  SecKeychainAttributeList attrs;
+  attribute.tag = kSecLabelItemAttr;
+  attribute.data = label;
+  attribute.length = strlen(label);
+  attrs.count = 1;
+  attrs.attr = &attribute;
+
+  status = SecKeychainItemModifyContent(item, &attrs, 0, NULL);
+
+  if (status) {
+    return get_error(status);
+  }
+
   return NULL;
 }
 
@@ -116,16 +134,21 @@ char * CFStringToCharArr(CFStringRef aString) {
   return NULL;
 }
 
-char *keychain_list(char *** paths, char *** accts, unsigned int *list_l) {
+char *keychain_list(char *credsLabel, char *** paths, char *** accts, unsigned int *list_l) {
+    CFStringRef credsLabelCF = CFStringCreateWithCString(NULL, credsLabel, kCFStringEncodingUTF8);
     CFMutableDictionaryRef query = CFDictionaryCreateMutable (NULL, 1, NULL, NULL);
     CFDictionaryAddValue(query, kSecClass, kSecClassInternetPassword);
     CFDictionaryAddValue(query, kSecReturnAttributes, kCFBooleanTrue);
     CFDictionaryAddValue(query, kSecMatchLimit, kSecMatchLimitAll);
+    CFDictionaryAddValue(query, kSecAttrLabel, credsLabelCF);
     //Use this query dictionary
     CFTypeRef result= NULL;
     OSStatus status = SecItemCopyMatching(
                                           query,
                                           &result);
+
+    CFRelease(credsLabelCF);
+
     //Ran a search and store the results in result
     if (status) {
         return get_error(status);
