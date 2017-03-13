@@ -1,12 +1,16 @@
 .PHONY: all deps osxkeychain secretservice test validate wincred
 
 TRAVIS_OS_NAME ?= linux
-VERSION = 0.4.2-dev
+VERSION = 0.5.0
 
 all: test
 
 deps:
 	go get github.com/golang/lint/golint
+
+clean:
+	rm -rf bin
+	rm -rf release
 
 osxkeychain:
 	mkdir bin
@@ -17,7 +21,7 @@ codesign: osxkeychain
 	xcrun -log codesign -s $(SIGNINGHASH) --force --verbose bin/docker-credential-osxkeychain
 	xcrun codesign --verify --deep --strict --verbose=2 --display bin/docker-credential-osxkeychain
 
-osxrelease: codesign
+osxrelease: clean test codesign
 	mkdir -p release
 	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
 
