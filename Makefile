@@ -1,6 +1,7 @@
 .PHONY: all deps osxkeychain secretservice test validate wincred
 
 TRAVIS_OS_NAME ?= linux
+VERSION = 0.4.2-dev
 
 all: test
 
@@ -15,6 +16,10 @@ codesign: osxkeychain
 	$(eval SIGNINGHASH = $(shell security find-identity -v -p codesigning | grep "Developer ID Application: Docker Inc" | cut -d ' ' -f 4))
 	xcrun -log codesign -s $(SIGNINGHASH) --force --verbose bin/docker-credential-osxkeychain
 	xcrun codesign --verify --deep --strict --verbose=2 --display bin/docker-credential-osxkeychain
+
+osxrelease: codesign
+	mkdir -p release
+	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
 
 secretservice:
 	mkdir -p bin
