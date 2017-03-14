@@ -25,6 +25,7 @@
 			"lk4d4",
 			"mavenugo",
 			"mhbauer",
+			"n4ss",
 			"runcom",
 			"stevvooe",
 			"thajeztah",
@@ -113,6 +114,11 @@
 	Name = "Morgan Bauer"
 	Email = "mbauer@us.ibm.com"
 	GitHub = "mhbauer"
+
+	[people.n4ss]
+	Name = "Nassim Eddequiouaq"
+	Email = "eddequiouaq.nassim@gmail.com"
+	GitHub = "n4ss"
 
 	[people.runcom]
 	Name = "Antonio Murdaca"
