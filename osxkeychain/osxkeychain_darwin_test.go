@@ -54,6 +54,68 @@ func TestOSXKeychainHelper(t *testing.T) {
 	}
 }
 
+func TestOSXKeychainHelperIgnoresProtocol(t *testing.T) {
+	loginServerURL := "foobar.docker.io:2376"
+	pullServerURL1 := "http://foobar.docker.io:2376"
+	pullServerURL2 := "https://foobar.docker.io:2376"
+	pullServerURL3 := "ftp://foobar.docker.io:2376"
+
+	creds := &credentials.Credentials{
+		ServerURL: loginServerURL,
+		Username:  "foobar",
+		Secret:    "foobarbaz",
+	}
+	helper := Osxkeychain{}
+	defer helper.Delete(creds.ServerURL)
+	if err := helper.Add(creds); err != nil {
+		t.Fatal(err)
+	}
+
+	username1, secret1, err := helper.Get(pullServerURL1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if username1 != "foobar" {
+		t.Fatalf("Error: expected username %s, got username %s", creds.Username, username1)
+	}
+	if secret1 != "foobarbaz" {
+		t.Fatalf("Error: expected secret %s, got secret %s", creds.Secret, secret1)
+	}
+
+	username2, secret2, err := helper.Get(pullServerURL2)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if username2 != "foobar" {
+		t.Fatalf("Error: expected username %s, got username %s", creds.Username, username2)
+	}
+	if secret2 != "foobarbaz" {
+		t.Fatalf("Error: expected secret %s, got secret %s", creds.Secret, secret2)
+	}
+
+	username3, secret3, err := helper.Get(pullServerURL3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if username3 != "foobar" {
+		t.Fatalf("Error: expected username %s, got username %s", creds.Username, username3)
+	}
+	if secret3 != "foobarbaz" {
+		t.Fatalf("Error: expected secret %s, got secret %s", creds.Secret, secret3)
+	}
+
+	username, secret, err := helper.Get(loginServerURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if username != "foobar" {
+		t.Fatalf("Error: expected username %s, got username %s", creds.Username, username)
+	}
+	if secret != "foobarbaz" {
+		t.Fatalf("Error: expected secret %s, got secret %s", creds.Secret, secret)
+	}
+}
+
 func TestMissingCredentials(t *testing.T) {
 	helper := Osxkeychain{}
 	_, _, err := helper.Get("https://adsfasdf.wrewerwer.com/asdfsdddd")

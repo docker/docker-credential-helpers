@@ -11,6 +11,7 @@ import "C"
 import (
 	"errors"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"unsafe"
@@ -134,8 +135,17 @@ func (h Osxkeychain) List() (map[string]string, error) {
 	return resp, nil
 }
 
+// alwaysHTTPS takes a url and makes sure it always has the https protocol
+func alwaysHTTPS(url string) string {
+	re := regexp.MustCompile(`^\w+://`)
+	stripped := re.ReplaceAllLiteralString(url, "")
+	return ("https://" + stripped)
+}
+
 func splitServer(serverURL string) (*C.struct_Server, error) {
-	u, err := url.Parse(serverURL)
+	httpsServerURL := alwaysHTTPS(serverURL)
+
+	u, err := url.Parse(httpsServerURL)
 	if err != nil {
 		return nil, err
 	}
