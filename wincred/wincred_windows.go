@@ -2,9 +2,10 @@ package wincred
 
 import (
 	"bytes"
+	"strings"
+
 	winc "github.com/danieljoos/wincred"
 	"github.com/docker/docker-credential-helpers/credentials"
-	"strings"
 )
 
 // Wincred handles secrets using the Windows credential service.
@@ -39,7 +40,14 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 	if g == nil {
 		return "", "", credentials.NewErrCredentialsNotFound()
 	}
-	return g.UserName, string(g.CredentialBlob), nil
+	for _, attr := range g.Attributes {
+		if strings.Compare(attr.Keyword, "label") == 0 &&
+			bytes.Compare(attr.Value, []byte(credentials.CredsLabel)) == 0 {
+
+			return g.UserName, string(g.CredentialBlob), nil
+		}
+	}
+	return "", "", credentials.NewErrCredentialsNotFound()
 }
 
 // List returns the stored URLs and corresponding usernames for a given credentials label.
