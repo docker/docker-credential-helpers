@@ -43,39 +43,15 @@ func IsErrCredentialsNotFoundMessage(err string) bool {
 	return err == errCredentialsNotFoundMessage
 }
 
+
 // errCredentialsMissingServerURL represents an error raised
 // when the credentials object has no server URL or when no
 // server URL is provided to a credentials operation requiring
 // one.
 type errCredentialsMissingServerURL struct{}
 
-// Error returns the standard error message for when
-// the credentials object has no server URL.
 func (errCredentialsMissingServerURL) Error() string {
 	return errCredentialsMissingServerURLMessage
-}
-
-// NewErrCredentialsMissingServerURL creates a new error for
-// when the credentials object has no server URL or when no
-// server URL is provided to a credentials operation requiring
-// one.
-func NewErrCredentialsMissingServerURL() error {
-	return errCredentialsMissingServerURL{}
-}
-
-// IsCredentialsMissingServerURL returns true if the error
-// was caused by not having a credentials server URL when
-// required.
-func IsCredentialsMissingServerURL(err error) bool {
-	_, ok := err.(errCredentialsMissingServerURL)
-	return ok
-}
-
-// IsCredentialsMissingServerURLMessage returns true if the error
-// was caused by not having a credentials server URL when
-// required.
-func IsCredentialsMissingServerURLMessage(err string) bool {
-	return err == errCredentialsMissingServerURLMessage
 }
 
 // errCredentialsMissingUsername represents an error raised
@@ -84,31 +60,46 @@ func IsCredentialsMissingServerURLMessage(err string) bool {
 // one.
 type errCredentialsMissingUsername struct{}
 
-// Error returns the standard error message for when
-// the credentials object has no username.
 func (errCredentialsMissingUsername) Error() string {
 	return errCredentialsMissingUsernameMessage
 }
 
+
+// NewErrCredentialsMissingServerURL creates a new error for
+// errCredentialsMissingServerURL.
+func NewErrCredentialsMissingServerURL() error {
+	return errCredentialsMissingServerURL{}
+}
+
 // NewErrCredentialsMissingUsername creates a new error for
-// when the credentials object has no username or when no
-// username is provided to a credentials operation requiring
-// one.
+// errCredentialsMissingUsername.
 func NewErrCredentialsMissingUsername() error {
 	return errCredentialsMissingUsername{}
 }
 
+
+// IsCredentialsMissingServerURL returns true if the error
+// was an errCredentialsMissingServerURL.
+func IsCredentialsMissingServerURL(err error) bool {
+	_, ok := err.(errCredentialsMissingServerURL)
+	return ok
+}
+
+// IsCredentialsMissingServerURLMessage checks for an
+// errCredentialsMissingServerURL in the error message.
+func IsCredentialsMissingServerURLMessage(err string) bool {
+	return err == errCredentialsMissingServerURLMessage
+}
+
 // IsCredentialsMissingUsername returns true if the error
-// was caused by not having a credentials username when
-// required.
+// was an errCredentialsMissingUsername.
 func IsCredentialsMissingUsername(err error) bool {
 	_, ok := err.(errCredentialsMissingUsername)
 	return ok
 }
 
-// IsCredentialsMissingUsernameMessage returns true if the error
-// was caused by not having a credentials username when
-// required.
+// IsCredentialsMissingUsernameMessage checks for an
+// errCredentialsMissingUsername in the error message.
 func IsCredentialsMissingUsernameMessage(err string) bool {
 	return err == errCredentialsMissingUsernameMessage
 }

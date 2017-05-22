@@ -9,6 +9,21 @@ import (
 	"github.com/docker/docker-credential-helpers/credentials"
 )
 
+// isValidCredsMessage checks if 'msg' contains invalid credentials error message.
+// It returns whether the logs are free of invalid credentials errors and the error if it isn't.
+// error values can be errCredentialsMissingServerURL or errCredentialsMissingUsername.
+func isValidCredsMessage(msg string) (bool, error) {
+	if credentials.IsCredentialsMissingServerURLMessage(msg) {
+		return false, credentials.NewErrCredentialsMissingServerURL()
+	}
+
+	if credentials.IsCredentialsMissingUsernameMessage(msg) {
+		return false, credentials.NewErrCredentialsMissingUsername()
+	}
+
+	return true, nil
+}
+
 // Store uses an external program to save credentials.
 func Store(program ProgramFunc, creds *credentials.Credentials) error {
 	cmd := program("store")
@@ -23,12 +38,8 @@ func Store(program ProgramFunc, creds *credentials.Credentials) error {
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if credentials.IsCredentialsMissingServerURLMessage(t) {
-			return credentials.NewErrCredentialsMissingServerURL()
-		}
-
-		if credentials.IsCredentialsMissingUsernameMessage(t) {
-			return credentials.NewErrCredentialsMissingUsername()
+		if ok, err := isValidCredsMessage(t); !ok {
+			return err
 		}
 
 		return fmt.Errorf("error storing credentials - err: %v, out: `%s`", err, t)
@@ -46,12 +57,8 @@ func Get(program ProgramFunc, serverURL string) (*credentials.Credentials, error
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if credentials.IsCredentialsMissingServerURLMessage(t) {
-			return nil, credentials.NewErrCredentialsMissingServerURL()
-		}
-
-		if credentials.IsCredentialsMissingUsernameMessage(t) {
-			return nil, credentials.NewErrCredentialsMissingUsername()
+		if ok, err := isValidCredsMessage(t); !ok {
+			return nil, err
 		}
 
 		if credentials.IsErrCredentialsNotFoundMessage(t) {
@@ -80,12 +87,8 @@ func Erase(program ProgramFunc, serverURL string) error {
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if credentials.IsCredentialsMissingServerURLMessage(t) {
-			return credentials.NewErrCredentialsMissingServerURL()
-		}
-
-		if credentials.IsCredentialsMissingUsernameMessage(t) {
-			return credentials.NewErrCredentialsMissingUsername()
+		if ok, err := isValidCredsMessage(t); !ok {
+			return err
 		}
 
 		return fmt.Errorf("error erasing credentials - err: %v, out: `%s`", err, t)
@@ -102,12 +105,8 @@ func List(program ProgramFunc) (map[string]string, error) {
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if credentials.IsCredentialsMissingServerURLMessage(t) {
-			return nil, credentials.NewErrCredentialsMissingServerURL()
-		}
-
-		if credentials.IsCredentialsMissingUsernameMessage(t) {
-			return nil, credentials.NewErrCredentialsMissingUsername()
+		if ok, err := isValidCredsMessage(t); !ok {
+			return nil, err
 		}
 
 		return nil, fmt.Errorf("error listing credentials - err: %v, out: `%s`", err, t)
