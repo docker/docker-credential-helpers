@@ -10,11 +10,11 @@ import (
 )
 
 // Store uses an external program to save credentials.
-func Store(program ProgramFunc, credentials *credentials.Credentials) error {
+func Store(program ProgramFunc, creds *credentials.Credentials) error {
 	cmd := program("store")
 
 	buffer := new(bytes.Buffer)
-	if err := json.NewEncoder(buffer).Encode(credentials); err != nil {
+	if err := json.NewEncoder(buffer).Encode(creds); err != nil {
 		return err
 	}
 	cmd.Input(buffer)
@@ -22,6 +22,15 @@ func Store(program ProgramFunc, credentials *credentials.Credentials) error {
 	out, err := cmd.Output()
 	if err != nil {
 		t := strings.TrimSpace(string(out))
+
+		if credentials.IsCredentialsMissingServerURLMessage(t) {
+			return credentials.NewErrCredentialsMissingServerURL()
+		}
+
+		if credentials.IsCredentialsMissingUsernameMessage(t) {
+			return credentials.NewErrCredentialsMissingUsername()
+		}
+
 		return fmt.Errorf("error storing credentials - err: %v, out: `%s`", err, t)
 	}
 
@@ -36,6 +45,14 @@ func Get(program ProgramFunc, serverURL string) (*credentials.Credentials, error
 	out, err := cmd.Output()
 	if err != nil {
 		t := strings.TrimSpace(string(out))
+
+		if credentials.IsCredentialsMissingServerURLMessage(t) {
+			return nil, credentials.NewErrCredentialsMissingServerURL()
+		}
+
+		if credentials.IsCredentialsMissingUsernameMessage(t) {
+			return nil, credentials.NewErrCredentialsMissingUsername()
+		}
 
 		if credentials.IsErrCredentialsNotFoundMessage(t) {
 			return nil, credentials.NewErrCredentialsNotFound()
@@ -62,6 +79,15 @@ func Erase(program ProgramFunc, serverURL string) error {
 	out, err := cmd.Output()
 	if err != nil {
 		t := strings.TrimSpace(string(out))
+
+		if credentials.IsCredentialsMissingServerURLMessage(t) {
+			return credentials.NewErrCredentialsMissingServerURL()
+		}
+
+		if credentials.IsCredentialsMissingUsernameMessage(t) {
+			return credentials.NewErrCredentialsMissingUsername()
+		}
+
 		return fmt.Errorf("error erasing credentials - err: %v, out: `%s`", err, t)
 	}
 
@@ -75,6 +101,15 @@ func List(program ProgramFunc) (map[string]string, error) {
 	out, err := cmd.Output()
 	if err != nil {
 		t := strings.TrimSpace(string(out))
+
+		if credentials.IsCredentialsMissingServerURLMessage(t) {
+			return nil, credentials.NewErrCredentialsMissingServerURL()
+		}
+
+		if credentials.IsCredentialsMissingUsernameMessage(t) {
+			return nil, credentials.NewErrCredentialsMissingUsername()
+		}
+
 		return nil, fmt.Errorf("error listing credentials - err: %v, out: `%s`", err, t)
 	}
 
