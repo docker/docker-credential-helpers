@@ -38,8 +38,8 @@ func Store(program ProgramFunc, creds *credentials.Credentials) error {
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if err := isValidCredsMessage(t); err != nil {
-			return err
+		if isValidErr := isValidCredsMessage(t); isValidErr != nil {
+			err = isValidErr
 		}
 
 		return fmt.Errorf("error storing credentials - err: %v, out: `%s`", err, t)
@@ -57,12 +57,12 @@ func Get(program ProgramFunc, serverURL string) (*credentials.Credentials, error
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if err := isValidCredsMessage(t); err != nil {
-			return nil, err
-		}
-
 		if credentials.IsErrCredentialsNotFoundMessage(t) {
 			return nil, credentials.NewErrCredentialsNotFound()
+		}
+
+		if isValidErr := isValidCredsMessage(t); isValidErr != nil {
+			err = isValidErr
 		}
 
 		return nil, fmt.Errorf("error getting credentials - err: %v, out: `%s`", err, t)
@@ -87,8 +87,8 @@ func Erase(program ProgramFunc, serverURL string) error {
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if err := isValidCredsMessage(t); err != nil {
-			return err
+		if isValidErr := isValidCredsMessage(t); isValidErr != nil {
+			err = isValidErr
 		}
 
 		return fmt.Errorf("error erasing credentials - err: %v, out: `%s`", err, t)
@@ -105,8 +105,8 @@ func List(program ProgramFunc) (map[string]string, error) {
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if err := isValidCredsMessage(t); err != nil {
-			return nil, err
+		if isValidErr := isValidCredsMessage(t); isValidErr != nil {
+			err = isValidErr
 		}
 
 		return nil, fmt.Errorf("error listing credentials - err: %v, out: `%s`", err, t)
