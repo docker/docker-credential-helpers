@@ -12,16 +12,16 @@ import (
 // isValidCredsMessage checks if 'msg' contains invalid credentials error message.
 // It returns whether the logs are free of invalid credentials errors and the error if it isn't.
 // error values can be errCredentialsMissingServerURL or errCredentialsMissingUsername.
-func isValidCredsMessage(msg string) (bool, error) {
+func isValidCredsMessage(msg string) error {
 	if credentials.IsCredentialsMissingServerURLMessage(msg) {
-		return false, credentials.NewErrCredentialsMissingServerURL()
+		return credentials.NewErrCredentialsMissingServerURL()
 	}
 
 	if credentials.IsCredentialsMissingUsernameMessage(msg) {
-		return false, credentials.NewErrCredentialsMissingUsername()
+		return credentials.NewErrCredentialsMissingUsername()
 	}
 
-	return true, nil
+	return nil
 }
 
 // Store uses an external program to save credentials.
@@ -38,7 +38,7 @@ func Store(program ProgramFunc, creds *credentials.Credentials) error {
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if ok, err := isValidCredsMessage(t); !ok {
+		if err := isValidCredsMessage(t); err != nil {
 			return err
 		}
 
@@ -57,7 +57,7 @@ func Get(program ProgramFunc, serverURL string) (*credentials.Credentials, error
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if ok, err := isValidCredsMessage(t); !ok {
+		if err := isValidCredsMessage(t); err != nil {
 			return nil, err
 		}
 
@@ -87,7 +87,7 @@ func Erase(program ProgramFunc, serverURL string) error {
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if ok, err := isValidCredsMessage(t); !ok {
+		if err := isValidCredsMessage(t); err != nil {
 			return err
 		}
 
@@ -105,7 +105,7 @@ func List(program ProgramFunc) (map[string]string, error) {
 	if err != nil {
 		t := strings.TrimSpace(string(out))
 
-		if ok, err := isValidCredsMessage(t); !ok {
+		if err := isValidCredsMessage(t); err != nil {
 			return nil, err
 		}
 
