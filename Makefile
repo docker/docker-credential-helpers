@@ -1,7 +1,7 @@
 .PHONY: all deps osxkeychain secretservice test validate wincred
 
 TRAVIS_OS_NAME ?= linux
-VERSION = 0.5.0
+VERSION = 0.5.1
 
 all: test
 
