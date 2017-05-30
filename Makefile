@@ -16,12 +16,12 @@ osxkeychain:
 	mkdir bin
 	go build -ldflags -s -o bin/docker-credential-osxkeychain osxkeychain/cmd/main_darwin.go
 
-codesign: osxkeychain
+osxcodesign: osxkeychain
 	$(eval SIGNINGHASH = $(shell security find-identity -v -p codesigning | grep "Developer ID Application: Docker Inc" | cut -d ' ' -f 4))
 	xcrun -log codesign -s $(SIGNINGHASH) --force --verbose bin/docker-credential-osxkeychain
 	xcrun codesign --verify --deep --strict --verbose=2 --display bin/docker-credential-osxkeychain
 
-osxrelease: clean test codesign
+osxrelease: clean vet_osx lint fmt test osxcodesign
 	mkdir -p release
 	@echo "\nPackaging version ${VERSION}\n"
 	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
@@ -50,8 +50,12 @@ vet_osx:
 vet_linux:
 	go vet ./secretservice
 
-validate: vet
+lint:
 	for p in `go list ./... | grep -v /vendor/`; do \
 		golint $$p ; \
 	done
+
+fmt:
 	gofmt -s -l `ls **/*.go | grep -v vendor`
+
+validate: vet lint fmt
