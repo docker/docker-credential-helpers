@@ -50,7 +50,7 @@ func SetCredsLabel(label string) {
 func Serve(helper Helper) {
 	var err error
 	if len(os.Args) != 2 {
-		err = fmt.Errorf("Usage: %s <store|get|erase|list>", os.Args[0])
+		err = fmt.Errorf("Usage: %s <store|get|erase|list|version>", os.Args[0])
 	}
 
 	if err == nil {
@@ -74,6 +74,8 @@ func HandleCommand(helper Helper, key string, in io.Reader, out io.Writer) error
 		return Erase(helper, in)
 	case "list":
 		return List(helper, out)
+	case "version":
+		return PrintVersion(out)
 	}
 	return fmt.Errorf("Unknown credential action `%s`", key)
 }
@@ -131,8 +133,8 @@ func Get(helper Helper, reader io.Reader, writer io.Writer) error {
 
 	resp := Credentials{
 		ServerURL: serverURL,
-		Username: username,
-		Secret:   secret,
+		Username:  username,
+		Secret:    secret,
 	}
 
 	buffer.Reset()
@@ -174,4 +176,10 @@ func List(helper Helper, writer io.Writer) error {
 		return err
 	}
 	return json.NewEncoder(writer).Encode(accts)
+}
+
+//PrintVersion outputs the current version.
+func PrintVersion(writer io.Writer) error {
+	fmt.Fprintln(writer, Version)
+	return nil
 }
