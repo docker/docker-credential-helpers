@@ -40,6 +40,9 @@ test:
 vet: vet_$(TRAVIS_OS_NAME)
 	go vet ./credentials
 
+vet_win:
+	go vet ./wincred
+
 vet_osx:
 	go vet ./osxkeychain
 
