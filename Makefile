@@ -1,7 +1,7 @@
 .PHONY: all deps osxkeychain secretservice test validate wincred
 
 TRAVIS_OS_NAME ?= linux
-VERSION = 0.5.1
+VERSION := $(shell grep 'const Version' credentials/version.go | awk -F'"' '{ print $$2 }')
 
 all: test
 
@@ -23,6 +23,7 @@ codesign: osxkeychain
 
 osxrelease: clean test codesign
 	mkdir -p release
+	@echo "\nPackaging version ${VERSION}\n"
 	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
 
 secretservice:
