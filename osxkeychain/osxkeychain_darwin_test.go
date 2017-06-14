@@ -54,6 +54,72 @@ func TestOSXKeychainHelper(t *testing.T) {
 	}
 }
 
+// osxKeychainHelperGet wraps an operation of creating, adding, getting and deleting credentials for the provided
+// username, secret and server URL
+func osxKeychainHelperGet(username, secret, serverURL string) (string, string, error) {
+	creds := &credentials.Credentials{
+		ServerURL: serverURL,
+		Username:  username,
+		Secret:    secret,
+	}
+
+	helper := Osxkeychain{}
+	defer helper.Delete(creds.ServerURL)
+	if err := helper.Add(creds); err != nil {
+		return "", "", err
+	}
+
+	return helper.Get(creds.ServerURL)
+}
+
+func TestOSXKeychainHelperURLProtocols(t *testing.T) {
+	pullServerNoProto := "foobar.docker.io:2376" // Is equivalent to "https://foobar.docker.io:2376"
+	pullServerHTTP := "http://foobar.docker.io:2376"
+	pullServerHTTPS := "https://foobar.docker.io:2376"
+	pullServerFTP := "ftp://foobar.docker.io:2376" // Must fail as FTP is not supported
+
+	user := "foobar"
+	secret := "foobarbaz"
+
+	usernameNoProto, secretNoProto, err := osxKeychainHelperGet(user, secret, pullServerNoProto)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if usernameNoProto != "foobar" {
+		t.Fatalf("Error: expected username %s, got username %s", user, usernameNoProto)
+	}
+	if secretNoProto != "foobarbaz" {
+		t.Fatalf("Error: expected secret %s, got secret %s", secret, secretNoProto)
+	}
+
+	usernameHTTP, secretHTTP, err := osxKeychainHelperGet(user, secret, pullServerHTTP)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if usernameHTTP != "foobar" {
+		t.Fatalf("Error: expected username %s, got username %s", user, usernameHTTP)
+	}
+	if secretHTTP != "foobarbaz" {
+		t.Fatalf("Error: expected secret %s, got secret %s", secret, secretHTTP)
+	}
+
+	usernameHTTPS, secretHTTPS, err := osxKeychainHelperGet(user, secret, pullServerHTTPS)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if usernameHTTPS != "foobar" {
+		t.Fatalf("Error: expected username %s, got username %s", user, usernameHTTPS)
+	}
+	if secretHTTP != "foobarbaz" {
+		t.Fatalf("Error: expected secret %s, got secret %s", secret, secretHTTPS)
+	}
+
+	_, _, err = osxKeychainHelperGet(user, secret, pullServerFTP)
+	if err == nil {
+		t.Fatal("Error expected due to unsupported protocol for URL: %s", pullServerFTP)
+	}
+}
+
 func TestMissingCredentials(t *testing.T) {
 	helper := Osxkeychain{}
 	_, _, err := helper.Get("https://adsfasdf.wrewerwer.com/asdfsdddd")

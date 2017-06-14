@@ -11,8 +11,8 @@ import "C"
 import (
 	"errors"
 	"net/url"
+	"regexp"
 	"strconv"
-	"strings"
 	"unsafe"
 
 	"github.com/docker/docker-credential-helpers/credentials"
@@ -134,31 +134,47 @@ func (h Osxkeychain) List() (map[string]string, error) {
 	return resp, nil
 }
 
+// splitServer() creates a proper server structure for OSX Keychain API
+// It normalizes if needed the format of the URL. Of no protocol is
+// provided, HTTPS will be used by default.
 func splitServer(serverURL string) (*C.struct_Server, error) {
+	// Check if we have a scheme in the URL as of RFC 3986, section 3.1
+	// and prepend '//' to normalize to a valid URL format
+	if !regexp.MustCompile(`^([a-zA-Z][-+.a-zA-Z0-9]+:)?//`).MatchString(serverURL) {
+		serverURL = "//" + serverURL
+	}
+
 	u, err := url.Parse(serverURL)
 	if err != nil {
 		return nil, err
 	}
 
-	hostAndPort := strings.Split(u.Host, ":")
-	host := hostAndPort[0]
+	// We only support HTTPS and HTTP for registries
+	if u.Scheme != "" && u.Scheme != "https" && u.Scheme != "http" {
+		return nil, errors.New("unsupported scheme: " + u.Scheme)
+	}
+
+	if u.Hostname() == "" {
+		return nil, errors.New("no hostname in URL")
+	}
+
+	// If no protocol is specified, we use HTTPS
+	proto := C.kSecProtocolTypeHTTPS
+	if u.Scheme == "http" {
+		proto = C.kSecProtocolTypeHTTP
+	}
+
 	var port int
-	if len(hostAndPort) == 2 {
-		p, err := strconv.Atoi(hostAndPort[1])
+	if u.Port() != "" {
+		port, err = strconv.Atoi(u.Port())
 		if err != nil {
 			return nil, err
 		}
-		port = p
-	}
-
-	proto := C.kSecProtocolTypeHTTPS
-	if u.Scheme != "https" {
-		proto = C.kSecProtocolTypeHTTP
 	}
 
 	return &C.struct_Server{
 		proto: C.SecProtocolType(proto),
-		host:  C.CString(host),
+		host:  C.CString(u.Host),
 		port:  C.uint(port),
 		path:  C.CString(u.Path),
 	}, nil
