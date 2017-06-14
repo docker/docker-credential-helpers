@@ -144,8 +144,9 @@ func splitServer(serverURL string) (*C.struct_Server, error) {
 		proto = C.kSecProtocolTypeHTTP
 	}
 	var port int
-	if u.Port() != "" {
-		port, err = strconv.Atoi(u.Port())
+	p := getPort(u)
+	if p != "" {
+		port, err = strconv.Atoi(p)
 		if err != nil {
 			return nil, err
 		}
@@ -153,7 +154,7 @@ func splitServer(serverURL string) (*C.struct_Server, error) {
 
 	return &C.struct_Server{
 		proto: C.SecProtocolType(proto),
-		host:  C.CString(u.Hostname()),
+		host:  C.CString(getHostname(u)),
 		port:  C.uint(port),
 		path:  C.CString(u.Path),
 	}, nil
@@ -187,7 +188,7 @@ func parseURL(serverURL string) (*url.URL, error) {
 	if u.Scheme != "" && u.Scheme != "https" && u.Scheme != "http" {
 		return nil, errors.New("unsupported scheme: " + u.Scheme)
 	}
-	if u.Hostname() == "" {
+	if getHostname(u) == "" {
 		return nil, errors.New("no hostname in URL")
 	}
 
