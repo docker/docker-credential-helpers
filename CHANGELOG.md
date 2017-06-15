@@ -4,7 +4,12 @@ This changelog tracks the releases of docker-credential-helpers.
 This project includes different binaries per platform.
 The platform released is identified after the tag name.
 
-## v0.5.1
+## v0.5.2 (Mac OS X, Windows, Linux)
+
+- Add a `version` command to output the version
+- Fix storing URLs without scheme, and use `https://` by default
+
+## v0.5.1 (Go client, Mac OS X, Windows, Linux)
 
 - Redirect credential helpers' standard error to the caller's
 - Prevent invalid credentials and credentials queries
