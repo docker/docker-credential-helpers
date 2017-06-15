@@ -34,6 +34,11 @@ wincred:
 	mkdir bin
 	go build -o bin/docker-credential-wincred.exe wincred/cmd/main_windows.go
 
+winrelease: clean vet_win lint fmt test wincred
+	mkdir -p release
+	@echo "\nPackaging version ${VERSION}\n"
+	cd bin && zip ../release/docker-credential-wincred-v$(VERSION)-amd64.zip docker-credential-wincred.exe
+
 test:
 	# tests all packages except vendor
 	go test -v `go list ./... | grep -v /vendor/`
