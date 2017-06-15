@@ -76,8 +76,8 @@ func TestStore(t *testing.T) {
 func TestStoreMissingServerURL(t *testing.T) {
 	creds := &Credentials{
 		ServerURL: "",
-		Username: "foo",
-		Secret: "bar",
+		Username:  "foo",
+		Secret:    "bar",
 	}
 
 	b, err := json.Marshal(creds)
@@ -96,8 +96,8 @@ func TestStoreMissingServerURL(t *testing.T) {
 func TestStoreMissingUsername(t *testing.T) {
 	creds := &Credentials{
 		ServerURL: "https://index.docker.io/v1/",
-		Username: "",
-		Secret: "bar",
+		Username:  "",
+		Secret:    "bar",
 	}
 
 	b, err := json.Marshal(creds)
