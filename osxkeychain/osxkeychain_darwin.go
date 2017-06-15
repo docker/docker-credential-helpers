@@ -15,6 +15,7 @@ import (
 	"unsafe"
 
 	"github.com/docker/docker-credential-helpers/credentials"
+	"strings"
 )
 
 // errCredentialsNotFound is the specific error message returned by OS X
@@ -173,18 +174,16 @@ func freeServer(s *C.struct_Server) {
 // before parsing. This prevents the hostname being used as path,
 // and the credentials being stored without host.
 func parseURL(serverURL string) (*url.URL, error) {
+	// Check if serverURL has a valid scheme, otherwise add `//` as scheme.
+	if !strings.Contains(serverURL, "://") && !strings.HasPrefix(serverURL, "//") {
+		serverURL = "//" + serverURL
+	}
+
 	u, err := url.Parse(serverURL)
 	if err != nil {
 		return nil, err
 	}
-	// Check if serverURL has a valid scheme, otherwise add `//` as scheme.
-	// Without a scheme, the hostname is seen as "path" by `url.Parse()`
-	if u.Scheme == "" {
-		u, err = url.Parse("//" + serverURL)
-		if err != nil {
-			return nil, err
-		}
-	}
+
 	if u.Scheme != "" && u.Scheme != "https" && u.Scheme != "http" {
 		return nil, errors.New("unsupported scheme: " + u.Scheme)
 	}
