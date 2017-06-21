@@ -6,6 +6,8 @@ docker-credential-helpers is a suite of programs to use native stores to keep Do
 
 Go to the [Releases](https://github.com/docker/docker-credential-helpers/releases) page and download the binary that works better for you. Put that binary in your `$PATH`, so Docker can find it.
 
+If you want to use [homebrew](https://brew.sh/), the install forumla is [docker-credential-osxhelper](https://github.com/Homebrew/homebrew-core/blob/master/Formula/docker-credential-helper.rb) and not `docker-credential-helpers`. So `brew install docker-credential-osxhelper` is what you want.
+
 ### Building from scratch
 
 The programs in this repository are written with the Go programming language. These instructions assume that you have previous knowledge about the language and you have it installed in your machine.
