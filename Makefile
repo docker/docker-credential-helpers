@@ -1,4 +1,4 @@
-.PHONY: all deps osxkeychain secretservice test validate wincred
+.PHONY: all deps osxkeychain secretservice test validate wincred pass deb
 
 TRAVIS_OS_NAME ?= linux
 VERSION := $(shell grep 'const Version' credentials/version.go | awk -F'"' '{ print $$2 }')
@@ -29,6 +29,10 @@ osxrelease: clean vet_osx lint fmt test osxcodesign
 secretservice:
 	mkdir bin
 	go build -o bin/docker-credential-secretservice secretservice/cmd/main_linux.go
+
+pass:
+	mkdir -p bin
+	go build -o bin/docker-credential-pass pass/cmd/main_linux.go
 
 wincred:
 	mkdir bin
@@ -64,3 +68,15 @@ fmt:
 	gofmt -s -l `ls **/*.go | grep -v vendor`
 
 validate: vet lint fmt
+
+
+BUILDIMG:=docker-credential-secretservice-$(VERSION)
+deb:
+	mkdir -p release
+	docker build -f deb/Dockerfile \
+		--build-arg VERSION=$(VERSION) \
+		--build-arg DISTRO=xenial \
+		--tag $(BUILDIMG) \
+		.
+	docker run --rm --net=none $(BUILDIMG) tar cf - /release | tar xf -
+	docker rmi $(BUILDIMG)
