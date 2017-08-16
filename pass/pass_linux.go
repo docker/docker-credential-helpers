@@ -20,11 +20,11 @@ import (
 const PASS_FOLDER = "docker-credential-helpers"
 
 var (
-	passInitialized bool
+	PassInitialized bool
 )
 
 func init() {
-	passInitialized = exec.Command("pass").Run() == nil
+	PassInitialized = exec.Command("pass").Run() == nil
 }
 
 func runPass(stdinContent string, args ...string) (string, error) {
@@ -82,7 +82,7 @@ type Pass struct{}
 
 // Add adds new credentials to the keychain.
 func (h Pass) Add(creds *credentials.Credentials) error {
-	if !passInitialized {
+	if !PassInitialized {
 		return errors.New("pass store is uninitialized")
 	}
 
@@ -98,7 +98,7 @@ func (h Pass) Add(creds *credentials.Credentials) error {
 
 // Delete removes credentials from the store.
 func (h Pass) Delete(serverURL string) error {
-	if !passInitialized {
+	if !PassInitialized {
 		return errors.New("pass store is uninitialized")
 	}
 
@@ -145,7 +145,7 @@ func listPassDir(args ...string) ([]os.FileInfo, error) {
 
 // Get returns the username and secret to use for a given registry server URL.
 func (h Pass) Get(serverURL string) (string, string, error) {
-	if !passInitialized {
+	if !PassInitialized {
 		return "", "", errors.New("pass store is uninitialized")
 	}
 
@@ -171,7 +171,7 @@ func (h Pass) Get(serverURL string) (string, string, error) {
 
 // List returns the stored URLs and corresponding usernames for a given credentials label
 func (h Pass) List() (map[string]string, error) {
-	if !passInitialized {
+	if !PassInitialized {
 		return nil, errors.New("pass store is uninitialized")
 	}
 
