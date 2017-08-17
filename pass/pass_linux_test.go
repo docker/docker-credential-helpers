@@ -54,9 +54,13 @@ func TestPassHelper(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		_, _, err = helper.Get(server)
-		if err == nil {
-			t.Fatalf("%s shuldn't exist any more", server)
+		username, _, err = helper.Get(server)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if username != "" {
+			t.Fatalf("%s shouldn't exist any more", username)
 		}
 	}
 
