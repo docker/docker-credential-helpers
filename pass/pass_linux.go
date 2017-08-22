@@ -111,10 +111,7 @@ func (h Pass) Delete(serverURL string) error {
 	return err
 }
 
-// listPassDir lists all the contents of a directory in the password store.
-// Pass uses fancy unicode to emit stuff to stdout, so rather than try
-// and parse this, let's just look at the directory structure instead.
-func listPassDir(args ...string) ([]os.FileInfo, error) {
+func getPassDir() string {
 	passDir := os.ExpandEnv("$HOME/.password-store")
 	for _, e := range os.Environ() {
 		parts := strings.SplitN(e, "=", 2)
@@ -130,6 +127,14 @@ func listPassDir(args ...string) ([]os.FileInfo, error) {
 		break
 	}
 
+	return passDir
+}
+
+// listPassDir lists all the contents of a directory in the password store.
+// Pass uses fancy unicode to emit stuff to stdout, so rather than try
+// and parse this, let's just look at the directory structure instead.
+func listPassDir(args ...string) ([]os.FileInfo, error) {
+	passDir := getPassDir()
 	p := path.Join(append([]string{passDir, PASS_FOLDER}, args...)...)
 	contents, err := ioutil.ReadDir(p)
 	if err != nil {
@@ -154,6 +159,14 @@ func (h Pass) Get(serverURL string) (string, string, error) {
 	}
 
 	encoded := base64.URLEncoding.EncodeToString([]byte(serverURL))
+
+	if _, err := os.Stat(path.Join(getPassDir(), PASS_FOLDER, encoded)); err != nil {
+		if os.IsNotExist(err) {
+			return "", "", nil;
+		}
+
+		return "", "", err
+	}
 
 	usernames, err := listPassDir(encoded)
 	if err != nil {
