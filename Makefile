@@ -6,14 +6,14 @@ VERSION := $(shell grep 'const Version' credentials/version.go | awk -F'"' '{ pr
 all: test
 
 deps:
-	go get github.com/golang/lint/golint
+	go get -u github.com/golang/lint/golint
 
 clean:
 	rm -rf bin
 	rm -rf release
 
 osxkeychain:
-	mkdir bin
+	mkdir -p bin
 	go build -ldflags -s -o bin/docker-credential-osxkeychain osxkeychain/cmd/main_darwin.go
 
 osxcodesign: osxkeychain
@@ -27,7 +27,7 @@ osxrelease: clean vet_osx lint fmt test osxcodesign
 	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
 
 secretservice:
-	mkdir bin
+	mkdir -p bin
 	go build -o bin/docker-credential-secretservice secretservice/cmd/main_linux.go
 
 pass:
@@ -35,7 +35,7 @@ pass:
 	go build -o bin/docker-credential-pass pass/cmd/main_linux.go
 
 wincred:
-	mkdir bin
+	mkdir -p bin
 	go build -o bin/docker-credential-wincred.exe wincred/cmd/main_windows.go
 
 winrelease: clean vet_win lint fmt test wincred
