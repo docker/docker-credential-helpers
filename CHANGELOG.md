@@ -4,6 +4,12 @@ This changelog tracks the releases of docker-credential-helpers.
 This project includes different binaries per platform.
 The platform released is identified after the tag name.
 
+## v0.5.3 (Go client, Linux)
+
+- New credential helper on Linux using `pass`
+- New entry point for passing environment variables when calling a credential helper
+- Add a Makefile rule generating a Windows release binary
+
 ## v0.5.2 (Mac OS X, Windows, Linux)
 
 - Add a `version` command to output the version
