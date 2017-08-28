@@ -10,6 +10,11 @@ The platform released is identified after the tag name.
 - New entry point for passing environment variables when calling a credential helper
 - Add a Makefile rule generating a Windows release binary
 
+### Note
+
+`pass` needs to be configured for `docker-credential-pass` to work properly.
+It must be initialized with a `gpg2` key ID. Make sure your GPG key exists is in `gpg2` keyring as `pass` uses `gpg2` instead of the regular `gpg`.
+
 ## v0.5.2 (Mac OS X, Windows, Linux)
 
 - Add a `version` command to output the version
