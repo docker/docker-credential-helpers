@@ -24,7 +24,25 @@ var (
 )
 
 func init() {
-	PassInitialized = exec.Command("pass").Run() == nil
+	// In principle, we could just run `pass init`. However, pass has a bug
+	// where if gpg fails, it doesn't always exit 1. Additionally, pass
+	// uses gpg2, but gpg is the default, which may be confusing. So let's
+	// just explictily check that pass actually can store and retreive a
+	// password.
+	password := "pass is initialized"
+	name := path.Join(PASS_FOLDER, "docker-pass-initialized-check")
+
+	_, err := runPass(password, "insert", "-f", "-m", name)
+	if err != nil {
+		return
+	}
+
+	stored, err := runPass("", "show", name)
+	PassInitialized = err == nil && stored == password
+
+	if PassInitialized {
+		runPass("", "rm", "-rf", name)
+	}
 }
 
 func runPass(stdinContent string, args ...string) (string, error) {
