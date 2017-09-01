@@ -27,7 +27,7 @@ func init() {
 	// In principle, we could just run `pass init`. However, pass has a bug
 	// where if gpg fails, it doesn't always exit 1. Additionally, pass
 	// uses gpg2, but gpg is the default, which may be confusing. So let's
-	// just explictily check that pass actually can store and retreive a
+	// just explictily check that pass actually can store and retrieve a
 	// password.
 	password := "pass is initialized"
 	name := path.Join(PASS_FOLDER, "docker-pass-initialized-check")
