@@ -10,13 +10,17 @@
     email: false
   go:
     - 1.8
-  before_install: if [ $TRAVIS_OS_NAME = "osx" ]; then brew install pass; fi
-  install: make deps
+
   addons:
     apt:
       packages:
+        - gnupg2
         - libsecret-1-dev
         - pass
+
+  before_install:
+    - if [ $TRAVIS_OS_NAME = "osx" ]; then brew install pass gnupg; fi
+  install: make deps
 
   before_script:
     - "export DISPLAY=:99.0"
