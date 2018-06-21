@@ -58,7 +58,8 @@ func runPass(stdin string, args ...string) (string, error) {
 		return "", fmt.Errorf("%s: %s", err, stderr.String())
 	}
 
-	return stdout.String(), nil
+	// trim newlines; pass v1.7.1+ includes a newline at the end of `show` output
+	return strings.TrimRight(stdout.String(), "\n\r"), nil
 }
 
 // Pass handles secrets using Linux secret-service as a store.
