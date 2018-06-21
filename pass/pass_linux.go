@@ -5,7 +5,6 @@
 package pass
 
 import (
-	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -14,40 +13,63 @@ import (
 	"os/exec"
 	"path"
 	"strings"
+	"sync"
 
 	"github.com/docker/docker-credential-helpers/credentials"
 )
 
 const PASS_FOLDER = "docker-credential-helpers"
 
-var (
-	PassInitialized bool
-)
+// Pass handles secrets using Linux secret-service as a store.
+type Pass struct{}
 
-func init() {
+// Ideally these would be stored as members of Pass, but since all of Pass's
+// methods have value receivers, not pointer receivers, and changing that is
+// backwards incompatible, we assume that all Pass instances share the same configuration
+
+// initializationMutex is held while initializing so that only one 'pass'
+// round-tripping is done to check pass is functioning.
+var initializationMutex sync.Mutex
+var passInitialized bool
+
+func (p Pass) checkInitialized() error {
+	initializationMutex.Lock()
+	defer initializationMutex.Unlock()
+	if passInitialized {
+		return nil
+	}
 	// In principle, we could just run `pass init`. However, pass has a bug
 	// where if gpg fails, it doesn't always exit 1. Additionally, pass
 	// uses gpg2, but gpg is the default, which may be confusing. So let's
 	// just explictily check that pass actually can store and retreive a
 	// password.
 	password := "pass is initialized"
-	name := path.Join(PASS_FOLDER, "docker-pass-initialized-check")
+	name := path.Join(getPassDir(), "docker-pass-initialized-check")
 
-	_, err := runPass(password, "insert", "-f", "-m", name)
+	_, err := p.runPassHelper(password, "insert", "-f", "-m", name)
 	if err != nil {
-		return
+		return fmt.Errorf("error initializing pass: %v", err)
 	}
 
-	stored, err := runPass("", "show", name)
-	PassInitialized = err == nil && stored == password
-
-	if PassInitialized {
-		runPass("", "rm", "-rf", name)
+	stored, err := p.runPassHelper("", "show", name)
+	if err != nil {
+		return fmt.Errorf("error fetching password during initialization: %v", err)
 	}
+	if stored != password {
+		return fmt.Errorf("error round-tripping password during initialization: %q != %q", password, stored)
+	}
+	passInitialized = true
+	return nil
 }
 
-func runPass(stdin string, args ...string) (string, error) {
-	var stdout, stderr bytes.Buffer
+func (p Pass) runPass(stdinContent string, args ...string) (string, error) {
+	if err := p.checkInitialized(); err != nil {
+		return "", err
+	}
+	return p.runPassHelper(stdinContent, args...)
+}
+
+func (p Pass) runPassHelper(stdinContent string, args ...string) (string, error) {
 	cmd := exec.Command("pass", args...)
 	cmd.Stdin = strings.NewReader(stdin)
 	cmd.Stdout = &stdout
@@ -61,37 +83,26 @@ func runPass(stdin string, args ...string) (string, error) {
 	return stdout.String(), nil
 }
 
-// Pass handles secrets using Linux secret-service as a store.
-type Pass struct{}
-
 // Add adds new credentials to the keychain.
 func (h Pass) Add(creds *credentials.Credentials) error {
-	if !PassInitialized {
-		return errors.New("pass store is uninitialized")
-	}
-
 	if creds == nil {
 		return errors.New("missing credentials")
 	}
 
 	encoded := base64.URLEncoding.EncodeToString([]byte(creds.ServerURL))
 
-	_, err := runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
+	_, err := h.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
 	return err
 }
 
 // Delete removes credentials from the store.
 func (h Pass) Delete(serverURL string) error {
-	if !PassInitialized {
-		return errors.New("pass store is uninitialized")
-	}
-
 	if serverURL == "" {
 		return errors.New("missing server url")
 	}
 
 	encoded := base64.URLEncoding.EncodeToString([]byte(serverURL))
-	_, err := runPass("", "rm", "-rf", path.Join(PASS_FOLDER, encoded))
+	_, err := h.runPass("", "rm", "-rf", path.Join(PASS_FOLDER, encoded))
 	return err
 }
 
@@ -123,10 +134,6 @@ func listPassDir(args ...string) ([]os.FileInfo, error) {
 
 // Get returns the username and secret to use for a given registry server URL.
 func (h Pass) Get(serverURL string) (string, string, error) {
-	if !PassInitialized {
-		return "", "", errors.New("pass store is uninitialized")
-	}
-
 	if serverURL == "" {
 		return "", "", errors.New("missing server url")
 	}
@@ -151,16 +158,12 @@ func (h Pass) Get(serverURL string) (string, string, error) {
 	}
 
 	actual := strings.TrimSuffix(usernames[0].Name(), ".gpg")
-	secret, err := runPass("", "show", path.Join(PASS_FOLDER, encoded, actual))
+	secret, err := h.runPass("", "show", path.Join(PASS_FOLDER, encoded, actual))
 	return actual, secret, err
 }
 
 // List returns the stored URLs and corresponding usernames for a given credentials label
 func (h Pass) List() (map[string]string, error) {
-	if !PassInitialized {
-		return nil, errors.New("pass store is uninitialized")
-	}
-
 	servers, err := listPassDir()
 	if err != nil {
 		return nil, err
