@@ -57,10 +57,13 @@ You can see examples of each function in the [client](https://godoc.org/github.c
 3. wincred: Provides a helper to use Windows credentials manager as store.
 4. pass: Provides a helper to use `pass` as credentials store.
 
-#### Note
+#### Notes on `pass`:
 
-`pass` needs to be configured for `docker-credential-pass` to work properly.
+- `pass` needs to be configured for `docker-credential-pass` to work properly.
 It must be initialized with a `gpg2` key ID. Make sure your GPG key exists is in `gpg2` keyring as `pass` uses `gpg2` instead of the regular `gpg`.
+
+- In newer versions of `pass` (later than 1.7.0), the password store adds a newline character to the end of new passwords. In order to resolve this issue, open pass_linux.go for editing and add a newline character to the end of the declaration for password (under the init function) as follows:
+`password := "pass is initialized\n"`
 
 ## Development
 
