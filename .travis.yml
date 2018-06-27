@@ -15,13 +15,13 @@
     # might not be necessary in the future
     - command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
     - rvm get stable
-  install: make deps
   addons:
     apt:
       packages:
         - libsecret-1-dev
         - pass
   before_script:
+    - make deps
     - "export DISPLAY=:99.0"
     - if [[ "$TRAVIS_OS_NAME" == "linux"  ]]; then sh ci/before_script_linux.sh; fi
     - make validate
