@@ -5,6 +5,7 @@
 package pass
 
 import (
+	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -45,54 +46,19 @@ func init() {
 	}
 }
 
-func runPass(stdinContent string, args ...string) (string, error) {
+func runPass(stdin string, args ...string) (string, error) {
+	var stdout, stderr bytes.Buffer
 	cmd := exec.Command("pass", args...)
+	cmd.Stdin = strings.NewReader(stdin)
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
 
-	stdin, err := cmd.StdinPipe()
+	err := cmd.Run()
 	if err != nil {
-		return "", err
-	}
-	defer stdin.Close()
-
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return "", err
-	}
-	defer stderr.Close()
-
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		return "", err
-	}
-	defer stdout.Close()
-
-	err = cmd.Start()
-	if err != nil {
-		return "", err
+		return "", fmt.Errorf("%s: %s", err, stderr.String())
 	}
 
-	_, err = stdin.Write([]byte(stdinContent))
-	if err != nil {
-		return "", err
-	}
-	stdin.Close()
-
-	errContent, err := ioutil.ReadAll(stderr)
-	if err != nil {
-		return "", fmt.Errorf("error reading stderr: %s", err)
-	}
-
-	result, err := ioutil.ReadAll(stdout)
-	if err != nil {
-		return "", fmt.Errorf("Error reading stdout: %s", err)
-	}
-
-	cmdErr := cmd.Wait()
-	if cmdErr != nil {
-		return "", fmt.Errorf("%s: %s", cmdErr, errContent)
-	}
-
-	return string(result), nil
+	return stdout.String(), nil
 }
 
 // Pass handles secrets using Linux secret-service as a store.
@@ -130,22 +96,11 @@ func (h Pass) Delete(serverURL string) error {
 }
 
 func getPassDir() string {
-	passDir := os.ExpandEnv("$HOME/.password-store")
-	for _, e := range os.Environ() {
-		parts := strings.SplitN(e, "=", 2)
-		if len(parts) < 2 {
-			continue
-		}
-
-		if parts[0] != "PASSWORD_STORE_DIR" {
-			continue
-		}
-
-		passDir = parts[1]
-		break
+	passDir := "$HOME/.password-store"
+	if envDir := os.Getenv("PASSWORD_STORE_DIR"); envDir != "" {
+		passDir = envDir
 	}
-
-	return passDir
+	return os.ExpandEnv(passDir)
 }
 
 // listPassDir lists all the contents of a directory in the password store.
@@ -180,7 +135,7 @@ func (h Pass) Get(serverURL string) (string, string, error) {
 
 	if _, err := os.Stat(path.Join(getPassDir(), PASS_FOLDER, encoded)); err != nil {
 		if os.IsNotExist(err) {
-			return "", "", nil;
+			return "", "", nil
 		}
 
 		return "", "", err
