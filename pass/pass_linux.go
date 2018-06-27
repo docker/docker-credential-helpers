@@ -5,6 +5,7 @@
 package pass
 
 import (
+	"bytes"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -31,6 +32,13 @@ type Pass struct{}
 // round-tripping is done to check pass is functioning.
 var initializationMutex sync.Mutex
 var passInitialized bool
+
+// CheckInitialized checks whether the password helper can be used. It
+// internally caches and so may be safely called multiple times with no impact
+// on performance, though the first call may take longer.
+func (p Pass) CheckInitialized() bool {
+	return p.checkInitialized() == nil
+}
 
 func (p Pass) checkInitialized() error {
 	initializationMutex.Lock()
@@ -70,8 +78,9 @@ func (p Pass) runPass(stdinContent string, args ...string) (string, error) {
 }
 
 func (p Pass) runPassHelper(stdinContent string, args ...string) (string, error) {
+	var stdout, stderr bytes.Buffer
 	cmd := exec.Command("pass", args...)
-	cmd.Stdin = strings.NewReader(stdin)
+	cmd.Stdin = strings.NewReader(stdinContent)
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
