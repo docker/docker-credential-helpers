@@ -49,7 +49,7 @@ func (p Pass) checkInitialized() error {
 	// We just run a `pass ls`, if it fails then pass is not initialized.
 	_, err := p.runPassHelper("", "ls")
 	if err != nil {
-		return fmt.Errorf("error initializing pass: %v", err)
+		return fmt.Errorf("pass not initialized: %v", err)
 	}
 	passInitialized = true
 	return nil
