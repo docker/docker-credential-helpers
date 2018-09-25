@@ -46,25 +46,10 @@ func (p Pass) checkInitialized() error {
 	if passInitialized {
 		return nil
 	}
-	// In principle, we could just run `pass init`. However, pass has a bug
-	// where if gpg fails, it doesn't always exit 1. Additionally, pass
-	// uses gpg2, but gpg is the default, which may be confusing. So let's
-	// just explictily check that pass actually can store and retreive a
-	// password.
-	password := "pass is initialized"
-	name := path.Join(getPassDir(), "docker-pass-initialized-check")
-
-	_, err := p.runPassHelper(password, "insert", "-f", "-m", name)
+	// We just run a `pass ls`, if it fails then pass is not initialized.
+	_, err := p.runPassHelper("", "ls")
 	if err != nil {
-		return fmt.Errorf("error initializing pass: %v", err)
-	}
-
-	stored, err := p.runPassHelper("", "show", name)
-	if err != nil {
-		return fmt.Errorf("error fetching password during initialization: %v", err)
-	}
-	if stored != password {
-		return fmt.Errorf("error round-tripping password during initialization: %q != %q", password, stored)
+		return fmt.Errorf("pass not initialized: %v", err)
 	}
 	passInitialized = true
 	return nil
