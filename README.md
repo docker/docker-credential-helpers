@@ -25,6 +25,14 @@ $ make osxkeychain
 
 3 - Put that binary in your `$PATH`, so Docker can find it.
 
+### Windows Installation
+
+Make sure your `GOBIN` environment variable is set.
+
+1. `go get github.com/docker/docker-credential-helpers`
+1. `cd $env:GOPATH/docker/docker-credentials-helpers`
+1. `go install -v wincred/cmd/main_windows.go`
+
 ## Usage
 
 ### With the Docker Engine
