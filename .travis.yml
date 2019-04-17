@@ -3,19 +3,14 @@
   sudo: required
   language: go
   dist: trusty
-  osx_image: xcode9
+  osx_image: xcode10.1
   os:
     - linux
     - osx
   notifications:
     email: false
   go:
-    - 1.8.1
-  before_install:
-    # work-around for issue https://github.com/travis-ci/travis-ci/issues/6307
-    # might not be necessary in the future
-    - command curl -sSL https://rvm.io/mpapis.asc | gpg --import -
-    - rvm get stable
+    - 1.12.x
   addons:
     apt:
       packages:
