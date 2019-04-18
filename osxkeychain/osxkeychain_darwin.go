@@ -113,6 +113,10 @@ func (h Osxkeychain) List() (map[string]string, error) {
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
 		goMsg := C.GoString(errMsg)
+		if goMsg == errCredentialsNotFound {
+			return make(map[string]string), nil
+		}
+
 		return nil, errors.New(goMsg)
 	}
 
