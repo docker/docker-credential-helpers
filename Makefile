@@ -6,7 +6,7 @@ VERSION := $(shell grep 'const Version' credentials/version.go | awk -F'"' '{ pr
 all: test
 
 deps:
-	go get -u github.com/golang/lint/golint
+	go get -u golang.org/x/lint/golint
 
 clean:
 	rm -rf bin

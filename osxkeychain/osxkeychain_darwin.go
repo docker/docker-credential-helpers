@@ -1,8 +1,8 @@
 package osxkeychain
 
 /*
-#cgo CFLAGS: -x objective-c -mmacosx-version-min=10.10
-#cgo LDFLAGS: -framework Security -framework Foundation -mmacosx-version-min=10.10
+#cgo CFLAGS: -x objective-c -mmacosx-version-min=10.11
+#cgo LDFLAGS: -framework Security -framework Foundation -mmacosx-version-min=10.11
 
 #include "osxkeychain_darwin.h"
 #include <stdlib.h>
