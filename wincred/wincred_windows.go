@@ -72,12 +72,11 @@ func getTarget(serverURL string) (string, error) {
 		return "", err
 	}
 
-	targets := make([]string, 0)
+	var targets []string
 	for i := range creds {
 		attrs := creds[i].Attributes
 		for _, attr := range attrs {
-			if strings.Compare(attr.Keyword, "label") == 0 &&
-				bytes.Compare(attr.Value, []byte(credentials.CredsLabel)) == 0 {
+			if attr.Keyword == "label" && bytes.Equal(attr.Value, []byte(credentials.CredsLabel)) {
 				targets = append(targets, creds[i].TargetName)
 			}
 		}
