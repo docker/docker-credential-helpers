@@ -10,11 +10,11 @@ package osxkeychain
 import "C"
 import (
 	"errors"
-	"github.com/docker/docker-credential-helpers/registryurl"
 	"strconv"
 	"unsafe"
 
 	"github.com/docker/docker-credential-helpers/credentials"
+	"github.com/docker/docker-credential-helpers/registryurl"
 )
 
 // errCredentialsNotFound is the specific error message returned by OS X

@@ -2,8 +2,9 @@ package osxkeychain
 
 import (
 	"fmt"
-	"github.com/docker/docker-credential-helpers/credentials"
 	"testing"
+
+	"github.com/docker/docker-credential-helpers/credentials"
 )
 
 func TestOSXKeychainHelper(t *testing.T) {

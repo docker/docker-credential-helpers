@@ -3,8 +3,8 @@
 package registryurl
 
 import (
-	"strings"
 	url "net/url"
+	"strings"
 )
 
 func GetHostname(u *url.URL) string {
