@@ -1,17 +1,17 @@
 //+build !go1.8
 
-package osxkeychain
+package registryurl
 
 import (
-	"net/url"
+	url "net/url"
 	"strings"
 )
 
-func getHostname(u *url.URL) string {
+func GetHostname(u *url.URL) string {
 	return stripPort(u.Host)
 }
 
-func getPort(u *url.URL) string {
+func GetPort(u *url.URL) string {
 	return portOnly(u.Host)
 }
 

@@ -10,12 +10,11 @@ package osxkeychain
 import "C"
 import (
 	"errors"
-	"net/url"
 	"strconv"
-	"strings"
 	"unsafe"
 
 	"github.com/docker/docker-credential-helpers/credentials"
+	"github.com/docker/docker-credential-helpers/registryurl"
 )
 
 // errCredentialsNotFound is the specific error message returned by OS X
@@ -139,7 +138,7 @@ func (h Osxkeychain) List() (map[string]string, error) {
 }
 
 func splitServer(serverURL string) (*C.struct_Server, error) {
-	u, err := parseURL(serverURL)
+	u, err := registryurl.Parse(serverURL)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +148,7 @@ func splitServer(serverURL string) (*C.struct_Server, error) {
 		proto = C.kSecProtocolTypeHTTP
 	}
 	var port int
-	p := getPort(u)
+	p := registryurl.GetPort(u)
 	if p != "" {
 		port, err = strconv.Atoi(p)
 		if err != nil {
@@ -159,7 +158,7 @@ func splitServer(serverURL string) (*C.struct_Server, error) {
 
 	return &C.struct_Server{
 		proto: C.SecProtocolType(proto),
-		host:  C.CString(getHostname(u)),
+		host:  C.CString(registryurl.GetHostname(u)),
 		port:  C.uint(port),
 		path:  C.CString(u.Path),
 	}, nil
@@ -168,33 +167,4 @@ func splitServer(serverURL string) (*C.struct_Server, error) {
 func freeServer(s *C.struct_Server) {
 	C.free(unsafe.Pointer(s.host))
 	C.free(unsafe.Pointer(s.path))
-}
-
-// parseURL parses and validates a given serverURL to an url.URL, and
-// returns an error if validation failed. Querystring parameters are
-// omitted in the resulting URL, because they are not used in the helper.
-//
-// If serverURL does not have a valid scheme, `//` is used as scheme
-// before parsing. This prevents the hostname being used as path,
-// and the credentials being stored without host.
-func parseURL(serverURL string) (*url.URL, error) {
-	// Check if serverURL has a scheme, otherwise add `//` as scheme.
-	if !strings.Contains(serverURL, "://") && !strings.HasPrefix(serverURL, "//") {
-		serverURL = "//" + serverURL
-	}
-
-	u, err := url.Parse(serverURL)
-	if err != nil {
-		return nil, err
-	}
-
-	if u.Scheme != "" && u.Scheme != "https" && u.Scheme != "http" {
-		return nil, errors.New("unsupported scheme: " + u.Scheme)
-	}
-	if getHostname(u) == "" {
-		return nil, errors.New("no hostname in URL")
-	}
-
-	u.RawQuery = ""
-	return u, nil
 }
