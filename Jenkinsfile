@@ -28,7 +28,8 @@ pipeline {
                                 sh 'apt-get update && apt-get install -y libsecret-1-dev pass'
                                 sh 'make deps fmt lint test'
                                 sh 'make pass secretservice'
-                                archiveArtifacts 'bin/docker-credential-*'
+                                sh 'make linuxrelease'
+                                archiveArtifacts 'release/docker-credential-*'
                             }
                         }
                     }
@@ -45,7 +46,8 @@ pipeline {
                         dir('src/github.com/docker/docker-credential-helpers') {
                             sh 'make deps fmt lint test'
                             sh 'make osxcodesign'
-                            archiveArtifacts 'bin/docker-credential-*'
+                            sh 'make osxrelease'
+                            archiveArtifacts 'release/docker-credential-*'
                         }
                     }
                 }
