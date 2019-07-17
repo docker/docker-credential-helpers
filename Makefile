@@ -21,11 +21,6 @@ osxcodesign: osxkeychain
 	xcrun -log codesign -s $(SIGNINGHASH) --force --verbose bin/docker-credential-osxkeychain
 	xcrun codesign --verify --deep --strict --verbose=2 --display bin/docker-credential-osxkeychain
 
-osxrelease: clean vet_osx lint fmt test osxcodesign
-	mkdir -p release
-	@echo "\nPackaging version ${VERSION}\n"
-	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
-
 secretservice:
 	mkdir -p bin
 	go build -o bin/docker-credential-secretservice secretservice/cmd/main_linux.go
@@ -38,9 +33,17 @@ wincred:
 	mkdir -p bin
 	go build -o bin/docker-credential-wincred.exe wincred/cmd/main_windows.go
 
-winrelease: clean vet_win lint fmt test wincred
+linuxrelease:
 	mkdir -p release
-	@echo "\nPackaging version ${VERSION}\n"
+	cd bin && tar cvfz ../release/docker-credential-pass-v$(VERSION)-amd64.tar.gz docker-credential-pass
+	cd bin && tar cvfz ../release/docker-credential-secretservice-v$(VERSION)-amd64.tar.gz docker-credential-secretservice
+
+osxrelease:
+	mkdir -p release
+	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
+
+winrelease:
+	mkdir -p release
 	cd bin && zip ../release/docker-credential-wincred-v$(VERSION)-amd64.zip docker-credential-wincred.exe
 
 test:
