@@ -58,8 +58,8 @@ pipeline {
                     environment {
                         GOPATH      = pwd()
                         PATH        = "${pwd()}/bin;$PATH"
-                        PFX         = credentials('windows-build-pfx-sanitize')
-                        PFXPASSWORD = credentials('windows-build-pfx-password')
+                        PFX         = credentials('windows-build-2019-pfx')
+                        PFXPASSWORD = credentials('windows-build-2019-pfx-password')
                     }
                     steps {
                         dir('src/github.com/docker/docker-credential-helpers') {
