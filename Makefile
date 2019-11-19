@@ -29,6 +29,10 @@ pass:
 	mkdir -p bin
 	go build -o bin/docker-credential-pass pass/cmd/main_linux.go
 
+gopass:
+	mkdir -p bin
+	go build -o bin/docker-credential-gopass gopass/cmd/main_linux.go
+
 wincred:
 	mkdir -p bin
 	go build -o bin/docker-credential-wincred.exe wincred/cmd/main_windows.go
@@ -36,6 +40,7 @@ wincred:
 linuxrelease:
 	mkdir -p release
 	cd bin && tar cvfz ../release/docker-credential-pass-v$(VERSION)-amd64.tar.gz docker-credential-pass
+	cd bin && tar cvfz ../release/docker-credential-gopass-v$(VERSION)-amd64.tar.gz docker-credential-gopass
 	cd bin && tar cvfz ../release/docker-credential-secretservice-v$(VERSION)-amd64.tar.gz docker-credential-secretservice
 
 osxrelease:
