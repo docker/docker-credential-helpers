@@ -7,7 +7,8 @@
   os:
     - linux
     - osx
-    - linux-ppc64le
+  arch:
+    - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then ppc64le else amd64 fi
   notifications:
     email: false
   go:
