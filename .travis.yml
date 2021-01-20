@@ -2,7 +2,7 @@
   # See appveyor.yml for windows build.
   sudo: required
   language: go
-  dist: trusty
+  dist: focal
   osx_image: xcode10.1
   os:
     - linux
@@ -11,10 +11,11 @@
   notifications:
     email: false
   go:
-    - 1.12.x
+    - 1.15.x
   addons:
     apt:
       packages:
+        - libsecret-1
         - libsecret-1-dev
         - pass
   before_script:

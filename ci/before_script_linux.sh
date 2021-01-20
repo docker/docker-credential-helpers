@@ -1,6 +1,6 @@
 set -ex
 
-sh -e /etc/init.d/xvfb start
+sh -e systemctl start xvfb
 sleep 3 # give xvfb some time to start
 
 # init key for pass
