@@ -3,7 +3,7 @@ wincred
 
 Go wrapper around the Windows Credential Manager API functions.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/eclecjwniu2n4u3w/branch/master?svg=true)](https://ci.appveyor.com/project/danieljoos/wincred/branch/master)
+![Go](https://github.com/danieljoos/wincred/workflows/Go/badge.svg)
 [![GoDoc](https://godoc.org/github.com/danieljoos/wincred?status.svg)](https://godoc.org/github.com/danieljoos/wincred)
 
 
