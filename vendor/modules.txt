@@ -1,2 +1,4 @@
 # github.com/danieljoos/wincred v1.1.0
 github.com/danieljoos/wincred
+# golang.org/x/sys v0.0.0-20210119212857-b64e53b001e4
+golang.org/x/sys/execabs
