@@ -1,0 +1,2 @@
+# github.com/danieljoos/wincred v1.1.0
+github.com/danieljoos/wincred
