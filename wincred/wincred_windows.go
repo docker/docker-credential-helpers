@@ -148,3 +148,7 @@ func (h Wincred) List() (map[string]string, error) {
 
 	return resp, nil
 }
+
+func (h Wincred) Version() string {
+	return credentials.Version
+}

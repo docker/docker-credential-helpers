@@ -149,6 +149,10 @@ func (h Osxkeychain) List() (map[string]string, error) {
 	return resp, nil
 }
 
+func (h Osxkeychain) Version() string {
+	return credentials.Version
+}
+
 func splitServer(serverURL string) (*C.struct_Server, error) {
 	u, err := registryurl.Parse(serverURL)
 	if err != nil {

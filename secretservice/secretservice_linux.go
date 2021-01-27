@@ -116,3 +116,7 @@ func (h Secretservice) List() (map[string]string, error) {
 
 	return resp, nil
 }
+
+func (h Secretservice) Version() string {
+	return credentials.Version
+}
