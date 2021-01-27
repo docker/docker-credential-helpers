@@ -76,7 +76,7 @@ func HandleCommand(helper Helper, key string, in io.Reader, out io.Writer) error
 	case "list":
 		return List(helper, out)
 	case "version":
-		return PrintVersion(out)
+		return PrintVersion(helper, out)
 	}
 	return fmt.Errorf("Unknown credential action `%s`", key)
 }
@@ -180,7 +180,11 @@ func List(helper Helper, writer io.Writer) error {
 }
 
 //PrintVersion outputs the current version.
-func PrintVersion(writer io.Writer) error {
-	fmt.Fprintln(writer, Version)
+func PrintVersion(helper Helper, writer io.Writer) error {
+	version := helper.Version()
+	if version == "" {
+		version = Version
+	}
+	fmt.Fprintln(writer, version)
 	return nil
 }

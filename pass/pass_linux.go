@@ -190,3 +190,7 @@ func (h Pass) List() (map[string]string, error) {
 
 	return resp, nil
 }
+
+func (h Pass) Version() string {
+	return credentials.Version
+}

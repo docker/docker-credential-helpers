@@ -11,4 +11,6 @@ type Helper interface {
 	Get(serverURL string) (string, string, error)
 	// List returns the stored serverURLs and their associated usernames.
 	List() (map[string]string, error)
+	// Get version information about this helper.
+	Version() string
 }
