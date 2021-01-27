@@ -86,7 +86,7 @@ func (h Pass) Add(creds *credentials.Credentials) error {
 
 	encoded := base64.URLEncoding.EncodeToString([]byte(creds.ServerURL))
 
-	_, err := h.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
+	_, err := h.runPass(creds.Secret + "\n", "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
 	return err
 }
 
