@@ -47,6 +47,7 @@ pipeline {
                             sh 'make deps fmt lint test'
                             sh 'make osxcodesign'
                             sh 'make osxrelease'
+                            sh 'make pass'
                             archiveArtifacts 'release/docker-credential-*'
                         }
                     }

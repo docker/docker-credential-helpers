@@ -27,7 +27,7 @@ secretservice:
 
 pass:
 	mkdir -p bin
-	go build -o bin/docker-credential-pass pass/cmd/main_linux.go
+	go build -o bin/docker-credential-pass pass/cmd/main.go
 
 wincred:
 	mkdir -p bin
@@ -41,6 +41,7 @@ linuxrelease:
 osxrelease:
 	mkdir -p release
 	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
+	cd bin && tar cvfz ../release/docker-credential-pass-v$(VERSION)-osx-amd64.tar.gz docker-credential-pass
 
 winrelease:
 	mkdir -p release
