@@ -19,7 +19,7 @@ $ go get github.com/docker/docker-credential-helpers
 2 - Use `make` to build the program you want. That will leave an executable in the `bin` directory inside the repository.
 
 ```
-$ cd $GOPATH/docker/docker-credentials-helpers
+$ cd $GOPATH/docker/docker-credential-helpers
 $ make osxkeychain
 ```
 
