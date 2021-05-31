@@ -19,14 +19,14 @@ func TestSecretServiceHelper(t *testing.T) {
 	helper := Secretservice{}
 
 	// Check how many docker credentials we have when starting the test
-	old_auths, err := helper.List()
+	oldAuths, err := helper.List()
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// If any docker credentials with the tests values we are providing, we
 	// remove them as they probably come from a previous failed test
-	for k, v := range old_auths {
+	for k, v := range oldAuths {
 		if strings.Compare(k, creds.ServerURL) == 0 && strings.Compare(v, creds.Username) == 0 {
 
 			if err := helper.Delete(creds.ServerURL); err != nil {
@@ -36,7 +36,7 @@ func TestSecretServiceHelper(t *testing.T) {
 	}
 
 	// Check again how many docker credentials we have when starting the test
-	old_auths, err = helper.List()
+	oldAuths, err = helper.List()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,11 +61,11 @@ func TestSecretServiceHelper(t *testing.T) {
 	}
 
 	// We should have one more credential than before adding
-	new_auths, err := helper.List()
-	if err != nil || (len(new_auths)-len(old_auths) != 1) {
+	newAuths, err := helper.List()
+	if err != nil || (len(newAuths)-len(oldAuths) != 1) {
 		t.Fatal(err)
 	}
-	old_auths = new_auths
+	oldAuths = newAuths
 
 	// Deleting the credentials associated to current server url should succeed
 	if err := helper.Delete(creds.ServerURL); err != nil {
@@ -73,8 +73,8 @@ func TestSecretServiceHelper(t *testing.T) {
 	}
 
 	// We should have one less credential than before deleting
-	new_auths, err = helper.List()
-	if err != nil || (len(old_auths)-len(new_auths) != 1) {
+	newAuths, err = helper.List()
+	if err != nil || (len(oldAuths)-len(newAuths) != 1) {
 		t.Fatal(err)
 	}
 }

@@ -1,7 +1,7 @@
-// A `pass` based credential helper. Passwords are stored as arguments to pass
-// of the form: "$PASS_FOLDER/base64-url(serverURL)/username". We base64-url
-// encode the serverURL, because under the hood pass uses files and folders, so
-// /s will get translated into additional folders.
+// Package pass implements a `pass` based credential helper. Passwords are stored
+// as arguments to pass of the form: "$PASS_FOLDER/base64-url(serverURL)/username".
+// We base64-url encode the serverURL, because under the hood pass uses files and
+// folders, so /s will get translated into additional folders.
 package pass
 
 import (
@@ -19,7 +19,8 @@ import (
 	"github.com/docker/docker-credential-helpers/credentials"
 )
 
-const PASS_FOLDER = "docker-credential-helpers"
+// PASS_FOLDER contains the directory where credentials are stored
+const PASS_FOLDER = "docker-credential-helpers" //nolint: golint
 
 // Pass handles secrets using Linux secret-service as a store.
 type Pass struct{}
@@ -79,25 +80,25 @@ func (p Pass) runPassHelper(stdinContent string, args ...string) (string, error)
 }
 
 // Add adds new credentials to the keychain.
-func (h Pass) Add(creds *credentials.Credentials) error {
+func (p Pass) Add(creds *credentials.Credentials) error {
 	if creds == nil {
 		return errors.New("missing credentials")
 	}
 
 	encoded := base64.URLEncoding.EncodeToString([]byte(creds.ServerURL))
 
-	_, err := h.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
+	_, err := p.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
 	return err
 }
 
 // Delete removes credentials from the store.
-func (h Pass) Delete(serverURL string) error {
+func (p Pass) Delete(serverURL string) error {
 	if serverURL == "" {
 		return errors.New("missing server url")
 	}
 
 	encoded := base64.URLEncoding.EncodeToString([]byte(serverURL))
-	_, err := h.runPass("", "rm", "-rf", path.Join(PASS_FOLDER, encoded))
+	_, err := p.runPass("", "rm", "-rf", path.Join(PASS_FOLDER, encoded))
 	return err
 }
 
@@ -128,7 +129,7 @@ func listPassDir(args ...string) ([]os.FileInfo, error) {
 }
 
 // Get returns the username and secret to use for a given registry server URL.
-func (h Pass) Get(serverURL string) (string, string, error) {
+func (p Pass) Get(serverURL string) (string, string, error) {
 	if serverURL == "" {
 		return "", "", errors.New("missing server url")
 	}
@@ -153,12 +154,12 @@ func (h Pass) Get(serverURL string) (string, string, error) {
 	}
 
 	actual := strings.TrimSuffix(usernames[0].Name(), ".gpg")
-	secret, err := h.runPass("", "show", path.Join(PASS_FOLDER, encoded, actual))
+	secret, err := p.runPass("", "show", path.Join(PASS_FOLDER, encoded, actual))
 	return actual, secret, err
 }
 
 // List returns the stored URLs and corresponding usernames for a given credentials label
-func (h Pass) List() (map[string]string, error) {
+func (p Pass) List() (map[string]string, error) {
 	servers, err := listPassDir()
 	if err != nil {
 		return nil, err
