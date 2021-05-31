@@ -13,7 +13,7 @@
   notifications:
     email: false
   go:
-    - 1.12.x
+    - 1.16.x
   addons:
     apt:
       packages:
@@ -21,6 +21,7 @@
         - pass
   before_script:
     - make deps
+    - "export GO111MODULE=off"
     - if [[ "$TRAVIS_OS_NAME" == "linux" && "$HOSTTYPE" != "ppc64le" ]]; then sh ci/before_script_linux.sh; fi
     - make validate
   script: make test
