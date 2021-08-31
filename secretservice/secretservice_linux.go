@@ -96,7 +96,8 @@ func (h Secretservice) List() (map[string]string, error) {
 	defer C.freeListData(&acctsC, listLenC)
 	if err != nil {
 		defer C.g_error_free(err)
-		return nil, errors.New("Error from list function in secretservice_linux.c likely due to error in secretservice library")
+		errMsg := (*C.char)(unsafe.Pointer(err.message))
+		return errors.New(C.GoString(errMsg))
 	}
 
 	resp := make(map[string]string)
