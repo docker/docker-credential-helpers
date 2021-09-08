@@ -97,7 +97,7 @@ func (h Secretservice) List() (map[string]string, error) {
 	if err != nil {
 		defer C.g_error_free(err)
 		errMsg := (*C.char)(unsafe.Pointer(err.message))
-		return errors.New(C.GoString(errMsg))
+		return nil, errors.New(C.GoString(errMsg))
 	}
 
 	resp := make(map[string]string)
