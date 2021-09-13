@@ -1,5 +1,9 @@
 # github.com/danieljoos/wincred v1.1.2
 github.com/danieljoos/wincred
+# github.com/jsipprell/keyctl v1.0.0
+github.com/jsipprell/keyctl
+# github.com/pkg/errors v0.9.1
+github.com/pkg/errors
 # golang.org/x/sys v0.0.0-20210819135213-f52c844e1c1c
 golang.org/x/sys/execabs
 golang.org/x/sys/internal/unsafeheader

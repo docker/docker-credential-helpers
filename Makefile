@@ -1,4 +1,4 @@
-.PHONY: all deps osxkeychain secretservice test validate wincred pass deb
+.PHONY: all deps osxkeychain secretservice test validate wincred pass keyctl deb
 
 TRAVIS_OS_NAME ?= linux
 VERSION := $(shell grep 'const Version' credentials/version.go | awk -F'"' '{ print $$2 }')
@@ -6,7 +6,7 @@ VERSION := $(shell grep 'const Version' credentials/version.go | awk -F'"' '{ pr
 all: test
 
 deps:
-	go get -u golang.org/x/lint/golint
+	go get -d golang.org/x/lint/golint
 
 clean:
 	rm -rf bin
@@ -29,14 +29,21 @@ pass:
 	mkdir -p bin
 	go build -o bin/docker-credential-pass pass/cmd/main.go
 
+keyctl:
+	set -x
+	mkdir -p bin
+	go build -o bin/docker-credential-keyctl keyctl/cmd/main.go
+
 wincred:
 	mkdir -p bin
 	go build -o bin/docker-credential-wincred.exe wincred/cmd/main_windows.go
 
 linuxrelease:
+	set -x
 	mkdir -p release
 	cd bin && tar cvfz ../release/docker-credential-pass-v$(VERSION)-amd64.tar.gz docker-credential-pass
 	cd bin && tar cvfz ../release/docker-credential-secretservice-v$(VERSION)-amd64.tar.gz docker-credential-secretservice
+	cd bin && tar cvfz ../release/docker-credential-keyctl-v$(VERSION)-amd64.tar.gz docker-credential-keyctl
 
 osxrelease:
 	mkdir -p release
@@ -61,6 +68,8 @@ vet_osx:
 
 vet_linux:
 	go vet ./secretservice
+	go vet ./keyctl
+	go vet ./pass
 
 lint:
 	for p in `go list ./... | grep -v /vendor/`; do \
