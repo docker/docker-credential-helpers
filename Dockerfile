@@ -109,6 +109,10 @@ RUN --mount=type=bind,target=. \
   make build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
   xx-verify /out/docker-credential-pass
   xx-verify /out/docker-credential-secretservice
+
+  # keyctl credential helper
+  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-keyctl ./keyctl/cmd/
+  xx-verify /out/docker-credential-keyctl
 EOT
 
 FROM base AS build-darwin
