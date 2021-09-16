@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+
+: ${RELEASE_OUT=release}
+: ${PFXPASSWORD=}
+
+workdir=$(pwd)
+dockerpfx=$(mktemp -t dockercredhelper-pfx.XXXXXXXXXX)
+
+function clean {
+  rm -f $dockerpfx
+}
+
+trap clean EXIT
+
+cd bin/
+for d in */ ; do
+  os=$(echo ${d::-1} | awk -F'_' '{ print $1 }')
+  arch=$(echo ${d::-1} | awk -F'_' '{ print $2 }')
+  echo "Create release for $os/$arch"
+  if [ "$os" = "linux" ]; then
+    (
+      cd $d
+      set -x
+      tar cvfz "${workdir}/${RELEASE_OUT}/docker-credential-pass-$arch.tar.gz" docker-credential-pass
+      tar cvfz "${workdir}/${RELEASE_OUT}/docker-credential-secretservice-$arch.tar.gz" docker-credential-secretservice
+    )
+  elif [ "$os" = "darwin" ]; then
+    (
+      cd $d
+      set -x
+      #SIGNINGHASH=$(security find-identity -v -p codesigning | grep "Developer ID Application: Docker Inc" | cut -d ' ' -f 4)
+      #xcrun -log codesign -s $(SIGNINGHASH) --force --verbose docker-credential-osxkeychain
+      #xcrun codesign --verify --deep --strict --verbose=2 --display docker-credential-osxkeychain
+      tar cvfz "${workdir}/${RELEASE_OUT}/docker-credential-osxkeychain-$arch.tar.gz" docker-credential-osxkeychain
+    )
+  elif [ "$os" = "windows" ]; then
+    (
+      cd $d
+      set -x
+      #echo ${PFX} | base64 -d > $dockerpfx
+      #signtool sign /fd SHA256 /a /f pfx /p ${PFXPASSWORD} /d Docker /du https://www.docker.com /t http://timestamp.verisign.com/scripts/timestamp.dll docker-credential-wincred.exe
+      zip "${workdir}/${RELEASE_OUT}/docker-credential-wincred-$arch.zip" docker-credential-wincred.exe
+    )
+  fi
+done
+
+#cp ${workdir}/bin/*.deb ${workdir}/${RELEASE_OUT}

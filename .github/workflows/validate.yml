@@ -1,0 +1,30 @@
+name: validate
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - 'master'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - lint
+          - vendor-validate
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: Run
+        run: |
+          make ${{ matrix.target }}

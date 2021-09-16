@@ -7,8 +7,14 @@ import (
 	"github.com/docker/docker-credential-helpers/credentials"
 )
 
+// These tests are not runnable from a headless environment such as
+// Docker or a CI pipeline due to the DBus "prompt" interface being called
+// when creating and unlocking a keychain.
+
 func TestSecretServiceHelper(t *testing.T) {
-	t.Skip("test requires gnome-keyring but travis CI doesn't have it")
+	if testing.Short() {
+		t.Skip("Skipping testing in short mode")
+	}
 
 	creds := &credentials.Credentials{
 		ServerURL: "https://foobar.docker.io:2376/v1",
@@ -80,7 +86,9 @@ func TestSecretServiceHelper(t *testing.T) {
 }
 
 func TestMissingCredentials(t *testing.T) {
-	t.Skip("test requires gnome-keyring but travis CI doesn't have it")
+	if testing.Short() {
+		t.Skip("Skipping testing in short mode")
+	}
 
 	helper := Secretservice{}
 	_, _, err := helper.Get("https://adsfasdf.wrewerwer.com/asdfsdddd")

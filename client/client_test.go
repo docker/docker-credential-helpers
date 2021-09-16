@@ -108,8 +108,8 @@ func ExampleStore() {
 
 func TestStore(t *testing.T) {
 	valid := []credentials.Credentials{
-		{validServerAddress, "foo", "bar"},
-		{validServerAddress2, "<token>", "abcd1234"},
+		{ServerURL: validServerAddress, Username: "foo", Secret: "bar"},
+		{ServerURL: validServerAddress2, Username: "<token>", Secret: "abcd1234"},
 	}
 
 	for _, v := range valid {
@@ -119,7 +119,7 @@ func TestStore(t *testing.T) {
 	}
 
 	invalid := []credentials.Credentials{
-		{invalidServerAddress, "foo", "bar"},
+		{ServerURL: invalidServerAddress, Username: "foo", Secret: "bar"},
 	}
 
 	for _, v := range invalid {
@@ -142,8 +142,8 @@ func ExampleGet() {
 
 func TestGet(t *testing.T) {
 	valid := []credentials.Credentials{
-		{validServerAddress, "foo", "bar"},
-		{validServerAddress2, "<token>", "abcd1234"},
+		{ServerURL: validServerAddress, Username: "foo", Secret: "bar"},
+		{ServerURL: validServerAddress2, Username: "<token>", Secret: "abcd1234"},
 	}
 
 	for _, v := range valid {
@@ -166,9 +166,9 @@ func TestGet(t *testing.T) {
 		serverURL string
 		err       string
 	}{
-		{missingCredsAddress, credentials.NewErrCredentialsNotFound().Error()},
-		{invalidServerAddress, "error getting credentials - err: exited 1, out: `program failed`"},
-		{"", fmt.Sprintf("error getting credentials - err: %s, out: `%s`",
+		{serverURL: missingCredsAddress, err: credentials.NewErrCredentialsNotFound().Error()},
+		{serverURL: invalidServerAddress, err: "error getting credentials - err: exited 1, out: `program failed`"},
+		{serverURL: "", err: fmt.Sprintf("error getting credentials - err: %s, out: `%s`",
 			missingServerURLErr.Error(), missingServerURLErr.Error())},
 	}
 

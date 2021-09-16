@@ -1,85 +1,45 @@
-.PHONY: all deps osxkeychain secretservice test validate wincred pass deb
+buildxCmd =
+ifneq (, $(BUILDX_PATH))
+	buildxCmd = $(BUILDX_PATH)
+else ifneq (, $(shell docker buildx version))
+	buildxCmd = docker buildx
+else ifneq (, $(shell which buildx))
+	buildxCmd = $(which buildx)
+else
+	$(error "Please install Buildx: https://github.com/docker/buildx#installing")
+endif
 
-TRAVIS_OS_NAME ?= linux
-VERSION := $(shell grep 'const Version' credentials/version.go | awk -F'"' '{ print $$2 }')
+BIN_OUT = ./bin
+RELEASE_OUT = ./release
 
-all: test
+binaries:
+	rm -rf $(BIN_OUT)
+	BIN_OUT=$(BIN_OUT) $(buildxCmd) bake binaries
 
-deps:
-	go get -u golang.org/x/lint/golint
+deb:
+	BIN_OUT=$(BIN_OUT) $(buildxCmd) bake deb
 
-clean:
-	rm -rf bin
-	rm -rf release
+release: binaries
+	rm -rf $(RELEASE_OUT)
+	mkdir -p $(RELEASE_OUT)
+	RELEASE_OUT=$(RELEASE_OUT) ./hack/release
 
-osxkeychain:
-	mkdir -p bin
-	go build -ldflags -s -o bin/docker-credential-osxkeychain osxkeychain/cmd/main_darwin.go
-
-osxcodesign: osxkeychain
-	$(eval SIGNINGHASH = $(shell security find-identity -v -p codesigning | grep "Developer ID Application: Docker Inc" | cut -d ' ' -f 4))
-	xcrun -log codesign -s $(SIGNINGHASH) --force --verbose bin/docker-credential-osxkeychain
-	xcrun codesign --verify --deep --strict --verbose=2 --display bin/docker-credential-osxkeychain
-
-secretservice:
-	mkdir -p bin
-	go build -o bin/docker-credential-secretservice secretservice/cmd/main_linux.go
-
-pass:
-	mkdir -p bin
-	go build -o bin/docker-credential-pass pass/cmd/main.go
-
-wincred:
-	mkdir -p bin
-	go build -o bin/docker-credential-wincred.exe wincred/cmd/main_windows.go
-
-linuxrelease:
-	mkdir -p release
-	cd bin && tar cvfz ../release/docker-credential-pass-v$(VERSION)-amd64.tar.gz docker-credential-pass
-	cd bin && tar cvfz ../release/docker-credential-secretservice-v$(VERSION)-amd64.tar.gz docker-credential-secretservice
-
-osxrelease:
-	mkdir -p release
-	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
-
-winrelease:
-	mkdir -p release
-	cd bin && zip ../release/docker-credential-wincred-v$(VERSION)-amd64.zip docker-credential-wincred.exe
-
-test:
-	# tests all packages except vendor
-	go test -v `go list ./... | grep -v /vendor/`
-
-vet: vet_$(TRAVIS_OS_NAME)
-	go vet ./credentials
-
-vet_win:
-	go vet ./wincred
-
-vet_osx:
-	go vet ./osxkeychain
-
-vet_linux:
-	go vet ./secretservice
+validate-all: lint test vendor-validate
 
 lint:
-	for p in `go list ./... | grep -v /vendor/`; do \
-		golint $$p ; \
-	done
+	$(buildxCmd) bake lint
 
-fmt:
-	gofmt -s -l `ls **/*.go | grep -v vendor`
+test:
+	$(buildxCmd) bake test
 
-validate: vet lint fmt
+vendor-validate:
+	$(buildxCmd) bake vendor-validate
 
+vendor:
+	$(eval $@_TMP_OUT := $(shell mktemp -d -t buildx-output.XXXXXXXXXX))
+	$(buildxCmd) bake --set "*.output=$($@_TMP_OUT)" vendor-update
+	rm -rf ./vendor
+	cp -R "$($@_TMP_OUT)"/out/* .
+	rm -rf $($@_TMP_OUT)/*
 
-BUILDIMG:=docker-credential-secretservice-$(VERSION)
-deb:
-	mkdir -p release
-	docker build -f deb/Dockerfile \
-		--build-arg VERSION=$(VERSION) \
-		--build-arg DISTRO=xenial \
-		--tag $(BUILDIMG) \
-		.
-	docker run --rm --net=none $(BUILDIMG) tar cf - /release | tar xf -
-	docker rmi $(BUILDIMG)
+.PHONY: clean binaries deb release validate-all lint test vendor-validate vendor
