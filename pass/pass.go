@@ -138,7 +138,7 @@ func (p Pass) Get(serverURL string) (string, string, error) {
 
 	if _, err := os.Stat(path.Join(getPassDir(), PASS_FOLDER, encoded)); err != nil {
 		if os.IsNotExist(err) {
-			return "", "", nil
+			return "", "", credentials.NewErrCredentialsNotFound()
 		}
 
 		return "", "", err
