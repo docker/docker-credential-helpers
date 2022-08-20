@@ -57,6 +57,9 @@ RUN --mount=target=. \
 
 FROM gobase AS base
 ARG TARGETPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
 RUN xx-apk add musl-dev gcc libsecret-dev pass
 
 FROM base AS test
@@ -72,9 +75,6 @@ FROM scratch AS test-coverage
 COPY --from=test /tmp/coverage.txt /coverage.txt
 
 FROM base AS build-linux
-ARG TARGETOS
-ARG TARGETARCH
-ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod \
@@ -88,8 +88,6 @@ RUN --mount=type=bind,target=. \
 EOT
 
 FROM base AS build-darwin
-ARG TARGETARCH
-ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod \
@@ -103,8 +101,6 @@ RUN --mount=type=bind,target=. \
 EOT
 
 FROM base AS build-windows
-ARG TARGETARCH
-ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod \
