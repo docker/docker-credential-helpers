@@ -169,8 +169,8 @@ func Erase(helper Helper, reader io.Reader) error {
 	return helper.Delete(serverURL)
 }
 
-//List returns all the serverURLs of keys in
-//the OS store as a list of strings
+// List returns all the serverURLs of keys in
+// the OS store as a list of strings
 func List(helper Helper, writer io.Writer) error {
 	accts, err := helper.List()
 	if err != nil {
@@ -179,7 +179,7 @@ func List(helper Helper, writer io.Writer) error {
 	return json.NewEncoder(writer).Encode(accts)
 }
 
-//PrintVersion outputs the current version.
+// PrintVersion outputs the current version.
 func PrintVersion(writer io.Writer) error {
 	fmt.Fprintln(writer, Version)
 	return nil
