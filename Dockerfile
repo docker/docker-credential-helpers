@@ -14,10 +14,39 @@ FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
 
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS gobase
 COPY --from=xx / /
-RUN apk add --no-cache clang file git lld llvm pkgconf
+RUN apk add --no-cache clang file git lld llvm pkgconf rsync
 ENV GOFLAGS="-mod=vendor"
 ENV CGO_ENABLED="1"
 WORKDIR /src
+
+FROM gobase AS vendored
+RUN --mount=target=/context \
+    --mount=target=.,type=tmpfs  \
+    --mount=target=/go/pkg/mod,type=cache <<EOT
+  set -e
+  rsync -a /context/. .
+  go mod tidy
+  go mod vendor
+  mkdir /out
+  cp -r go.mod go.sum vendor /out
+EOT
+
+FROM scratch AS vendor-update
+COPY --from=vendored /out /
+
+FROM vendored AS vendor-validate
+RUN --mount=type=bind,target=.,rw <<EOT
+  set -e
+  rsync -a /context/. .
+  git add -A
+  rm -rf vendor
+  cp -rf /out/* .
+  if [ -n "$(git status --porcelain -- go.mod go.sum vendor)" ]; then
+    echo >&2 'ERROR: Vendor result differs. Please vendor your package with "make vendor"'
+    git status --porcelain -- go.mod go.sum vendor
+    exit 1
+  fi
+EOT
 
 FROM gobase AS version
 ARG PKG

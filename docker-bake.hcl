@@ -21,6 +21,20 @@ group "default" {
   targets = ["binaries"]
 }
 
+group "validate" {
+  targets = ["vendor-validate"]
+}
+
+target "vendor-validate" {
+  target = "vendor-validate"
+  output = ["type=cacheonly"]
+}
+
+target "vendor" {
+  target = "vendor-update"
+  output = ["."]
+}
+
 target "test" {
   inherits = ["_common"]
   target = "test-coverage"
