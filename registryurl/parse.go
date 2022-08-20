@@ -35,3 +35,13 @@ func Parse(registryURL string) (*url.URL, error) {
 	u.RawQuery = ""
 	return u, nil
 }
+
+// GetHostname returns the hostname of the URL
+func GetHostname(u *url.URL) string {
+	return u.Hostname()
+}
+
+// GetPort returns the port number of the URL
+func GetPort(u *url.URL) string {
+	return u.Port()
+}
