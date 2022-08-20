@@ -138,7 +138,7 @@ func (h Osxkeychain) List() (map[string]string, error) {
 	listLen = int(listLenC)
 	pathTmp := (*[1 << 30]*C.char)(unsafe.Pointer(pathsC))[:listLen:listLen]
 	acctTmp := (*[1 << 30]*C.char)(unsafe.Pointer(acctsC))[:listLen:listLen]
-	//taking the array of c strings into go while ignoring all the stuff irrelevant to credentials-helper
+	// taking the array of c strings into go while ignoring all the stuff irrelevant to credentials-helper
 	resp := make(map[string]string)
 	for i := 0; i < listLen; i++ {
 		if C.GoString(pathTmp[i]) == "0" {
@@ -160,7 +160,7 @@ func splitServer(serverURL string) (*C.struct_Server, error) {
 		proto = C.kSecProtocolTypeHTTP
 	}
 	var port int
-	p := registryurl.GetPort(u)
+	p := u.Port()
 	if p != "" {
 		port, err = strconv.Atoi(p)
 		if err != nil {
@@ -170,7 +170,7 @@ func splitServer(serverURL string) (*C.struct_Server, error) {
 
 	return &C.struct_Server{
 		proto: C.SecProtocolType(proto),
-		host:  C.CString(registryurl.GetHostname(u)),
+		host:  C.CString(u.Hostname()),
 		port:  C.uint(port),
 		path:  C.CString(u.Path),
 	}, nil
