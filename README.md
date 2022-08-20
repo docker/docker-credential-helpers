@@ -74,11 +74,14 @@ You can see examples of each function in the [client](https://godoc.org/github.c
 2. secretservice: Provides a helper to use the D-Bus secret service as credentials store.
 3. wincred: Provides a helper to use Windows credentials manager as store.
 4. pass: Provides a helper to use `pass` as credentials store.
+5. keyctl: Provides a kernel keyring based helper as credential store. It is a purely non-file based credential store.
 
 #### Note
 
 `pass` needs to be configured for `docker-credential-pass` to work properly.
 It must be initialized with a `gpg2` key ID. Make sure your GPG key exists is in `gpg2` keyring as `pass` uses `gpg2` instead of the regular `gpg`.
+
+`keyctl` does not need any configuration except that kernel should be compiled with CONFIG_KEYS enabled, which is default in most distro kernels.
 
 ## Development
 
