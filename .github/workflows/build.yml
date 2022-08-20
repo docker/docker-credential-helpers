@@ -1,0 +1,43 @@
+name: build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'master'
+    tags:
+      - 'v*'
+  pull_request:
+
+env:
+  DESTDIR: ./bin
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      -
+        name: Build
+        uses: docker/bake-action@v2
+        with:
+          targets: binaries
+      -
+        name: Move artifacts
+        run: |
+          mv ${{ env.DESTDIR }}/**/* ${{ env.DESTDIR }}/
+      -
+        name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: docker-credential-helpers
+          path: ${{ env.DESTDIR }}/*
+          if-no-files-found: error
