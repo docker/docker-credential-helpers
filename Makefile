@@ -83,3 +83,15 @@ deb:
 		.
 	docker run --rm --net=none $(BUILDIMG) tar cf - /release | tar xf -
 	docker rmi $(BUILDIMG)
+
+.PHONY: vendor
+vendor:
+	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-output.XXXXXXXXXX))
+	docker buildx bake --set "*.output=type=local,dest=$($@_TMP_OUT)" vendor
+	rm -rf ./vendor
+	cp -R "$($@_TMP_OUT)"/* .
+	rm -rf "$($@_TMP_OUT)"
+
+.PHONY: validate-vendor
+validate-vendor:
+	docker buildx bake vendor-validate
