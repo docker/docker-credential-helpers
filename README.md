@@ -1,3 +1,9 @@
+[![GitHub release](https://img.shields.io/github/release/docker/docker-credential-helpers.svg?style=flat-square)](https://github.com/docker/docker-credential-helpers/releases/latest)
+[![PkgGoDev](https://img.shields.io/badge/go.dev-docs-007d9c?style=flat-square&logo=go&logoColor=white)](https://pkg.go.dev/github.com/docker/docker-credential-helpers)
+[![Build Status](https://img.shields.io/github/workflow/status/docker/docker-credential-helpers/build?label=build&logo=github&style=flat-square)](https://github.com/docker/docker-credential-helpers/actions?query=workflow%3Abuild)
+[![Codecov](https://img.shields.io/codecov/c/github/docker/docker-credential-helpers?logo=codecov&style=flat-square)](https://codecov.io/gh/docker/docker-credential-helpers)
+[![Go Report Card](https://goreportcard.com/badge/github.com/docker/docker-credential-helpers?style=flat-square)](https://goreportcard.com/report/github.com/docker/docker-credential-helpers)
+
 ## Introduction
 
 docker-credential-helpers is a suite of programs to use native stores to keep Docker credentials safe.
@@ -6,9 +12,21 @@ docker-credential-helpers is a suite of programs to use native stores to keep Do
 
 Go to the [Releases](https://github.com/docker/docker-credential-helpers/releases) page and download the binary that works better for you. Put that binary in your `$PATH`, so Docker can find it.
 
-### Building from scratch
+## Building
 
-The programs in this repository are written with the Go programming language. These instructions assume that you have previous knowledge about the language and you have it installed in your machine.
+You can build the credential helpers using Docker:
+
+```shell
+# create builder
+$ docker buildx create --use
+# build credential helpers from remote repository and output to ./bin/build
+$ docker buildx bake "https://github.com/docker/docker-credential-helpers.git"
+# or from local source
+$ git clone https://github.com/docker/docker-credential-helpers.git
+$ docker buildx bake
+```
+
+Or if the toolchain is already installed on your machine:
 
 1 - Download the source and put it in your `$GOPATH` with `go get`.
 

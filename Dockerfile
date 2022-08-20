@@ -30,6 +30,18 @@ FROM gobase AS base
 ARG TARGETPLATFORM
 RUN xx-apk add musl-dev gcc libsecret-dev pass
 
+FROM base AS test
+RUN --mount=type=bind,target=. \
+    --mount=type=cache,target=/root/.cache \
+    --mount=type=cache,target=/go/pkg/mod <<EOT
+  set -e
+  xx-go test -short -v -coverprofile=/tmp/coverage.txt -covermode=atomic ./...
+  xx-go tool cover -func=/tmp/coverage.txt
+EOT
+
+FROM scratch AS test-coverage
+COPY --from=test /tmp/coverage.txt /coverage.txt
+
 FROM base AS build-linux
 ARG TARGETOS
 ARG TARGETARCH
