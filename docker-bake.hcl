@@ -38,6 +38,8 @@ target "binaries" {
     "linux/arm64",
     "linux/arm/v7",
     "linux/arm/v6",
+    "linux/ppc64le",
+    "linux/s390x",
     "windows/amd64"
   ]
 }
