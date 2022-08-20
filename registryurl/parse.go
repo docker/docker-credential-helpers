@@ -28,10 +28,24 @@ func Parse(registryURL string) (*url.URL, error) {
 		return nil, errors.New("unsupported scheme: " + u.Scheme)
 	}
 
-	if GetHostname(u) == "" {
+	if u.Hostname() == "" {
 		return nil, errors.New("no hostname in URL")
 	}
 
 	u.RawQuery = ""
 	return u, nil
+}
+
+// GetHostname returns the hostname of the URL
+//
+// Deprecated: use url.Hostname()
+func GetHostname(u *url.URL) string {
+	return u.Hostname()
+}
+
+// GetPort returns the port number of the URL
+//
+// Deprecated: use url.Port()
+func GetPort(u *url.URL) string {
+	return u.Port()
 }
