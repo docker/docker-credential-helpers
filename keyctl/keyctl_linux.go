@@ -35,7 +35,7 @@ func (k Keyctl) createDefaultPersistentKeyring() (string, error) {
 	cmd.Stdout = &out
 	err := cmd.Run()
 	if err != nil {
-		return "", fmt.Errorf("cannot run keyctl command to create persistent keyring: %s: %w", errout.String(), err)
+		return "", fmt.Errorf("cannot run keyctl command (%s) to create persistent keyring: %s: %w", cmd.String(), errout.String(), err)
 	}
 	persistentKeyringID := out.String()
 	if err != nil {
@@ -64,7 +64,7 @@ func (k Keyctl) getDefaultCredsStoreFromPersistent() (keyctl.NamedKeyring, error
 		cmd.Stderr = &errout
 		err := cmd.Run()
 		if err != nil {
-			return nil, fmt.Errorf("cannot run keyctl command to created credstore keyring (%s): %s %s: %w", cmd.String(), errout.String(), out.String(), err)
+			return nil, fmt.Errorf("cannot run keyctl command to create credstore keyring (%s): %s %s: %w", cmd.String(), errout.String(), out.String(), err)
 		}
 	}
 	// Search for it again and return the default keyring
