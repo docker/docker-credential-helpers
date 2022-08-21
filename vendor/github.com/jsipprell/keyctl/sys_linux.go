@@ -102,6 +102,14 @@ func keyctl_Read(id keyId, b *byte, size int) (int32, error) {
 	return int32(v1), nil
 }
 
+func keyctl_Link(id, ring keyId) error {
+	_, _, errno := syscall.Syscall(syscall_keyctl, uintptr(keyctlLink), uintptr(id), uintptr(ring))
+	if errno != 0 {
+		return errno
+	}
+	return nil
+}
+
 func keyctl_Unlink(id, ring keyId) error {
 	_, _, errno := syscall.Syscall(syscall_keyctl, uintptr(keyctlUnlink), uintptr(id), uintptr(ring))
 	if errno != 0 {
