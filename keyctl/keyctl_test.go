@@ -1,11 +1,11 @@
 package keyctl
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
 	"github.com/docker/docker-credential-helpers/credentials"
-	"github.com/pkg/errors"
 )
 
 func TestKeyctlHelper(t *testing.T) {
@@ -59,7 +59,7 @@ func TestKeyctlHelper(t *testing.T) {
 		}
 		err = helper.Delete(s)
 		if err != nil {
-			errors.Wrapf(err, "error in deleting %s", s)
+			t.Error(fmt.Errorf("error in deleting %s: %w", s, err))
 		}
 	}
 

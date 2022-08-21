@@ -1,6 +1,9 @@
 # github.com/danieljoos/wincred v1.2.0
 ## explicit; go 1.18
 github.com/danieljoos/wincred
+# github.com/jsipprell/keyctl v1.0.0
+## explicit
+github.com/jsipprell/keyctl
 # golang.org/x/sys v0.8.0
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
