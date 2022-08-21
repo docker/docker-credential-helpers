@@ -122,7 +122,7 @@ func (r *Reference) Get() (Id, error) {
 	}
 
 	switch r.info.Type {
-	case "key":
+	case "key", "big_key":
 		return &Key{Name: r.info.Name, id: keyId(r.Id), ring: r.parent}, nil
 	case "keyring":
 		ring := &keyring{id: keyId(r.Id)}
