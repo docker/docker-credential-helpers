@@ -102,9 +102,9 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,from=version,source=/tmp/.ldflags,target=/tmp/.ldflags <<EOT
   set -ex
   mkdir /out
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./pass/cmd/main.go
+  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./pass/cmd/
   xx-verify /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./secretservice/cmd/main_linux.go
+  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./secretservice/cmd/
   xx-verify /out/docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
 EOT
 
@@ -119,7 +119,7 @@ RUN --mount=type=bind,target=. \
   set -ex
   mkdir /out
   xx-go install std
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT} ./osxkeychain/cmd/main_darwin.go
+  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT} ./osxkeychain/cmd/
   xx-verify /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT}
 EOT
 
@@ -132,7 +132,7 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,from=version,source=/tmp/.ldflags,target=/tmp/.ldflags <<EOT
   set -ex
   mkdir /out
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe ./wincred/cmd/main_windows.go
+  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe ./wincred/cmd/
   xx-verify /out/docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe
 EOT
 
