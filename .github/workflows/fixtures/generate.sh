@@ -1,9 +1,6 @@
+#!/usr/bin/env sh
 set -ex
 
-sh -e /etc/init.d/xvfb start
-sleep 3 # give xvfb some time to start
-
-# init key for pass
 gpg --batch --gen-key <<-EOF
 %echo Generating a standard key
 Key-Type: DSA
@@ -17,6 +14,3 @@ Expire-Date: 0
 %commit
 %echo done
 EOF
-
-key=$(gpg --no-auto-check-trustdb --list-secret-keys | grep ^sec | cut -d/ -f2 | cut -d" " -f1)
-pass init $key
