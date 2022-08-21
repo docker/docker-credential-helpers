@@ -68,7 +68,7 @@ RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-10-dev libsecret-1-dev p
 
 FROM base AS test
 ARG DEBIAN_FRONTEND
-RUN xx-apt-get install -y dbus-x11 gnome-keyring gpg-agent gpgconf libsecret-1-dev pass
+RUN xx-apt-get install -y dbus-x11 gnome-keyring gpg-agent gpgconf keyutils libsecret-1-dev pass
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod <<EOT
