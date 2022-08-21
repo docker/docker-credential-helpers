@@ -69,16 +69,28 @@ ARG TARGETPLATFORM
 RUN xx-apk add musl-dev gcc libsecret-dev pass
 
 FROM base AS test
+RUN xx-apk add gnome-keyring gpg-agent gnupg-gpgconf pass
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -e
-  xx-go test -short -v -coverprofile=/tmp/coverage.txt -covermode=atomic ./...
-  xx-go tool cover -func=/tmp/coverage.txt
+  cp -r .github/workflows/fixtures /root/.gnupg
+  gpg-connect-agent "RELOADAGENT" /bye
+  gpg --import --batch --yes /root/.gnupg/7D851EB72D73BDA0.key
+  echo -e "trust\n5\ny" | gpg --batch --no-tty --command-fd 0 --edit-key 7D851EB72D73BDA0
+  gpg-connect-agent "PRESET_PASSPHRASE 3E2D1142AA59E08E16B7E2C64BA6DDC773B1A627 -1 77697468207374757069642070617373706872617365" /bye
+  gpg-connect-agent "KEYINFO 3E2D1142AA59E08E16B7E2C64BA6DDC773B1A627" /bye
+  gpg-connect-agent "PRESET_PASSPHRASE BA83FC8947213477F28ADC019F6564A956456163 -1 77697468207374757069642070617373706872617365" /bye
+  gpg-connect-agent "KEYINFO BA83FC8947213477F28ADC019F6564A956456163" /bye
+  pass init 7D851EB72D73BDA0
+
+  mkdir /out
+  xx-go test -short -v -coverprofile=/out/coverage.txt -covermode=atomic ./...
+  xx-go tool cover -func=/out/coverage.txt
 EOT
 
 FROM scratch AS test-coverage
-COPY --from=test /tmp/coverage.txt /coverage.txt
+COPY --from=test /out /
 
 FROM base AS build-linux
 ARG TARGETOS
