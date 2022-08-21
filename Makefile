@@ -37,6 +37,7 @@ linuxrelease:
 osxrelease:
 	mkdir -p release
 	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
+	cd bin && tar cvfz ../release/docker-credential-pass-v$(VERSION)-darwin-amd64.tar.gz docker-credential-pass
 
 winrelease:
 	mkdir -p release

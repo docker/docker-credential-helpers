@@ -22,7 +22,7 @@ import (
 // PASS_FOLDER contains the directory where credentials are stored
 const PASS_FOLDER = "docker-credential-helpers" //nolint:revive
 
-// Pass handles secrets using Linux secret-service as a store.
+// Pass handles secrets using pass as a store.
 type Pass struct{}
 
 // Ideally these would be stored as members of Pass, but since all of Pass's

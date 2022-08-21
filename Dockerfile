@@ -109,6 +109,7 @@ RUN --mount=type=bind,target=. \
 EOT
 
 FROM base AS build-darwin
+ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
@@ -121,6 +122,9 @@ RUN --mount=type=bind,target=. \
   xx-go install std
   xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT} ./osxkeychain/cmd/
   xx-verify /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT}
+
+  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./pass/cmd/
+  xx-verify /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
 EOT
 
 FROM base AS build-windows
