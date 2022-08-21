@@ -181,6 +181,6 @@ func List(helper Helper, writer io.Writer) error {
 
 // PrintVersion outputs the current version.
 func PrintVersion(writer io.Writer) error {
-	fmt.Fprintln(writer, Version)
+	fmt.Fprintf(writer, "%s (%s) %s\n", Name, Package, Version)
 	return nil
 }

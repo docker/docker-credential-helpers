@@ -1,6 +1,10 @@
 .PHONY: all osxkeychain secretservice test lint validate-vendor fmt validate wincred pass deb vendor
 
-VERSION := $(shell grep 'const Version' credentials/version.go | awk -F'"' '{ print $$2 }')
+PKG := github.com/docker/docker-credential-helpers
+VERSION ?= $(shell git describe --match 'v[0-9]*' --dirty='.m' --always --tags)
+REVISION ?= $(shell git rev-parse HEAD)$(shell if ! git diff --no-ext-diff --quiet --exit-code; then echo .m; fi)
+
+LDFLAGS=-s -w -X ${PKG}/credentials.Version=${VERSION} -X ${PKG}/credentials.Revision=${REVISION} -X ${PKG}/credentials.Package=${PKG}
 
 all: test
 
@@ -10,7 +14,7 @@ clean:
 
 osxkeychain:
 	mkdir -p bin
-	go build -ldflags -s -o bin/docker-credential-osxkeychain ./osxkeychain/cmd/
+	go build -ldflags="$(LDFLAGS) -X ${PKG}/credentials.Name=docker-credential-osxkeychain" -o bin/docker-credential-osxkeychain ./osxkeychain/cmd/
 
 osxcodesign: osxkeychain
 	$(eval SIGNINGHASH = $(shell security find-identity -v -p codesigning | grep "Developer ID Application: Docker Inc" | cut -d ' ' -f 4))
@@ -19,29 +23,29 @@ osxcodesign: osxkeychain
 
 secretservice:
 	mkdir -p bin
-	go build -o bin/docker-credential-secretservice ./secretservice/cmd/
+	go build -ldflags="$(LDFLAGS) -X ${PKG}/credentials.Name=docker-credential-secretservice" -o bin/docker-credential-secretservice ./secretservice/cmd/
 
 pass:
 	mkdir -p bin
-	go build -o bin/docker-credential-pass ./pass/cmd/
+	go build -ldflags="$(LDFLAGS) -X ${PKG}/credentials.Name=docker-credential-pass" -o bin/docker-credential-pass ./pass/cmd/
 
 wincred:
 	mkdir -p bin
-	go build -o bin/docker-credential-wincred.exe ./wincred/cmd/
+	go build -ldflags="$(LDFLAGS) -X ${PKG}/credentials.Name=docker-credential-wincred" -o bin/docker-credential-wincred.exe ./wincred/cmd/
 
 linuxrelease:
 	mkdir -p release
-	cd bin && tar cvfz ../release/docker-credential-pass-v$(VERSION)-amd64.tar.gz docker-credential-pass
-	cd bin && tar cvfz ../release/docker-credential-secretservice-v$(VERSION)-amd64.tar.gz docker-credential-secretservice
+	cd bin && tar cvfz ../release/docker-credential-pass-$(VERSION)-amd64.tar.gz docker-credential-pass
+	cd bin && tar cvfz ../release/docker-credential-secretservice-$(VERSION)-amd64.tar.gz docker-credential-secretservice
 
 osxrelease:
 	mkdir -p release
-	cd bin && tar cvfz ../release/docker-credential-osxkeychain-v$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
-	cd bin && tar cvfz ../release/docker-credential-pass-v$(VERSION)-darwin-amd64.tar.gz docker-credential-pass
+	cd bin && tar cvfz ../release/docker-credential-osxkeychain-$(VERSION)-amd64.tar.gz docker-credential-osxkeychain
+	cd bin && tar cvfz ../release/docker-credential-pass-$(VERSION)-darwin-amd64.tar.gz docker-credential-pass
 
 winrelease:
 	mkdir -p release
-	cd bin && zip ../release/docker-credential-wincred-v$(VERSION)-amd64.zip docker-credential-wincred.exe
+	cd bin && zip ../release/docker-credential-wincred-$(VERSION)-amd64.zip docker-credential-wincred.exe
 
 test:
 	# tests all packages except vendor

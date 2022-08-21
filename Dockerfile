@@ -60,8 +60,8 @@ RUN --mount=type=bind,target=. \
 FROM gobase AS version
 ARG PKG
 RUN --mount=target=. \
-    VERSION=$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags); \
-    echo "-s -w -X ${PKG}/credentials.Version=${VERSION}" | tee /tmp/.ldflags; \
+    VERSION=$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags) REVISION=$(git rev-parse HEAD)$(if ! git diff --no-ext-diff --quiet --exit-code; then echo .m; fi); \
+    echo "-s -w -X ${PKG}/credentials.Version=${VERSION} -X ${PKG}/credentials.Revision=${REVISION} -X ${PKG}/credentials.Package=${PKG}" | tee /tmp/.ldflags; \
     echo -n "${VERSION}" | tee /tmp/.version;
 
 FROM gobase AS base
@@ -93,6 +93,7 @@ FROM scratch AS test-coverage
 COPY --from=test /out /
 
 FROM base AS build-linux
+ARG PKG
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
@@ -102,13 +103,14 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,from=version,source=/tmp/.ldflags,target=/tmp/.ldflags <<EOT
   set -ex
   mkdir /out
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./pass/cmd/
+  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-pass" -o /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./pass/cmd/
   xx-verify /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./secretservice/cmd/
+  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-secretservice" -o /out/docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./secretservice/cmd/
   xx-verify /out/docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
 EOT
 
 FROM base AS build-darwin
+ARG PKG
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
@@ -120,14 +122,15 @@ RUN --mount=type=bind,target=. \
   set -ex
   mkdir /out
   xx-go install std
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT} ./osxkeychain/cmd/
+  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-osxkeychain" -o /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT} ./osxkeychain/cmd/
   xx-verify /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT}
 
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./pass/cmd/
+  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-pass" -o /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./pass/cmd/
   xx-verify /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
 EOT
 
 FROM base AS build-windows
+ARG PKG
 ARG TARGETARCH
 ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
@@ -136,7 +139,7 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,from=version,source=/tmp/.ldflags,target=/tmp/.ldflags <<EOT
   set -ex
   mkdir /out
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe ./wincred/cmd/
+  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-wincred" -o /out/docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe ./wincred/cmd/
   xx-verify /out/docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe
 EOT
 
