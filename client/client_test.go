@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"strings"
 	"testing"
 
@@ -32,7 +31,7 @@ type mockProgram struct {
 // Output returns responses from the remote credentials helper.
 // It mocks those responses based in the input in the mock.
 func (m *mockProgram) Output() ([]byte, error) {
-	in, err := ioutil.ReadAll(m.input)
+	in, err := io.ReadAll(m.input)
 	if err != nil {
 		return nil, err
 	}
@@ -108,8 +107,8 @@ func ExampleStore() {
 
 func TestStore(t *testing.T) {
 	valid := []credentials.Credentials{
-		{validServerAddress, "foo", "bar"},
-		{validServerAddress2, "<token>", "abcd1234"},
+		{ServerURL: validServerAddress, Username: "foo", Secret: "bar"},
+		{ServerURL: validServerAddress2, Username: "<token>", Secret: "abcd1234"},
 	}
 
 	for _, v := range valid {
@@ -119,7 +118,7 @@ func TestStore(t *testing.T) {
 	}
 
 	invalid := []credentials.Credentials{
-		{invalidServerAddress, "foo", "bar"},
+		{ServerURL: invalidServerAddress, Username: "foo", Secret: "bar"},
 	}
 
 	for _, v := range invalid {
@@ -142,8 +141,8 @@ func ExampleGet() {
 
 func TestGet(t *testing.T) {
 	valid := []credentials.Credentials{
-		{validServerAddress, "foo", "bar"},
-		{validServerAddress2, "<token>", "abcd1234"},
+		{ServerURL: validServerAddress, Username: "foo", Secret: "bar"},
+		{ServerURL: validServerAddress2, Username: "<token>", Secret: "abcd1234"},
 	}
 
 	for _, v := range valid {

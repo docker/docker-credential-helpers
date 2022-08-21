@@ -1,12 +1,8 @@
-.PHONY: all deps osxkeychain secretservice test validate wincred pass deb
+.PHONY: all osxkeychain secretservice test lint validate-vendor fmt validate wincred pass deb vendor
 
-TRAVIS_OS_NAME ?= linux
 VERSION := $(shell grep 'const Version' credentials/version.go | awk -F'"' '{ print $$2 }')
 
 all: test
-
-deps:
-	go get -u golang.org/x/lint/golint
 
 clean:
 	rm -rf bin
@@ -50,28 +46,16 @@ test:
 	# tests all packages except vendor
 	go test -v `go list ./... | grep -v /vendor/`
 
-vet: vet_$(TRAVIS_OS_NAME)
-	go vet ./credentials
-
-vet_win:
-	go vet ./wincred
-
-vet_osx:
-	go vet ./osxkeychain
-
-vet_linux:
-	go vet ./secretservice
-
 lint:
-	for p in `go list ./... | grep -v /vendor/`; do \
-		golint $$p ; \
-	done
+	docker buildx bake lint
+
+validate-vendor:
+	docker buildx bake vendor-validate
 
 fmt:
 	gofmt -s -l `ls **/*.go | grep -v vendor`
 
-validate: vet lint fmt
-
+validate: lint validate-vendor fmt
 
 BUILDIMG:=docker-credential-secretservice-$(VERSION)
 deb:
@@ -84,14 +68,9 @@ deb:
 	docker run --rm --net=none $(BUILDIMG) tar cf - /release | tar xf -
 	docker rmi $(BUILDIMG)
 
-.PHONY: vendor
 vendor:
 	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-output.XXXXXXXXXX))
 	docker buildx bake --set "*.output=type=local,dest=$($@_TMP_OUT)" vendor
 	rm -rf ./vendor
 	cp -R "$($@_TMP_OUT)"/* .
 	rm -rf "$($@_TMP_OUT)"
-
-.PHONY: validate-vendor
-validate-vendor:
-	docker buildx bake vendor-validate

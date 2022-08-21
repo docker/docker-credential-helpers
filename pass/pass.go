@@ -9,7 +9,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path"
@@ -20,7 +20,7 @@ import (
 )
 
 // PASS_FOLDER contains the directory where credentials are stored
-const PASS_FOLDER = "docker-credential-helpers" //nolint: golint
+const PASS_FOLDER = "docker-credential-helpers" //nolint:revive
 
 // Pass handles secrets using Linux secret-service as a store.
 type Pass struct{}
@@ -116,16 +116,22 @@ func getPassDir() string {
 func listPassDir(args ...string) ([]os.FileInfo, error) {
 	passDir := getPassDir()
 	p := path.Join(append([]string{passDir, PASS_FOLDER}, args...)...)
-	contents, err := ioutil.ReadDir(p)
+	entries, err := os.ReadDir(p)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return []os.FileInfo{}, nil
 		}
-
 		return nil, err
 	}
-
-	return contents, nil
+	infos := make([]fs.FileInfo, 0, len(entries))
+	for _, entry := range entries {
+		info, err := entry.Info()
+		if err != nil {
+			return nil, err
+		}
+		infos = append(infos, info)
+	}
+	return infos, nil
 }
 
 // Get returns the username and secret to use for a given registry server URL.

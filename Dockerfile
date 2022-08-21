@@ -3,6 +3,7 @@
 ARG GO_VERSION=1.18.5
 ARG XX_VERSION=1.1.2
 ARG OSXCROSS_VERSION=11.3-r7-alpine
+ARG GOLANGCI_LINT_VERSION=v1.47.3
 
 ARG PKG=github.com/docker/docker-credential-helpers
 
@@ -47,6 +48,14 @@ RUN --mount=type=bind,target=.,rw <<EOT
     exit 1
   fi
 EOT
+
+FROM golangci/golangci-lint:${GOLANGCI_LINT_VERSION}-alpine AS golangci-lint
+FROM gobase AS lint
+RUN apk add musl-dev gcc libsecret-dev pass
+RUN --mount=type=bind,target=. \
+    --mount=type=cache,target=/root/.cache \
+    --mount=from=golangci-lint,source=/usr/bin/golangci-lint,target=/usr/bin/golangci-lint \
+    golangci-lint run ./...
 
 FROM gobase AS version
 ARG PKG
