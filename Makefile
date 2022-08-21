@@ -14,7 +14,7 @@ clean:
 
 osxkeychain:
 	mkdir -p bin
-	go build -ldflags -s -o bin/docker-credential-osxkeychain osxkeychain/cmd/main_darwin.go
+	go build -ldflags -s -o bin/docker-credential-osxkeychain osxkeychain/cmd/
 
 osxcodesign: osxkeychain
 	$(eval SIGNINGHASH = $(shell security find-identity -v -p codesigning | grep "Developer ID Application: Docker Inc" | cut -d ' ' -f 4))
@@ -23,15 +23,15 @@ osxcodesign: osxkeychain
 
 secretservice:
 	mkdir -p bin
-	go build -o bin/docker-credential-secretservice secretservice/cmd/main_linux.go
+	go build -o bin/docker-credential-secretservice secretservice/cmd/
 
 pass:
 	mkdir -p bin
-	go build -o bin/docker-credential-pass pass/cmd/main.go
+	go build -o bin/docker-credential-pass pass/cmd/
 
 wincred:
 	mkdir -p bin
-	go build -o bin/docker-credential-wincred.exe wincred/cmd/main_windows.go
+	go build -o bin/docker-credential-wincred.exe wincred/cmd/
 
 linuxrelease:
 	mkdir -p release
