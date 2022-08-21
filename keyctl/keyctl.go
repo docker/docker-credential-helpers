@@ -24,10 +24,10 @@ const persistent int = 1
 // Keyctl handles secrets using Linux Kernel keyring mechanism
 type Keyctl struct{}
 
+// createDefaultPersistentKeyring creates the default persistent keyring. If the
+// keyring for the user already exists, then it returns the id of the existing
+// keyring.
 func (k Keyctl) createDefaultPersistentKeyring() (string, error) {
-	/* Create default persistent keyring. If the keyring for the user
-	 * already exists, then it returns the id of the existing keyring
-	 */
 	var errout, out bytes.Buffer
 	uid := os.Getuid()
 	cmd := exec.Command("keyctl", "get_persistent", "@u", strconv.Itoa(uid))
@@ -57,7 +57,7 @@ func (k Keyctl) getDefaultCredsStoreFromPersistent() (keyctl.NamedKeyring, error
 	}
 
 	defaultKeyring, err := keyctl.OpenKeyring(defaultSessionKeyring, defaultKeyringName)
-	/* if already does not exist we create */
+	// create keyring if it does not exist
 	if err != nil || defaultKeyring == nil {
 		cmd := exec.Command("keyctl", "newring", defaultKeyringName, strings.TrimSuffix(persistentKeyringID, "\n"))
 		cmd.Stdout = &out
@@ -67,7 +67,7 @@ func (k Keyctl) getDefaultCredsStoreFromPersistent() (keyctl.NamedKeyring, error
 			return nil, fmt.Errorf("cannot run keyctl command to created credstore keyring (%s): %s %s: %w", cmd.String(), errout.String(), out.String(), err)
 		}
 	}
-	/* Search for it again and return the default keyring*/
+	// Search for it again and return the default keyring
 	defaultKeyring, err = keyctl.OpenKeyring(defaultSessionKeyring, defaultKeyringName)
 	if err != nil {
 		return nil, fmt.Errorf("failed to lookup default session keyring: %w", err)
@@ -78,7 +78,7 @@ func (k Keyctl) getDefaultCredsStoreFromPersistent() (keyctl.NamedKeyring, error
 
 // getDefaultCredsStore is a helper function to get the default credsStore keyring
 func (k Keyctl) getDefaultCredsStore() (keyctl.NamedKeyring, error) {
-	if persistent == 1 {
+	if persistent == 1 { // TODO(thaJeztah) persistent is a const, and always 1, what's this check for?
 		cs, err := k.getDefaultCredsStoreFromPersistent()
 		if err != nil {
 			return nil, err
