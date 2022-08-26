@@ -155,3 +155,16 @@ jobs:
           name: docker-credential-helpers
           path: ${{ env.DESTDIR }}/*
           if-no-files-found: error
+
+  build-deb:
+    runs-on: ubuntu-20.04
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      -
+        name: Build
+        run: |
+          make deb
