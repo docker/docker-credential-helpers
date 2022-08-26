@@ -5,7 +5,7 @@ ARG XX_VERSION=1.1.2
 ARG OSXCROSS_VERSION=11.3-r7-alpine
 ARG GOLANGCI_LINT_VERSION=v1.47.3
 
-ARG PKG=github.com/docker/docker-credential-helpers
+ARG PACKAGE=github.com/docker/docker-credential-helpers
 
 # xx is a helper for cross-compilation
 FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
@@ -15,7 +15,7 @@ FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
 
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-alpine AS gobase
 COPY --from=xx / /
-RUN apk add --no-cache clang file git lld llvm pkgconf rsync
+RUN apk add --no-cache clang file git lld llvm make pkgconf rsync
 ENV GOFLAGS="-mod=vendor"
 ENV CGO_ENABLED="1"
 WORKDIR /src
@@ -57,13 +57,6 @@ RUN --mount=type=bind,target=. \
     --mount=from=golangci-lint,source=/usr/bin/golangci-lint,target=/usr/bin/golangci-lint \
     golangci-lint run ./...
 
-FROM gobase AS version
-ARG PKG
-RUN --mount=target=. \
-    VERSION=$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags) REVISION=$(git rev-parse HEAD)$(if ! git diff --no-ext-diff --quiet --exit-code; then echo .m; fi); \
-    echo "-s -w -X ${PKG}/credentials.Version=${VERSION} -X ${PKG}/credentials.Revision=${REVISION} -X ${PKG}/credentials.Package=${PKG}" | tee /tmp/.ldflags; \
-    echo -n "${VERSION}" | tee /tmp/.version;
-
 FROM gobase AS base
 ARG TARGETPLATFORM
 RUN xx-apk add musl-dev gcc libsecret-dev pass
@@ -93,53 +86,49 @@ FROM scratch AS test-coverage
 COPY --from=test /out /
 
 FROM base AS build-linux
-ARG PKG
+ARG PACKAGE
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=bind,from=version,source=/tmp/.ldflags,target=/tmp/.ldflags <<EOT
+    --mount=type=cache,target=/go/pkg/mod <<EOT
   set -ex
-  mkdir /out
-  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-pass" -o /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./pass/cmd/
+  xx-go --wrap
+  make build-pass PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
   xx-verify /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
-  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-secretservice" -o /out/docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./secretservice/cmd/
+  make build-secretservice PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
   xx-verify /out/docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
 EOT
 
 FROM base AS build-darwin
-ARG PKG
+ARG PACKAGE
 ARG TARGETOS
 ARG TARGETARCH
 ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk \
-    --mount=type=bind,from=version,source=/tmp/.ldflags,target=/tmp/.ldflags <<EOT
+    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk <<EOT
   set -ex
-  mkdir /out
-  xx-go install std
-  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-osxkeychain" -o /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT} ./osxkeychain/cmd/
+  xx-go --wrap
+  go install std
+  make build-osxkeychain PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT}
   xx-verify /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT}
-
-  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-pass" -o /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT} ./pass/cmd/
+  make build-pass PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
   xx-verify /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
 EOT
 
 FROM base AS build-windows
-ARG PKG
+ARG PACKAGE
 ARG TARGETARCH
 ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=bind,from=version,source=/tmp/.ldflags,target=/tmp/.ldflags <<EOT
+    --mount=type=cache,target=/go/pkg/mod <<EOT
   set -ex
-  mkdir /out
-  xx-go build -ldflags "$(cat /tmp/.ldflags) -X ${PKG}/credentials.Name=docker-credential-wincred" -o /out/docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe ./wincred/cmd/
+  xx-go --wrap
+  make build-wincred PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe
   xx-verify /out/docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe
 EOT
 
