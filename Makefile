@@ -79,8 +79,8 @@ BUILDIMG:=docker-credential-secretservice-$(VERSION)
 deb:
 	mkdir -p release
 	docker build -f deb/Dockerfile \
-		--build-arg VERSION=$(VERSION) \
-		--build-arg DISTRO=xenial \
+		--build-arg VERSION=$(patsubst v%,%,$(VERSION)) \
+		--build-arg REVISION=$(REVISION) \
 		--tag $(BUILDIMG) \
 		.
 	docker run --rm --net=none $(BUILDIMG) tar cf - /release | tar xf -
