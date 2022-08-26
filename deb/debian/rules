@@ -3,7 +3,8 @@
 DESTDIR := $(CURDIR)/debian/tmp
 
 override_dh_auto_build:
-	make secretservice pass
+	make build-secretservice DESTDIR=bin
+	make build-pass DESTDIR=bin
 
 override_dh_auto_install:
 	install -D bin/docker-credential-secretservice $(DESTDIR)/usr/bin/docker-credential-secretservice

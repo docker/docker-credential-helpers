@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
-set -x
-set -e
-
-version=$1
-distro=$2
+set -ex
 
 maintainer=$(awk -F ': ' '$1 == "Maintainer" { print $2; exit }' debian/control)
 
 cat > "debian/changelog" <<-EOF
-docker-credential-helpers ($version) $DISTRO; urgency=low
+docker-credential-helpers ($VERSION) $DISTRO-$SUITE; urgency=low
 
   * New upstream version
 
