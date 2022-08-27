@@ -144,12 +144,29 @@ jobs:
           CACHE_FROM: type=gha,scope=build
           CACHE_TO: type=gha,scope=build,mode=max
       -
+        name: List artifacts
+        run: |
+          tree -nh ${{ env.DESTDIR }}
+      -
+        name: Check artifacts
+        run: |
+          find ${{ env.DESTDIR }} -type f -exec file -e ascii -- {} +
+      -
         name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: docker-credential-helpers
           path: ${{ env.DESTDIR }}/*
           if-no-files-found: error
+      -
+        name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: true
+          files: ${{ env.DESTDIR }}/*
 
   build-deb:
     runs-on: ubuntu-20.04
