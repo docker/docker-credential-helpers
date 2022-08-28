@@ -85,54 +85,76 @@ EOT
 FROM scratch AS test-coverage
 COPY --from=test /out /
 
+FROM gobase AS version
+RUN --mount=target=. \
+    echo -n "$(./hack/git-meta version)" | tee /tmp/.version ; echo -n "$(./hack/git-meta revision)" | tee /tmp/.revision
+
 FROM base AS build-linux
 ARG PACKAGE
-ARG TARGETOS
-ARG TARGETARCH
-ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version \
+    --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
   set -ex
   xx-go --wrap
-  make build-pass PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
-  xx-verify /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
-  make build-secretservice PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
-  xx-verify /out/docker-credential-secretservice-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
+  make build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  xx-verify /out/docker-credential-pass
+  xx-verify /out/docker-credential-secretservice
 EOT
 
 FROM base AS build-darwin
 ARG PACKAGE
-ARG TARGETOS
-ARG TARGETARCH
-ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk <<EOT
+    --mount=type=bind,from=osxcross,src=/osxsdk,target=/xx-sdk \
+    --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version \
+    --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
   set -ex
   xx-go --wrap
   go install std
-  make build-osxkeychain PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT}
-  xx-verify /out/docker-credential-osxkeychain-${TARGETARCH}${TARGETVARIANT}
-  make build-pass PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
-  xx-verify /out/docker-credential-pass-${TARGETOS}-${TARGETARCH}${TARGETVARIANT}
+  make build-osxkeychain build-pass PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  xx-verify /out/docker-credential-osxkeychain
+  xx-verify /out/docker-credential-pass
 EOT
 
 FROM base AS build-windows
 ARG PACKAGE
-ARG TARGETARCH
-ARG TARGETVARIANT
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod <<EOT
+    --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version \
+    --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
   set -ex
   xx-go --wrap
-  make build-wincred PACKAGE=$PACKAGE DESTDIR=/out BINNAME=docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe
-  xx-verify /out/docker-credential-wincred-${TARGETARCH}${TARGETVARIANT}.exe
+  make build-wincred PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  mv /out/docker-credential-wincred /out/docker-credential-wincred.exe
+  xx-verify /out/docker-credential-wincred.exe
 EOT
 
 FROM build-$TARGETOS AS build
 
 FROM scratch AS binaries
 COPY --from=build /out /
+
+FROM --platform=$BUILDPLATFORM alpine AS releaser
+WORKDIR /work
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
+RUN --mount=from=binaries \
+    --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version <<EOT
+  set -e
+  mkdir /out
+  version="$(cat /tmp/.version)"
+  [ "$TARGETOS" = "windows" ] && ext=".exe"
+  for f in *; do
+    cp "$f" "/out/${f%.*}-${version}.${TARGETOS}-${TARGETARCH}${TARGETVARIANT}${ext}"
+  done
+EOT
+
+FROM scratch AS release
+COPY --from=releaser /out/ /
+
+FROM binaries

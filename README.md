@@ -47,7 +47,7 @@ $ make osxkeychain
 3 - Put that binary in your `$PATH`, so Docker can find it.
 
 ```shell
-$ cp bin/docker-credential-osxkeychain /usr/local/bin/
+$ cp bin/build/docker-credential-osxkeychain /usr/local/bin/
 ```
 
 ## Usage

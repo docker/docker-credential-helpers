@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+set -e
+
+: "${BUILDX_CMD=docker buildx}"
+: "${DESTDIR=./bin/release}"
+: "${CACHE_FROM=}"
+: "${CACHE_TO=}"
+
+: "${SIGN=}"
+: "${PFX=}"
+: "${PFXPASSWORD=}"
+
+if [ -n "$CACHE_FROM" ]; then
+	for cfrom in $CACHE_FROM; do
+		cacheFlags+=(--set "*.cache-from=$cfrom")
+	done
+fi
+if [ -n "$CACHE_TO" ]; then
+	for cto in $CACHE_TO; do
+		cacheFlags+=(--set "*.cache-to=$cto")
+	done
+fi
+
+dockerpfx=$(mktemp -t dockercredhelper-pfx.XXXXXXXXXX)
+function clean {
+	rm -f "$dockerpfx"
+}
+trap clean EXIT
+
+# release
+(
+	set -x
+	${BUILDX_CMD} bake "${cacheFlags[@]}" --set "*.output=$DESTDIR" release
+)
+
+# wrap binaries
+mv -f ./${DESTDIR}/**/* ./${DESTDIR}/
+find ./${DESTDIR} -type d -empty -delete
+
+# sign binaries
+if [ -n "$SIGN" ]; then
+	for f in "${DESTDIR}"/*".darwin-"*; do
+		SIGNINGHASH=$(security find-identity -v -p codesigning | grep "Developer ID Application: Docker Inc" | cut -d ' ' -f 4)
+		xcrun -log codesign -s "$SIGNINGHASH" --force --verbose "$f"
+		xcrun codesign --verify --deep --strict --verbose=2 --display "$f"
+	done
+	for f in "${DESTDIR}"/*".windows-"*; do
+		echo ${PFX} | base64 -d > "$dockerpfx"
+		signtool sign /fd SHA256 /a /f pfx /p ${PFXPASSWORD} /d Docker /du https://www.docker.com /t http://timestamp.verisign.com/scripts/timestamp.dll "$f"
+	done
+fi
+
+# checksums
+(
+  cd ${DESTDIR}
+  sha256sum -b docker-credential-* > ./checksums.txt
+  sha256sum -c --strict checksums.txt
+)
