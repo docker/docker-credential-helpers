@@ -54,13 +54,9 @@ func TestPassHelper(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		username, _, err = helper.Get(server)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if username != "" {
-			t.Fatalf("%s shouldn't exist any more", username)
+		_, _, err = helper.Get(server)
+		if !credentials.IsErrCredentialsNotFound(err) {
+			t.Fatalf("expected credentials not found, actual: %v", err)
 		}
 	}
 
@@ -71,5 +67,14 @@ func TestPassHelper(t *testing.T) {
 
 	if len(credsList) != 0 {
 		t.Fatal("didn't delete all creds?")
+	}
+}
+
+func TestMissingCred(t *testing.T) {
+	helper := Pass{}
+
+	_, _, err := helper.Get("garbage")
+	if !credentials.IsErrCredentialsNotFound(err) {
+		t.Fatalf("expected credentials not found, actual: %v", err)
 	}
 }
