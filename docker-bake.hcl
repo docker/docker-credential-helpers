@@ -65,3 +65,9 @@ target "binaries" {
     "windows/amd64"
   ]
 }
+
+target "release" {
+  inherits = ["binaries"]
+  target = "release"
+  output = [bindir("release")]
+}
