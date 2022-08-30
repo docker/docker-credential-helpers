@@ -16,6 +16,8 @@ func TestPassHelper(t *testing.T) {
 		Secret:    "isthebestmeshuggahalbum",
 	}
 
+	_ = helper.CheckInitialized()
+
 	helper.Add(creds)
 
 	creds.ServerURL = "https://foobar.docker.io:9999/v2"
