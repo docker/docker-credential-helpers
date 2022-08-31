@@ -1,5 +1,9 @@
 name: build
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   push:
@@ -150,7 +154,7 @@ jobs:
       -
         name: Check artifacts
         run: |
-          find ${{ env.DESTDIR }} -type f -exec file -e ascii -- {} +
+          find ${{ env.DESTDIR }} -type f -exec file -e ascii -e text -- {} +
       -
         name: Upload artifacts
         uses: actions/upload-artifact@v3
