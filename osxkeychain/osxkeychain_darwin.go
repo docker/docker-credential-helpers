@@ -15,7 +15,21 @@ import (
 
 	"github.com/docker/docker-credential-helpers/credentials"
 	"github.com/docker/docker-credential-helpers/registryurl"
+
+	"net/http"
+	"net/url"
+	"strings"
+	"encoding/json"
+	"io/ioutil"
+	"os"
 )
+
+type AuthResponse struct {
+	AccessToken string `json:"access_token"`
+	IdToken string `json:"id_token"`
+	ExpiresIn int `json:"expires_in"`
+	TokenType string `json:"token_type"`
+}
 
 // errCredentialsNotFound is the specific error message returned by OS X
 // when the credentials are not in the keychain.
@@ -81,31 +95,51 @@ func (h Osxkeychain) Get(serverURL string) (string, string, error) {
 		return "", "", err
 	}
 	defer freeServer(s)
+	
+	clientId, okClientId := os.LookupEnv("CLIENT_ID")
 
-	var usernameLen C.uint
-	var username *C.char
-	var secretLen C.uint
-	var secret *C.char
-	defer C.free(unsafe.Pointer(username))
-	defer C.free(unsafe.Pointer(secret))
-
-	errMsg := C.keychain_get(s, &usernameLen, &username, &secretLen, &secret)
-	if errMsg != nil {
-		defer C.free(unsafe.Pointer(errMsg))
-		goMsg := C.GoString(errMsg)
-		if goMsg == errCredentialsNotFound {
-			return "", "", credentials.NewErrCredentialsNotFound()
-		}
-		if goMsg == errInteractionNotAllowed {
-			return "", "", ErrInteractionNotAllowed
-		}
-
-		return "", "", errors.New(goMsg)
+	if !okClientId {
+		return "", "", errors.New("env variable CLIENT_ID is not found")
 	}
 
-	user := C.GoStringN(username, C.int(usernameLen))
-	pass := C.GoStringN(secret, C.int(secretLen))
-	return user, pass, nil
+	clientSecret, okClientSecret := os.LookupEnv("CLIENT_SECRET")
+
+	if !okClientSecret {
+		return "", "", errors.New("env variable CLIENT_SECRET is not found")
+	}
+	
+	auth, err := GetAuthorizationToken(clientId, clientSecret)
+
+	return "muniker", auth.AccessToken, nil
+}
+
+// Get access token from amazoncognito using client credentials.
+func GetAuthorizationToken(clientId string, clientSecret string) (*AuthResponse, error) {	
+	var cognitoAuthEndpoint = "https://azad.auth.us-west-2.amazoncognito.com/oauth2/token"
+
+	data := url.Values{}
+	data.Set("client_id", clientId)
+	data.Set("client_secret", clientSecret)
+	data.Set("grant_type", "client_credentials")
+	encodedData := data.Encode()
+
+	response, httpErr := http.Post(cognitoAuthEndpoint, "application/x-www-form-urlencoded", strings.NewReader(encodedData))
+	
+	if httpErr != nil {
+		return nil, httpErr
+	}
+	defer response.Body.Close()
+
+	body, _ := ioutil.ReadAll(response.Body) 
+
+	var authResponse AuthResponse
+	
+	unmarshalErr := json.Unmarshal(body, &authResponse)
+	if unmarshalErr != nil {
+		return nil, httpErr
+    }
+
+	return &authResponse, nil
 }
 
 // List returns the stored URLs and corresponding usernames.
