@@ -10,7 +10,7 @@ $ make osxkeychain
 2 - Put that binary in your `$PATH`, so Docker can find it.
 
 ```sh
-$ cp bin/build/docker-credential-osxkeychain /usr/local/bin/docker-credential-intelosxkeychain
+$ sudo cp bin/build/docker-credential-osxkeychain /usr/local/bin/docker-credential-intelosxkeychain
 ```
 
 3 - Start docker registry instance
