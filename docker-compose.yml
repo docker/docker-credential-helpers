@@ -20,11 +20,11 @@ services:
     volumes:
       - ./registry/data:/var/lib/registry
 
-  auth-server:
-    container_name: authserver
-    build: ./registry/auth-server
-    command: npm run start
-    ports:
-      - 8000:8000
-    volumes:
-      - ./registry/auth-server/src:/app/src
+  # auth-server:
+  #   container_name: authserver
+  #   build: ./registry/auth-server
+  #   command: npm run start
+  #   ports:
+  #     - 8000:8000
+  #   volumes:
+  #     - ./registry/auth-server/src:/app/src
