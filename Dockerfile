@@ -38,7 +38,8 @@ FROM scratch AS vendor-update
 COPY --from=vendored /out /
 
 FROM vendored AS vendor-validate
-RUN --mount=type=bind,target=.,rw <<EOT
+RUN --mount=target=/context \
+    --mount=target=.,type=tmpfs <<EOT
   set -e
   rsync -a /context/. .
   git add -A
