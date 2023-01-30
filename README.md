@@ -1,6 +1,6 @@
 [![GitHub release](https://img.shields.io/github/release/docker/docker-credential-helpers.svg?style=flat-square)](https://github.com/docker/docker-credential-helpers/releases/latest)
 [![PkgGoDev](https://img.shields.io/badge/go.dev-docs-007d9c?style=flat-square&logo=go&logoColor=white)](https://pkg.go.dev/github.com/docker/docker-credential-helpers)
-[![Build Status](https://img.shields.io/github/workflow/status/docker/docker-credential-helpers/build?label=build&logo=github&style=flat-square)](https://github.com/docker/docker-credential-helpers/actions?query=workflow%3Abuild)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/docker/docker-credential-helpers/build.yml?label=build&logo=github&style=flat-square)](https://github.com/docker/docker-credential-helpers/actions?query=workflow%3Abuild)
 [![Codecov](https://img.shields.io/codecov/c/github/docker/docker-credential-helpers?logo=codecov&style=flat-square)](https://codecov.io/gh/docker/docker-credential-helpers)
 [![Go Report Card](https://goreportcard.com/badge/github.com/docker/docker-credential-helpers?style=flat-square)](https://goreportcard.com/report/github.com/docker/docker-credential-helpers)
 
