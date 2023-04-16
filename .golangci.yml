@@ -6,17 +6,14 @@ linters:
   enable:
     - gofmt
     - govet
-    - deadcode
     - depguard
     - goimports
     - ineffassign
     - misspell
     - unused
-    - varcheck
     - revive
     - staticcheck
     - typecheck
-    - structcheck
   disable-all: true
 
 linters-settings:

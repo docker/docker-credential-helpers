@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.18.5
+ARG GO_VERSION=1.20.3
 ARG XX_VERSION=1.2.1
 ARG OSXCROSS_VERSION=11.3-r7-debian
-ARG GOLANGCI_LINT_VERSION=v1.47.3
+ARG GOLANGCI_LINT_VERSION=v1.51.1
 ARG DEBIAN_FRONTEND=noninteractive
 
 ARG PACKAGE=github.com/docker/docker-credential-helpers
