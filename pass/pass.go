@@ -87,7 +87,12 @@ func (p Pass) Add(creds *credentials.Credentials) error {
 
 	encoded := base64.URLEncoding.EncodeToString([]byte(creds.ServerURL))
 
-	_, err := p.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
+	username := creds.Username
+	if strings.Contains(username, "/") {
+		username = base64.URLEncoding.EncodeToString([]byte(creds.Username))
+	}
+
+	_, err := p.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, username))
 	return err
 }
 
@@ -160,8 +165,13 @@ func (p Pass) Get(serverURL string) (string, string, error) {
 	}
 
 	actual := strings.TrimSuffix(usernames[0].Name(), ".gpg")
+	username := actual
+	decodedUsername, err := base64.URLEncoding.DecodeString(actual)
+	if err == nil {
+		username = string(decodedUsername)
+	}
 	secret, err := p.runPass("", "show", path.Join(PASS_FOLDER, encoded, actual))
-	return actual, secret, err
+	return username, secret, err
 }
 
 // List returns the stored URLs and corresponding usernames for a given credentials label
@@ -193,6 +203,10 @@ func (p Pass) List() (map[string]string, error) {
 		}
 
 		resp[string(serverURL)] = strings.TrimSuffix(usernames[0].Name(), ".gpg")
+		decodedUsername, err := base64.URLEncoding.DecodeString(strings.TrimSuffix(usernames[0].Name(), ".gpg"))
+		if err == nil {
+			resp[string(serverURL)] = string(decodedUsername)
+		}
 	}
 
 	return resp, nil
