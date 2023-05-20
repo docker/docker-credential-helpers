@@ -1,5 +1,5 @@
 variable "GO_VERSION" {
-  default = "1.18.5"
+  default = "1.20.3"
 }
 
 # Defines the output folder
