@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-
-	exec "golang.org/x/sys/execabs"
+	"os/exec"
 )
 
 // Program is an interface to execute external programs.
