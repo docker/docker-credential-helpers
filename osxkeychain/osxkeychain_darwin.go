@@ -8,6 +8,7 @@ package osxkeychain
 #include <stdlib.h>
 */
 import "C"
+
 import (
 	"errors"
 	"strconv"

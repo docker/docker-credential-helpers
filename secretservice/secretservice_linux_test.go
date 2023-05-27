@@ -28,7 +28,6 @@ func TestSecretServiceHelper(t *testing.T) {
 	// remove them as they probably come from a previous failed test
 	for k, v := range oldAuths {
 		if strings.Compare(k, creds.ServerURL) == 0 && strings.Compare(v, creds.Username) == 0 {
-
 			if err := helper.Delete(creds.ServerURL); err != nil {
 				t.Fatal(err)
 			}

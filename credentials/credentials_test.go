@@ -37,7 +37,7 @@ func (m *memoryStore) Get(serverURL string) (string, string, error) {
 }
 
 func (m *memoryStore) List() (map[string]string, error) {
-	//Simply a placeholder to let memoryStore be a valid implementation of Helper interface
+	// Simply a placeholder to let memoryStore be a valid implementation of Helper interface
 	return nil, nil
 }
 
@@ -235,14 +235,14 @@ func TestEraseMissingServerURL(t *testing.T) {
 }
 
 func TestList(t *testing.T) {
-	//This tests that there is proper input an output into the byte stream
-	//Individual stores are very OS specific and have been tested in osxkeychain and secretservice respectively
+	// This tests that there is proper input an output into the byte stream
+	// Individual stores are very OS specific and have been tested in osxkeychain and secretservice respectively
 	out := new(bytes.Buffer)
 	h := newMemoryStore()
 	if err := List(h, out); err != nil {
 		t.Fatal(err)
 	}
-	//testing that there is an output
+	// testing that there is an output
 	if out.Len() == 0 {
 		t.Fatalf("expected output in the writer, got %d", 0)
 	}
