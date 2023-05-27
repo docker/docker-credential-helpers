@@ -42,7 +42,7 @@ func (m *memoryStore) List() (map[string]string, error) {
 }
 
 func TestStore(t *testing.T) {
-	const serverURL = "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -95,7 +95,7 @@ func TestStoreMissingServerURL(t *testing.T) {
 
 func TestStoreMissingUsername(t *testing.T) {
 	creds := &Credentials{
-		ServerURL: "https://index.docker.io/v1/",
+		ServerURL: "https://registry.example.com/v1/",
 		Username:  "",
 		Secret:    "bar",
 	}
@@ -114,7 +114,7 @@ func TestStoreMissingUsername(t *testing.T) {
 }
 
 func TestGet(t *testing.T) {
-	const serverURL = "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -156,7 +156,7 @@ func TestGet(t *testing.T) {
 }
 
 func TestGetMissingServerURL(t *testing.T) {
-	const serverURL = "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -182,7 +182,7 @@ func TestGetMissingServerURL(t *testing.T) {
 }
 
 func TestErase(t *testing.T) {
-	const serverURL = "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -211,7 +211,7 @@ func TestErase(t *testing.T) {
 }
 
 func TestEraseMissingServerURL(t *testing.T) {
-	const serverURL = "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
