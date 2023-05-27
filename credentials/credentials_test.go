@@ -42,7 +42,7 @@ func (m *memoryStore) List() (map[string]string, error) {
 }
 
 func TestStore(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://index.docker.io/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -65,11 +65,11 @@ func TestStore(t *testing.T) {
 	}
 
 	if c.Username != "foo" {
-		t.Fatalf("expected username foo, got %s\n", c.Username)
+		t.Errorf("expected username foo, got %s\n", c.Username)
 	}
 
 	if c.Secret != "bar" {
-		t.Fatalf("expected username bar, got %s\n", c.Secret)
+		t.Errorf("expected username bar, got %s\n", c.Secret)
 	}
 }
 
@@ -89,7 +89,7 @@ func TestStoreMissingServerURL(t *testing.T) {
 	h := newMemoryStore()
 
 	if err := Store(h, in); IsCredentialsMissingServerURL(err) == false {
-		t.Fatal(err)
+		t.Error(err)
 	}
 }
 
@@ -109,12 +109,12 @@ func TestStoreMissingUsername(t *testing.T) {
 	h := newMemoryStore()
 
 	if err := Store(h, in); IsCredentialsMissingUsername(err) == false {
-		t.Fatal(err)
+		t.Error(err)
 	}
 }
 
 func TestGet(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://index.docker.io/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -147,16 +147,16 @@ func TestGet(t *testing.T) {
 	}
 
 	if c.Username != "foo" {
-		t.Fatalf("expected username foo, got %s\n", c.Username)
+		t.Errorf("expected username foo, got %s\n", c.Username)
 	}
 
 	if c.Secret != "bar" {
-		t.Fatalf("expected username bar, got %s\n", c.Secret)
+		t.Errorf("expected username bar, got %s\n", c.Secret)
 	}
 }
 
 func TestGetMissingServerURL(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://index.docker.io/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -177,12 +177,12 @@ func TestGetMissingServerURL(t *testing.T) {
 	w := new(bytes.Buffer)
 
 	if err := Get(h, buf, w); IsCredentialsMissingServerURL(err) == false {
-		t.Fatal(err)
+		t.Error(err)
 	}
 }
 
 func TestErase(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://index.docker.io/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -206,12 +206,12 @@ func TestErase(t *testing.T) {
 
 	w := new(bytes.Buffer)
 	if err := Get(h, buf, w); err == nil {
-		t.Fatal("expected error getting missing creds, got empty")
+		t.Error("expected error getting missing creds, got empty")
 	}
 }
 
 func TestEraseMissingServerURL(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://index.docker.io/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -244,6 +244,6 @@ func TestList(t *testing.T) {
 	}
 	// testing that there is an output
 	if out.Len() == 0 {
-		t.Fatalf("expected output in the writer, got %d", 0)
+		t.Error("expected output in the writer, got 0")
 	}
 }
