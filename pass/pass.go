@@ -28,11 +28,12 @@ type Pass struct{}
 // Ideally these would be stored as members of Pass, but since all of Pass's
 // methods have value receivers, not pointer receivers, and changing that is
 // backwards incompatible, we assume that all Pass instances share the same configuration
-
-// initializationMutex is held while initializing so that only one 'pass'
-// round-tripping is done to check pass is functioning.
-var initializationMutex sync.Mutex
-var passInitialized bool
+var (
+	// initializationMutex is held while initializing so that only one 'pass'
+	// round-tripping is done to check pass is functioning.
+	initializationMutex sync.Mutex
+	passInitialized     bool
+)
 
 // CheckInitialized checks whether the password helper can be used. It
 // internally caches and so may be safely called multiple times with no impact

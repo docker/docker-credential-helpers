@@ -111,15 +111,15 @@ func exactMatch(serverURL, target url.URL) bool {
 }
 
 func approximateMatch(serverURL, target url.URL) bool {
-	//if scheme is missing assume it is the same as target
+	// if scheme is missing assume it is the same as target
 	if serverURL.Scheme == "" {
 		serverURL.Scheme = target.Scheme
 	}
-	//if port is missing assume it is the same as target
+	// if port is missing assume it is the same as target
 	if serverURL.Port() == "" && target.Port() != "" {
 		serverURL.Host = serverURL.Host + ":" + target.Port()
 	}
-	//if path is missing assume it is the same as target
+	// if path is missing assume it is the same as target
 	if serverURL.Path == "" {
 		serverURL.Path = target.Path
 	}
