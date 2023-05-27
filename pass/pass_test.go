@@ -18,10 +18,14 @@ func TestPassHelper(t *testing.T) {
 
 	_ = helper.CheckInitialized()
 
-	helper.Add(creds)
+	if err := helper.Add(creds); err != nil {
+		t.Error(err)
+	}
 
 	creds.ServerURL = "https://foobar.docker.io:9999/v2"
-	helper.Add(creds)
+	if err := helper.Add(creds); err != nil {
+		t.Error(err)
+	}
 
 	credsList, err := helper.List()
 	if err != nil {
@@ -31,11 +35,11 @@ func TestPassHelper(t *testing.T) {
 	for server, username := range credsList {
 		if !(strings.Contains(server, "2376") ||
 			strings.Contains(server, "9999")) {
-			t.Fatalf("invalid url: %s", creds.ServerURL)
+			t.Errorf("invalid url: %s", creds.ServerURL)
 		}
 
 		if username != "nothing" {
-			t.Fatalf("invalid username: %v", username)
+			t.Errorf("invalid username: %v", username)
 		}
 
 		u, s, err := helper.Get(server)
@@ -44,21 +48,21 @@ func TestPassHelper(t *testing.T) {
 		}
 
 		if u != username {
-			t.Fatalf("invalid username %s", u)
+			t.Errorf("invalid username %s", u)
 		}
 
 		if s != "isthebestmeshuggahalbum" {
-			t.Fatalf("invalid secret: %s", s)
+			t.Errorf("invalid secret: %s", s)
 		}
 
 		err = helper.Delete(server)
 		if err != nil {
-			t.Fatal(err)
+			t.Error(err)
 		}
 
 		_, _, err = helper.Get(server)
 		if !credentials.IsErrCredentialsNotFound(err) {
-			t.Fatalf("expected credentials not found, actual: %v", err)
+			t.Errorf("expected credentials not found, actual: %v", err)
 		}
 	}
 
@@ -68,7 +72,7 @@ func TestPassHelper(t *testing.T) {
 	}
 
 	if len(credsList) != 0 {
-		t.Fatal("didn't delete all creds?")
+		t.Error("didn't delete all creds?")
 	}
 }
 
@@ -77,6 +81,6 @@ func TestMissingCred(t *testing.T) {
 
 	_, _, err := helper.Get("garbage")
 	if !credentials.IsErrCredentialsNotFound(err) {
-		t.Fatalf("expected credentials not found, actual: %v", err)
+		t.Errorf("expected credentials not found, actual: %v", err)
 	}
 }
