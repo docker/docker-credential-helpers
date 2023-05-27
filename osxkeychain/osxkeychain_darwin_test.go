@@ -98,17 +98,19 @@ func TestOSXKeychainHelperRetrieveAliases(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		c := &credentials.Credentials{ServerURL: tc.storeURL, Username: "hello", Secret: "world"}
-		if err := helper.Add(c); err != nil {
-			t.Errorf("Error: failed to store secret for URL %q: %s", tc.storeURL, err)
-			continue
-		}
-		if _, _, err := helper.Get(tc.readURL); err != nil {
-			t.Errorf("Error: failed to read secret for URL %q using %q", tc.storeURL, tc.readURL)
-		}
-		if err := helper.Delete(tc.storeURL); err != nil {
-			t.Error(err)
-		}
+		tc := tc
+		t.Run(tc.doc, func(t *testing.T) {
+			c := &credentials.Credentials{ServerURL: tc.storeURL, Username: "hello", Secret: "world"}
+			if err := helper.Add(c); err != nil {
+				t.Fatalf("Error: failed to store secret for URL %q: %s", tc.storeURL, err)
+			}
+			if _, _, err := helper.Get(tc.readURL); err != nil {
+				t.Errorf("Error: failed to read secret for URL %q using %q", tc.storeURL, tc.readURL)
+			}
+			if err := helper.Delete(tc.storeURL); err != nil {
+				t.Error(err)
+			}
+		})
 	}
 }
 
@@ -171,17 +173,19 @@ func TestOSXKeychainHelperRetrieveStrict(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		c := &credentials.Credentials{ServerURL: tc.storeURL, Username: "hello", Secret: "world"}
-		if err := helper.Add(c); err != nil {
-			t.Errorf("Error: failed to store secret for URL %q: %s", tc.storeURL, err)
-			continue
-		}
-		if _, _, err := helper.Get(tc.readURL); err == nil {
-			t.Errorf("Error: managed to read secret for URL %q using %q, but should not be able to", tc.storeURL, tc.readURL)
-		}
-		if err := helper.Delete(tc.storeURL); err != nil {
-			t.Error(err)
-		}
+		tc := tc
+		t.Run(tc.doc, func(t *testing.T) {
+			c := &credentials.Credentials{ServerURL: tc.storeURL, Username: "hello", Secret: "world"}
+			if err := helper.Add(c); err != nil {
+				t.Fatalf("Error: failed to store secret for URL %q: %s", tc.storeURL, err)
+			}
+			if _, _, err := helper.Get(tc.readURL); err == nil {
+				t.Errorf("Error: managed to read secret for URL %q using %q, but should not be able to", tc.storeURL, tc.readURL)
+			}
+			if err := helper.Delete(tc.storeURL); err != nil {
+				t.Error(err)
+			}
+		})
 	}
 }
 
@@ -220,27 +224,28 @@ func TestOSXKeychainHelperStoreRetrieve(t *testing.T) {
 	// Note that we don't delete between individual tests here, to verify that
 	// subsequent stores/overwrites don't affect storing / retrieving secrets.
 	for i, tc := range tests {
-		c := &credentials.Credentials{
-			ServerURL: tc.url,
-			Username:  fmt.Sprintf("user-%d", i),
-			Secret:    fmt.Sprintf("secret-%d", i),
-		}
+		tc := tc
+		t.Run(tc.url, func(t *testing.T) {
+			c := &credentials.Credentials{
+				ServerURL: tc.url,
+				Username:  fmt.Sprintf("user-%d", i),
+				Secret:    fmt.Sprintf("secret-%d", i),
+			}
 
-		if err := helper.Add(c); err != nil {
-			t.Errorf("Error: failed to store secret for URL: %s: %s", tc.url, err)
-			continue
-		}
-		user, secret, err := helper.Get(tc.url)
-		if err != nil {
-			t.Errorf("Error: failed to read secret for URL %q: %s", tc.url, err)
-			continue
-		}
-		if user != c.Username {
-			t.Errorf("Error: expected username %s, got username %s for URL: %s", c.Username, user, tc.url)
-		}
-		if secret != c.Secret {
-			t.Errorf("Error: expected secret %s, got secret %s for URL: %s", c.Secret, secret, tc.url)
-		}
+			if err := helper.Add(c); err != nil {
+				t.Fatalf("Error: failed to store secret for URL: %s: %s", tc.url, err)
+			}
+			user, secret, err := helper.Get(tc.url)
+			if err != nil {
+				t.Fatalf("Error: failed to read secret for URL %q: %s", tc.url, err)
+			}
+			if user != c.Username {
+				t.Errorf("Error: expected username %s, got username %s for URL: %s", c.Username, user, tc.url)
+			}
+			if secret != c.Secret {
+				t.Errorf("Error: expected secret %s, got secret %s for URL: %s", c.Secret, secret, tc.url)
+			}
+		})
 	}
 }
 
