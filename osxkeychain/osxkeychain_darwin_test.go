@@ -82,15 +82,19 @@ func TestOSXKeychainHelperRetrieveAliases(t *testing.T) {
 	}
 
 	helper := Osxkeychain{}
-	defer func() {
+	t.Cleanup(func() {
 		for _, tc := range tests {
-			helper.Delete(tc.storeURL)
+			if err := helper.Delete(tc.storeURL); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+				t.Errorf("cleanup: failed to delete '%s': %v", tc.storeURL, err)
+			}
 		}
-	}()
+	})
 
 	// Clean store before testing.
 	for _, tc := range tests {
-		helper.Delete(tc.storeURL)
+		if err := helper.Delete(tc.storeURL); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+			t.Errorf("prepare: failed to delete '%s': %v", tc.storeURL, err)
+		}
 	}
 
 	for _, tc := range tests {
@@ -102,7 +106,9 @@ func TestOSXKeychainHelperRetrieveAliases(t *testing.T) {
 		if _, _, err := helper.Get(tc.readURL); err != nil {
 			t.Errorf("Error: failed to read secret for URL %q using %q", tc.storeURL, tc.readURL)
 		}
-		helper.Delete(tc.storeURL)
+		if err := helper.Delete(tc.storeURL); err != nil {
+			t.Error(err)
+		}
 	}
 }
 
@@ -149,15 +155,19 @@ func TestOSXKeychainHelperRetrieveStrict(t *testing.T) {
 	}
 
 	helper := Osxkeychain{}
-	defer func() {
+	t.Cleanup(func() {
 		for _, tc := range tests {
-			helper.Delete(tc.storeURL)
+			if err := helper.Delete(tc.storeURL); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+				t.Errorf("cleanup: failed to delete '%s': %v", tc.storeURL, err)
+			}
 		}
-	}()
+	})
 
 	// Clean store before testing.
 	for _, tc := range tests {
-		helper.Delete(tc.storeURL)
+		if err := helper.Delete(tc.storeURL); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+			t.Errorf("prepare: failed to delete '%s': %v", tc.storeURL, err)
+		}
 	}
 
 	for _, tc := range tests {
@@ -169,7 +179,9 @@ func TestOSXKeychainHelperRetrieveStrict(t *testing.T) {
 		if _, _, err := helper.Get(tc.readURL); err == nil {
 			t.Errorf("Error: managed to read secret for URL %q using %q, but should not be able to", tc.storeURL, tc.readURL)
 		}
-		helper.Delete(tc.storeURL)
+		if err := helper.Delete(tc.storeURL); err != nil {
+			t.Error(err)
+		}
 	}
 }
 
@@ -190,15 +202,19 @@ func TestOSXKeychainHelperStoreRetrieve(t *testing.T) {
 	}
 
 	helper := Osxkeychain{}
-	defer func() {
+	t.Cleanup(func() {
 		for _, tc := range tests {
-			helper.Delete(tc.url)
+			if err := helper.Delete(tc.url); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+				t.Errorf("cleanup: failed to delete '%s': %v", tc.url, err)
+			}
 		}
-	}()
+	})
 
 	// Clean store before testing.
 	for _, tc := range tests {
-		helper.Delete(tc.url)
+		if err := helper.Delete(tc.url); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+			t.Errorf("prepare: failed to delete '%s': %v", tc.url, err)
+		}
 	}
 
 	// Note that we don't delete between individual tests here, to verify that
