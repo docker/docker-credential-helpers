@@ -1,6 +1,9 @@
 # github.com/danieljoos/wincred v1.2.0
 ## explicit; go 1.18
 github.com/danieljoos/wincred
+# github.com/keybase/go-keychain v0.0.0-20230523030712-b5615109f100
+## explicit; go 1.19
+github.com/keybase/go-keychain
 # golang.org/x/sys v0.8.0
 ## explicit; go 1.17
 golang.org/x/sys/internal/unsafeheader
