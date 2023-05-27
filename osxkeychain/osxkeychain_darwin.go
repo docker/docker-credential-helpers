@@ -66,10 +66,16 @@ func (h Osxkeychain) Delete(serverURL string) error {
 	}
 	defer freeServer(s)
 
-	errMsg := C.keychain_delete(s)
-	if errMsg != nil {
+	if errMsg := C.keychain_delete(s); errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
-		return errors.New(C.GoString(errMsg))
+		switch goMsg := C.GoString(errMsg); goMsg {
+		case errCredentialsNotFound:
+			return credentials.NewErrCredentialsNotFound()
+		case errInteractionNotAllowed:
+			return ErrInteractionNotAllowed
+		default:
+			return errors.New(goMsg)
+		}
 	}
 
 	return nil
