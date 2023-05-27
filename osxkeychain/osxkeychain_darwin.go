@@ -93,15 +93,14 @@ func (h Osxkeychain) Get(serverURL string) (string, string, error) {
 	errMsg := C.keychain_get(s, &usernameLen, &username, &secretLen, &secret)
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
-		goMsg := C.GoString(errMsg)
-		if goMsg == errCredentialsNotFound {
+		switch goMsg := C.GoString(errMsg); goMsg {
+		case errCredentialsNotFound:
 			return "", "", credentials.NewErrCredentialsNotFound()
-		}
-		if goMsg == errInteractionNotAllowed {
+		case errInteractionNotAllowed:
 			return "", "", ErrInteractionNotAllowed
+		default:
+			return "", "", errors.New(goMsg)
 		}
-
-		return "", "", errors.New(goMsg)
 	}
 
 	user := C.GoStringN(username, C.int(usernameLen))
@@ -124,15 +123,14 @@ func (h Osxkeychain) List() (map[string]string, error) {
 	defer C.freeListData(&acctsC, listLenC)
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
-		goMsg := C.GoString(errMsg)
-		if goMsg == errCredentialsNotFound {
+		switch goMsg := C.GoString(errMsg); goMsg {
+		case errCredentialsNotFound:
 			return make(map[string]string), nil
-		}
-		if goMsg == errInteractionNotAllowed {
+		case errInteractionNotAllowed:
 			return nil, ErrInteractionNotAllowed
+		default:
+			return nil, errors.New(goMsg)
 		}
-
-		return nil, errors.New(goMsg)
 	}
 
 	var listLen int
