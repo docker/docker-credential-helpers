@@ -91,41 +91,57 @@ func TestWinCredHelper(t *testing.T) {
 // through variations on the URL
 func TestWinCredHelperRetrieveAliases(t *testing.T) {
 	tests := []struct {
+		doc      string
 		storeURL string
 		readURL  string
 	}{
-		// stored with port, retrieved without
-		{"https://foobar.docker.io:2376", "https://foobar.docker.io"},
-
-		// stored as https, retrieved without scheme
-		{"https://foobar.docker.io", "foobar.docker.io"},
-
-		// stored with path, retrieved without
-		{"https://foobar.docker.io/one/two", "https://foobar.docker.io"},
+		{
+			doc:      "stored with port, retrieved without",
+			storeURL: "https://foobar.docker.io:2376",
+			readURL:  "https://foobar.docker.io",
+		},
+		{
+			doc:      "stored as https, retrieved without scheme",
+			storeURL: "https://foobar.docker.io",
+			readURL:  "foobar.docker.io",
+		},
+		{
+			doc:      "stored with path, retrieved without",
+			storeURL: "https://foobar.docker.io/one/two",
+			readURL:  "https://foobar.docker.io",
+		},
 	}
 
 	helper := Wincred{}
-	defer func() {
-		for _, te := range tests {
-			helper.Delete(te.storeURL)
+	t.Cleanup(func() {
+		for _, tc := range tests {
+			if err := helper.Delete(tc.storeURL); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+				t.Errorf("cleanup: failed to delete '%s': %v", tc.storeURL, err)
+			}
 		}
-	}()
+	})
 
 	// Clean store before testing.
-	for _, te := range tests {
-		helper.Delete(te.storeURL)
+	for _, tc := range tests {
+		if err := helper.Delete(tc.storeURL); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+			t.Errorf("prepare: failed to delete '%s': %v", tc.storeURL, err)
+		}
 	}
 
-	for _, te := range tests {
-		c := &credentials.Credentials{ServerURL: te.storeURL, Username: "hello", Secret: "world"}
-		if err := helper.Add(c); err != nil {
-			t.Errorf("Error: failed to store secret for URL %q: %s", te.storeURL, err)
-			continue
-		}
-		if _, _, err := helper.Get(te.readURL); err != nil {
-			t.Errorf("Error: failed to read secret for URL %q using %q", te.storeURL, te.readURL)
-		}
-		helper.Delete(te.storeURL)
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.doc, func(t *testing.T) {
+			c := &credentials.Credentials{ServerURL: tc.storeURL, Username: "hello", Secret: "world"}
+			if err := helper.Add(c); err != nil {
+				t.Fatalf("Error: failed to store secret for URL %q: %s", tc.storeURL, err)
+			}
+			if _, _, err := helper.Get(tc.readURL); err != nil {
+				t.Errorf("Error: failed to read secret for URL %q using %q", tc.storeURL, tc.readURL)
+			}
+			if err := helper.Delete(tc.storeURL); err != nil {
+				t.Error(err)
+			}
+		})
 	}
 }
 
@@ -133,50 +149,74 @@ func TestWinCredHelperRetrieveAliases(t *testing.T) {
 // returned.
 func TestWinCredHelperRetrieveStrict(t *testing.T) {
 	tests := []struct {
+		doc      string
 		storeURL string
 		readURL  string
 	}{
-		// stored as https, retrieved using http
-		{"https://foobar.docker.io:2376", "http://foobar.docker.io:2376"},
-
-		// stored as http, retrieved using https
-		{"http://foobar.docker.io:2376", "https://foobar.docker.io:2376"},
-
-		// same: stored as http, retrieved without a scheme specified (hence, using the default https://)
-		{"http://foobar.docker.io", "foobar.docker.io:5678"},
-
-		// non-matching ports
-		{"https://foobar.docker.io:1234", "https://foobar.docker.io:5678"},
-
-		// non-matching ports TODO is this desired behavior? The other way round does work
-		//{"https://foobar.docker.io", "https://foobar.docker.io:5678"},
-
-		// non-matching paths
-		{"https://foobar.docker.io:1234/one/two", "https://foobar.docker.io:1234/five/six"},
+		{
+			doc:      "stored as https, retrieved using http",
+			storeURL: "https://foobar.docker.io:2376",
+			readURL:  "http://foobar.docker.io:2376",
+		},
+		{
+			doc:      "stored as http, retrieved using https",
+			storeURL: "http://foobar.docker.io:2376",
+			readURL:  "https://foobar.docker.io:2376",
+		},
+		{
+			// stored as http, retrieved without a scheme specified (hence, using the default https://)
+			doc:      "stored as http, retrieved without scheme",
+			storeURL: "http://foobar.docker.io",
+			readURL:  "foobar.docker.io:5678",
+		},
+		{
+			doc:      "non-matching ports",
+			storeURL: "https://foobar.docker.io:1234",
+			readURL:  "https://foobar.docker.io:5678",
+		},
+		// TODO: is this desired behavior? The other way round does work
+		// {
+		// 	doc:      "non-matching ports (stored without port)",
+		// 	storeURL: "https://foobar.docker.io",
+		// 	readURL:  "https://foobar.docker.io:5678",
+		// },
+		{
+			doc:      "non-matching paths",
+			storeURL: "https://foobar.docker.io:1234/one/two",
+			readURL:  "https://foobar.docker.io:1234/five/six",
+		},
 	}
 
 	helper := Wincred{}
-	defer func() {
-		for _, te := range tests {
-			helper.Delete(te.storeURL)
+	t.Cleanup(func() {
+		for _, tc := range tests {
+			if err := helper.Delete(tc.storeURL); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+				t.Errorf("cleanup: failed to delete '%s': %v", tc.storeURL, err)
+			}
 		}
-	}()
+	})
 
 	// Clean store before testing.
-	for _, te := range tests {
-		helper.Delete(te.storeURL)
+	for _, tc := range tests {
+		if err := helper.Delete(tc.storeURL); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+			t.Errorf("prepare: failed to delete '%s': %v", tc.storeURL, err)
+		}
 	}
 
-	for _, te := range tests {
-		c := &credentials.Credentials{ServerURL: te.storeURL, Username: "hello", Secret: "world"}
-		if err := helper.Add(c); err != nil {
-			t.Errorf("Error: failed to store secret for URL %q: %s", te.storeURL, err)
-			continue
-		}
-		if _, _, err := helper.Get(te.readURL); err == nil {
-			t.Errorf("Error: managed to read secret for URL %q using %q, but should not be able to", te.storeURL, te.readURL)
-		}
-		helper.Delete(te.storeURL)
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.doc, func(t *testing.T) {
+			c := &credentials.Credentials{ServerURL: tc.storeURL, Username: "hello", Secret: "world"}
+			if err := helper.Add(c); err != nil {
+				t.Fatalf("Error: failed to store secret for URL %q: %s", tc.storeURL, err)
+			}
+			if _, _, err := helper.Get(tc.readURL); err == nil {
+				t.Errorf("Error: managed to read secret for URL %q using %q, but should not be able to", tc.storeURL, tc.readURL)
+			}
+			if err := helper.Delete(tc.storeURL); err != nil {
+				t.Error(err)
+			}
+		})
 	}
 }
 
@@ -197,41 +237,46 @@ func TestWinCredHelperStoreRetrieve(t *testing.T) {
 	}
 
 	helper := Wincred{}
-	defer func() {
-		for _, te := range tests {
-			helper.Delete(te.url)
+	t.Cleanup(func() {
+		for _, tc := range tests {
+			if err := helper.Delete(tc.url); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+				t.Errorf("cleanup: failed to delete '%s': %v", tc.url, err)
+			}
 		}
-	}()
+	})
 
 	// Clean store before testing.
-	for _, te := range tests {
-		helper.Delete(te.url)
+	for _, tc := range tests {
+		if err := helper.Delete(tc.url); err != nil && !credentials.IsErrCredentialsNotFound(err) {
+			t.Errorf("prepare: failed to delete '%s': %v", tc.url, err)
+		}
 	}
 
 	// Note that we don't delete between individual tests here, to verify that
 	// subsequent stores/overwrites don't affect storing / retrieving secrets.
-	for i, te := range tests {
-		c := &credentials.Credentials{
-			ServerURL: te.url,
-			Username:  fmt.Sprintf("user-%d", i),
-			Secret:    fmt.Sprintf("secret-%d", i),
-		}
+	for i, tc := range tests {
+		tc := tc
+		t.Run(tc.url, func(t *testing.T) {
+			c := &credentials.Credentials{
+				ServerURL: tc.url,
+				Username:  fmt.Sprintf("user-%d", i),
+				Secret:    fmt.Sprintf("secret-%d", i),
+			}
 
-		if err := helper.Add(c); err != nil {
-			t.Errorf("Error: failed to store secret for URL: %s: %s", te.url, err)
-			continue
-		}
-		user, secret, err := helper.Get(te.url)
-		if err != nil {
-			t.Errorf("Error: failed to read secret for URL %q: %s", te.url, err)
-			continue
-		}
-		if user != c.Username {
-			t.Errorf("Error: expected username %s, got username %s for URL: %s", c.Username, user, te.url)
-		}
-		if secret != c.Secret {
-			t.Errorf("Error: expected secret %s, got secret %s for URL: %s", c.Secret, secret, te.url)
-		}
+			if err := helper.Add(c); err != nil {
+				t.Fatalf("Error: failed to store secret for URL: %s: %s", tc.url, err)
+			}
+			user, secret, err := helper.Get(tc.url)
+			if err != nil {
+				t.Fatalf("Error: failed to read secret for URL %q: %s", tc.url, err)
+			}
+			if user != c.Username {
+				t.Errorf("Error: expected username %s, got username %s for URL: %s", c.Username, user, tc.url)
+			}
+			if secret != c.Secret {
+				t.Errorf("Error: expected secret %s, got secret %s for URL: %s", c.Secret, secret, tc.url)
+			}
+		})
 	}
 }
 
