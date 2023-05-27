@@ -113,7 +113,7 @@ func TestStore(t *testing.T) {
 
 	for _, v := range valid {
 		if err := Store(mockProgramFn, &v); err != nil {
-			t.Fatal(err)
+			t.Error(err)
 		}
 	}
 
@@ -123,7 +123,7 @@ func TestStore(t *testing.T) {
 
 	for _, v := range invalid {
 		if err := Store(mockProgramFn, &v); err == nil {
-			t.Fatalf("Expected error for server %s, got nil", v.ServerURL)
+			t.Errorf("Expected error for server %s, got nil", v.ServerURL)
 		}
 	}
 }
@@ -152,10 +152,10 @@ func TestGet(t *testing.T) {
 		}
 
 		if c.Username != v.Username {
-			t.Fatalf("expected username `%s`, got %s", v.Username, c.Username)
+			t.Errorf("expected username `%s`, got %s", v.Username, c.Username)
 		}
 		if c.Secret != v.Secret {
-			t.Fatalf("expected secret `%s`, got %s", v.Secret, c.Secret)
+			t.Errorf("expected secret `%s`, got %s", v.Secret, c.Secret)
 		}
 	}
 
@@ -165,10 +165,17 @@ func TestGet(t *testing.T) {
 		serverURL string
 		err       string
 	}{
-		{missingCredsAddress, credentials.NewErrCredentialsNotFound().Error()},
-		{invalidServerAddress, "error getting credentials - err: exited 1, out: `program failed`"},
-		{"", fmt.Sprintf("error getting credentials - err: %s, out: `%s`",
-			missingServerURLErr.Error(), missingServerURLErr.Error())},
+		{
+			serverURL: missingCredsAddress,
+			err:       credentials.NewErrCredentialsNotFound().Error(),
+		},
+		{
+			serverURL: invalidServerAddress,
+			err:       "error getting credentials - err: exited 1, out: `program failed`",
+		},
+		{
+			err: fmt.Sprintf("error getting credentials - err: %s, out: `%s`", missingServerURLErr.Error(), missingServerURLErr.Error()),
+		},
 	}
 
 	for _, v := range invalid {
@@ -177,7 +184,7 @@ func TestGet(t *testing.T) {
 			t.Fatalf("Expected error for server %s, got nil", v.serverURL)
 		}
 		if err.Error() != v.err {
-			t.Fatalf("Expected error `%s`, got `%v`", v.err, err)
+			t.Errorf("Expected error `%s`, got `%v`", v.err, err)
 		}
 	}
 }
@@ -192,11 +199,11 @@ func ExampleErase() {
 
 func TestErase(t *testing.T) {
 	if err := Erase(mockProgramFn, validServerAddress); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 
 	if err := Erase(mockProgramFn, invalidServerAddress); err == nil {
-		t.Fatalf("Expected error for server %s, got nil", invalidServerAddress)
+		t.Errorf("Expected error for server %s, got nil", invalidServerAddress)
 	}
 }
 
@@ -207,6 +214,6 @@ func TestList(t *testing.T) {
 	}
 
 	if username, exists := auths[validServerAddress]; !exists || username != validUsername {
-		t.Fatalf("auths[%s] returned %s, %t; expected %s, %t", validServerAddress, username, exists, validUsername, true)
+		t.Errorf("auths[%s] returned %s, %t; expected %s, %t", validServerAddress, username, exists, validUsername, true)
 	}
 }
