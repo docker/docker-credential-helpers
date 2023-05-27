@@ -106,13 +106,10 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
   set -ex
   xx-go --wrap
-  make build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  make build-keyctl build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  xx-verify /out/docker-credential-keyctl
   xx-verify /out/docker-credential-pass
   xx-verify /out/docker-credential-secretservice
-
-  # keyctl credential helper
-  xx-go build -ldflags "$(cat /tmp/.ldflags)" -o /out/docker-credential-keyctl ./keyctl/cmd/
-  xx-verify /out/docker-credential-keyctl
 EOT
 
 FROM base AS build-darwin
