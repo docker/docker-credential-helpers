@@ -13,7 +13,7 @@ func TestSecretServiceHelper(t *testing.T) {
 	t.Skip("test requires gnome-keyring but travis CI doesn't have it")
 
 	creds := &credentials.Credentials{
-		ServerURL: "https://foobar.docker.io:2376/v1",
+		ServerURL: "https://foobar.example.com:2376/v1",
 		Username:  "foobar",
 		Secret:    "foobarbaz",
 	}
