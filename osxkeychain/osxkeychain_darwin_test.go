@@ -205,9 +205,14 @@ func TestOSXKeychainHelperStoreRetrieve(t *testing.T) {
 }
 
 func TestMissingCredentials(t *testing.T) {
+	const nonExistingCred = "https://adsfasdf.invalid/asdfsdddd"
 	helper := Osxkeychain{}
-	_, _, err := helper.Get("https://adsfasdf.wrewerwer.com/asdfsdddd")
+	_, _, err := helper.Get(nonExistingCred)
 	if !credentials.IsErrCredentialsNotFound(err) {
-		t.Fatalf("expected ErrCredentialsNotFound, got %v", err)
+		t.Errorf("expected ErrCredentialsNotFound, got %v", err)
+	}
+	err = helper.Delete(nonExistingCred)
+	if !credentials.IsErrCredentialsNotFound(err) {
+		t.Errorf("expected ErrCredentialsNotFound, got %v", err)
 	}
 }
