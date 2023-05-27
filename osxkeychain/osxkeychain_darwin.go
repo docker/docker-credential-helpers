@@ -34,7 +34,7 @@ type Osxkeychain struct{}
 
 // Add adds new credentials to the keychain.
 func (h Osxkeychain) Add(creds *credentials.Credentials) error {
-	h.Delete(creds.ServerURL)
+	_ = h.Delete(creds.ServerURL) // ignore errors as existing credential may not exist.
 
 	s, err := splitServer(creds.ServerURL)
 	if err != nil {
