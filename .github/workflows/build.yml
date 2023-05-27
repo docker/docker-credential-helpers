@@ -19,7 +19,7 @@ env:
 
 jobs:
   validate:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -104,7 +104,7 @@ jobs:
           file: ./coverage.txt
 
   test-sandboxed:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       -
         name: Checkout
@@ -127,7 +127,7 @@ jobs:
           file: ${{ env.DESTDIR }}//coverage.txt
 
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       -
         name: Checkout
@@ -173,7 +173,7 @@ jobs:
           files: ${{ env.DESTDIR }}/*
 
   build-deb:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       -
         name: Checkout
