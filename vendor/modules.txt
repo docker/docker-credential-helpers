@@ -3,6 +3,5 @@
 github.com/danieljoos/wincred
 # golang.org/x/sys v0.7.0
 ## explicit; go 1.17
-golang.org/x/sys/execabs
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/windows
