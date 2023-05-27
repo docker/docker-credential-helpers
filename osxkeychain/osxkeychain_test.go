@@ -107,7 +107,7 @@ func TestOSXKeychainHelperRetrieveAliases(t *testing.T) {
 				t.Fatalf("Error: failed to store secret for URL %q: %s", tc.storeURL, err)
 			}
 			if _, _, err := helper.Get(tc.readURL); err != nil {
-				t.Errorf("Error: failed to read secret for URL %q using %q", tc.storeURL, tc.readURL)
+				t.Errorf("Error: failed to read secret for URL %q using %q: %s", tc.storeURL, tc.readURL, err)
 			}
 			if err := helper.Delete(tc.storeURL); err != nil {
 				t.Error(err)
