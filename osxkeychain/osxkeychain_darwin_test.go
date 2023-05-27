@@ -75,26 +75,26 @@ func TestOSXKeychainHelperRetrieveAliases(t *testing.T) {
 
 	helper := Osxkeychain{}
 	defer func() {
-		for _, te := range tests {
-			helper.Delete(te.storeURL)
+		for _, tc := range tests {
+			helper.Delete(tc.storeURL)
 		}
 	}()
 
 	// Clean store before testing.
-	for _, te := range tests {
-		helper.Delete(te.storeURL)
+	for _, tc := range tests {
+		helper.Delete(tc.storeURL)
 	}
 
-	for _, te := range tests {
-		c := &credentials.Credentials{ServerURL: te.storeURL, Username: "hello", Secret: "world"}
+	for _, tc := range tests {
+		c := &credentials.Credentials{ServerURL: tc.storeURL, Username: "hello", Secret: "world"}
 		if err := helper.Add(c); err != nil {
-			t.Errorf("Error: failed to store secret for URL %q: %s", te.storeURL, err)
+			t.Errorf("Error: failed to store secret for URL %q: %s", tc.storeURL, err)
 			continue
 		}
-		if _, _, err := helper.Get(te.readURL); err != nil {
-			t.Errorf("Error: failed to read secret for URL %q using %q", te.storeURL, te.readURL)
+		if _, _, err := helper.Get(tc.readURL); err != nil {
+			t.Errorf("Error: failed to read secret for URL %q using %q", tc.storeURL, tc.readURL)
 		}
-		helper.Delete(te.storeURL)
+		helper.Delete(tc.storeURL)
 	}
 }
 
@@ -118,7 +118,7 @@ func TestOSXKeychainHelperRetrieveStrict(t *testing.T) {
 		{"https://foobar.docker.io:1234", "https://foobar.docker.io:5678"},
 
 		// non-matching ports TODO is this desired behavior? The other way round does work
-		//{"https://foobar.docker.io", "https://foobar.docker.io:5678"},
+		// {"https://foobar.docker.io", "https://foobar.docker.io:5678"},
 
 		// non-matching paths
 		{"https://foobar.docker.io:1234/one/two", "https://foobar.docker.io:1234/five/six"},
@@ -126,26 +126,26 @@ func TestOSXKeychainHelperRetrieveStrict(t *testing.T) {
 
 	helper := Osxkeychain{}
 	defer func() {
-		for _, te := range tests {
-			helper.Delete(te.storeURL)
+		for _, tc := range tests {
+			helper.Delete(tc.storeURL)
 		}
 	}()
 
 	// Clean store before testing.
-	for _, te := range tests {
-		helper.Delete(te.storeURL)
+	for _, tc := range tests {
+		helper.Delete(tc.storeURL)
 	}
 
-	for _, te := range tests {
-		c := &credentials.Credentials{ServerURL: te.storeURL, Username: "hello", Secret: "world"}
+	for _, tc := range tests {
+		c := &credentials.Credentials{ServerURL: tc.storeURL, Username: "hello", Secret: "world"}
 		if err := helper.Add(c); err != nil {
-			t.Errorf("Error: failed to store secret for URL %q: %s", te.storeURL, err)
+			t.Errorf("Error: failed to store secret for URL %q: %s", tc.storeURL, err)
 			continue
 		}
-		if _, _, err := helper.Get(te.readURL); err == nil {
-			t.Errorf("Error: managed to read secret for URL %q using %q, but should not be able to", te.storeURL, te.readURL)
+		if _, _, err := helper.Get(tc.readURL); err == nil {
+			t.Errorf("Error: managed to read secret for URL %q using %q, but should not be able to", tc.storeURL, tc.readURL)
 		}
-		helper.Delete(te.storeURL)
+		helper.Delete(tc.storeURL)
 	}
 }
 
@@ -167,39 +167,39 @@ func TestOSXKeychainHelperStoreRetrieve(t *testing.T) {
 
 	helper := Osxkeychain{}
 	defer func() {
-		for _, te := range tests {
-			helper.Delete(te.url)
+		for _, tc := range tests {
+			helper.Delete(tc.url)
 		}
 	}()
 
 	// Clean store before testing.
-	for _, te := range tests {
-		helper.Delete(te.url)
+	for _, tc := range tests {
+		helper.Delete(tc.url)
 	}
 
 	// Note that we don't delete between individual tests here, to verify that
 	// subsequent stores/overwrites don't affect storing / retrieving secrets.
-	for i, te := range tests {
+	for i, tc := range tests {
 		c := &credentials.Credentials{
-			ServerURL: te.url,
+			ServerURL: tc.url,
 			Username:  fmt.Sprintf("user-%d", i),
 			Secret:    fmt.Sprintf("secret-%d", i),
 		}
 
 		if err := helper.Add(c); err != nil {
-			t.Errorf("Error: failed to store secret for URL: %s: %s", te.url, err)
+			t.Errorf("Error: failed to store secret for URL: %s: %s", tc.url, err)
 			continue
 		}
-		user, secret, err := helper.Get(te.url)
+		user, secret, err := helper.Get(tc.url)
 		if err != nil {
-			t.Errorf("Error: failed to read secret for URL %q: %s", te.url, err)
+			t.Errorf("Error: failed to read secret for URL %q: %s", tc.url, err)
 			continue
 		}
 		if user != c.Username {
-			t.Errorf("Error: expected username %s, got username %s for URL: %s", c.Username, user, te.url)
+			t.Errorf("Error: expected username %s, got username %s for URL: %s", c.Username, user, tc.url)
 		}
 		if secret != c.Secret {
-			t.Errorf("Error: expected secret %s, got secret %s for URL: %s", c.Secret, secret, te.url)
+			t.Errorf("Error: expected secret %s, got secret %s for URL: %s", c.Secret, secret, tc.url)
 		}
 	}
 }
