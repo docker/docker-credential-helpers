@@ -1,7 +1,6 @@
 package client
 
 import (
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
@@ -30,10 +29,9 @@ func NewShellProgramFuncWithEnv(name string, env *map[string]string) ProgramFunc
 
 func createProgramCmdRedirectErr(commandName string, args []string, env *map[string]string) *exec.Cmd {
 	programCmd := exec.Command(commandName, args...)
-	programCmd.Env = os.Environ()
 	if env != nil {
 		for k, v := range *env {
-			programCmd.Env = append(programCmd.Env, fmt.Sprintf("%s=%s", k, v))
+			programCmd.Env = append(programCmd.Environ(), k+"="+v)
 		}
 	}
 	programCmd.Stderr = os.Stderr
