@@ -54,6 +54,15 @@ func Serve(helper Helper) {
 		os.Exit(1)
 	}
 
+	switch os.Args[1] {
+	case "--version", "-v":
+		_ = PrintVersion(os.Stdout)
+		os.Exit(0)
+	case "--help", "-h":
+		_, _ = fmt.Fprintln(os.Stdout, usage())
+		os.Exit(0)
+	}
+
 	if err := HandleCommand(helper, os.Args[1], os.Stdin, os.Stdout); err != nil {
 		_, _ = fmt.Fprintln(os.Stdout, err)
 		os.Exit(1)
