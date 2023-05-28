@@ -132,14 +132,13 @@ func Get(helper Helper, reader io.Reader, writer io.Writer) error {
 		return err
 	}
 
-	resp := Credentials{
+	buffer.Reset()
+	err = json.NewEncoder(buffer).Encode(Credentials{
 		ServerURL: serverURL,
 		Username:  username,
 		Secret:    secret,
-	}
-
-	buffer.Reset()
-	if err := json.NewEncoder(buffer).Encode(resp); err != nil {
+	})
+	if err != nil {
 		return err
 	}
 
