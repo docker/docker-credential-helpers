@@ -9,6 +9,12 @@ BUILDX_CMD ?= docker buildx
 DESTDIR ?= ./bin/build
 COVERAGEDIR ?= ./bin/coverage
 
+# 10.11 is the minimum supported version for osxkeychain
+export MACOSX_DEPLOYMENT_TARGET = 10.11
+ifeq "$(shell go env GOOS)" "darwin"
+	export CGO_CFLAGS = -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
+endif
+
 .PHONY: all
 all: cross
 
@@ -75,3 +81,6 @@ vendor:
 	rm -rf ./vendor
 	cp -R "$($@_TMP_OUT)"/* .
 	rm -rf "$($@_TMP_OUT)"
+
+.PHONY: print-%
+print-%: ; @echo $($*)
