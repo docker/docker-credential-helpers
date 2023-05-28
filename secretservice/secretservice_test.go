@@ -1,4 +1,4 @@
-//go:build linux && cgo
+//go:build linux && cgo && !skip_secretservice_tests
 
 package secretservice
 
