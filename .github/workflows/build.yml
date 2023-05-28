@@ -95,14 +95,13 @@ jobs:
             echo -e "trust\n5\ny" | gpg --batch --no-tty --command-fd 0 --edit-key 7D851EB72D73BDA0
             pass init 7D851EB72D73BDA0
           fi
-          go test -short -v -coverprofile=./coverage.txt -covermode=atomic ./...
-          go tool cover -func=./coverage.txt
+          make test COVERAGEDIR=${{ env.DESTDIR }}
         shell: bash
       -
         name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
-          file: ./coverage.txt
+          file: ${{ env.DESTDIR }}/coverage.txt
 
   test-sandboxed:
     runs-on: ubuntu-22.04
