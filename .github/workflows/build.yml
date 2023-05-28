@@ -93,11 +93,11 @@ jobs:
         with:
           gpg_private_key: ${{ steps.gpg.outputs.key }}
           passphrase: ${{ steps.gpg.outputs.passphrase }}
+          trust_level: 5
       -
         name: Init pass
         if: ${{ !startsWith(matrix.os, 'windows-') }}
         run: |
-          echo -e "trust\n5\ny" | gpg --batch --no-tty --command-fd 0 --edit-key 7D851EB72D73BDA0
           pass init 7D851EB72D73BDA0
         shell: bash
       -
