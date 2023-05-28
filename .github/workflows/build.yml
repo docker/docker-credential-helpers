@@ -46,6 +46,7 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-20.04
+          - macOS-12
           - macOS-11
           - windows-2022
     steps:
