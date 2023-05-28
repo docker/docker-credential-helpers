@@ -7,6 +7,7 @@ GO_LDFLAGS = -s -w -X ${GO_PKG}/credentials.Version=${VERSION} -X ${GO_PKG}/cred
 
 BUILDX_CMD ?= docker buildx
 DESTDIR ?= ./bin/build
+COVERAGEDIR ?= ./bin/coverage
 
 .PHONY: all
 all: cross
@@ -35,8 +36,10 @@ release: # create release
 	./hack/release
 
 .PHONY: test
-test: # tests all packages except vendor
-	go test -v `go list ./... | grep -v /vendor/`
+test:
+	mkdir -p $(COVERAGEDIR)
+	go test -short -v -coverprofile=$(COVERAGEDIR)/coverage.txt -covermode=atomic ./...
+	go tool cover -func=$(COVERAGEDIR)/coverage.txt
 
 .PHONY: lint
 lint:

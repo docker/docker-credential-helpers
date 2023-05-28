@@ -86,8 +86,8 @@ RUN --mount=type=bind,target=. \
   gpg -k
 
   mkdir /out
-  xx-go test -short -v -coverprofile=/out/coverage.txt -covermode=atomic ./...
-  xx-go tool cover -func=/out/coverage.txt
+  xx-go --wrap
+  make test COVERAGEDIR=/out
 EOT
 
 FROM scratch AS test-coverage
