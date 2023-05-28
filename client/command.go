@@ -38,17 +38,17 @@ func createProgramCmdRedirectErr(commandName string, args []string, env *map[str
 	return programCmd
 }
 
-// Shell invokes shell commands to talk with a remote credentials helper.
+// Shell invokes shell commands to talk with a remote credentials-helper.
 type Shell struct {
 	cmd *exec.Cmd
 }
 
-// Output returns responses from the remote credentials helper.
+// Output returns responses from the remote credentials-helper.
 func (s *Shell) Output() ([]byte, error) {
 	return s.cmd.Output()
 }
 
-// Input sets the input to send to a remote credentials helper.
+// Input sets the input to send to a remote credentials-helper.
 func (s *Shell) Input(in io.Reader) {
 	s.cmd.Stdin = in
 }

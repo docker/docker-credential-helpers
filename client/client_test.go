@@ -21,14 +21,14 @@ const (
 var errProgramExited = fmt.Errorf("exited 1")
 
 // mockProgram simulates interactions between the docker client and a remote
-// credentials helper.
+// credentials-helper.
 // Unit tests inject this mocked command into the remote to control execution.
 type mockProgram struct {
 	arg   string
 	input io.Reader
 }
 
-// Output returns responses from the remote credentials helper.
+// Output returns responses from the remote credentials-helper.
 // It mocks those responses based in the input in the mock.
 func (m *mockProgram) Output() ([]byte, error) {
 	in, err := io.ReadAll(m.input)
@@ -80,7 +80,7 @@ func (m *mockProgram) Output() ([]byte, error) {
 	return []byte(fmt.Sprintf("unknown argument %q with %q", m.arg, inS)), errProgramExited
 }
 
-// Input sets the input to send to a remote credentials helper.
+// Input sets the input to send to a remote credentials-helper.
 func (m *mockProgram) Input(in io.Reader) {
 	m.input = in
 }
