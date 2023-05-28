@@ -59,7 +59,7 @@ func Serve(helper Helper) {
 	}
 
 	if err != nil {
-		fmt.Fprintf(os.Stdout, "%v\n", err)
+		_, _ = fmt.Fprintln(os.Stdout, err)
 		os.Exit(1)
 	}
 }
@@ -143,7 +143,7 @@ func Get(helper Helper, reader io.Reader, writer io.Writer) error {
 		return err
 	}
 
-	fmt.Fprint(writer, buffer.String())
+	_, _ = fmt.Fprint(writer, buffer.String())
 	return nil
 }
 
@@ -181,6 +181,6 @@ func List(helper Helper, writer io.Writer) error {
 
 // PrintVersion outputs the current version.
 func PrintVersion(writer io.Writer) error {
-	fmt.Fprintf(writer, "%s (%s) %s\n", Name, Package, Version)
+	_, _ = fmt.Fprintf(writer, "%s (%s) %s\n", Name, Package, Version)
 	return nil
 }

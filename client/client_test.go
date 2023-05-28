@@ -92,16 +92,16 @@ func mockProgramFn(args ...string) Program {
 }
 
 func ExampleStore() {
-	p := NewShellProgramFunc("docker-credential-secretservice")
+	p := NewShellProgramFunc("docker-credential-pass")
 
 	c := &credentials.Credentials{
-		ServerURL: "https://example.com",
-		Username:  "calavera",
+		ServerURL: "https://registry.example.com",
+		Username:  "exampleuser",
 		Secret:    "my super secret token",
 	}
 
 	if err := Store(p, c); err != nil {
-		fmt.Println(err)
+		_, _ = fmt.Println(err)
 	}
 }
 
@@ -129,14 +129,14 @@ func TestStore(t *testing.T) {
 }
 
 func ExampleGet() {
-	p := NewShellProgramFunc("docker-credential-secretservice")
+	p := NewShellProgramFunc("docker-credential-pass")
 
-	creds, err := Get(p, "https://example.com")
+	creds, err := Get(p, "https://registry.example.com")
 	if err != nil {
-		fmt.Println(err)
+		_, _ = fmt.Println(err)
 	}
 
-	fmt.Printf("Got credentials for user `%s` in `%s`\n", creds.Username, creds.ServerURL)
+	_, _ = fmt.Printf("Got credentials for user `%s` in `%s`\n", creds.Username, creds.ServerURL)
 }
 
 func TestGet(t *testing.T) {
@@ -190,10 +190,10 @@ func TestGet(t *testing.T) {
 }
 
 func ExampleErase() {
-	p := NewShellProgramFunc("docker-credential-secretservice")
+	p := NewShellProgramFunc("docker-credential-pass")
 
-	if err := Erase(p, "https://example.com"); err != nil {
-		fmt.Println(err)
+	if err := Erase(p, "https://registry.example.com"); err != nil {
+		_, _ = fmt.Println(err)
 	}
 }
 
