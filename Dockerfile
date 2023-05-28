@@ -120,6 +120,7 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version \
     --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
   set -ex
+  export MACOSX_VERSION_MIN=$(make print-MACOSX_DEPLOYMENT_TARGET)
   xx-go --wrap
   go install std
   make build-osxkeychain build-pass PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
