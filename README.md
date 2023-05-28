@@ -17,6 +17,9 @@ Go to the [Releases](https://github.com/docker/docker-credential-helpers/release
 You can build the credential helpers using Docker:
 
 ```shell
+# install emulators
+$ docker run --privileged --rm tonistiigi/binfmt --install all
+
 # create builder
 $ docker buildx create --use
 
