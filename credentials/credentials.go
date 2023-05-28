@@ -10,6 +10,20 @@ import (
 	"strings"
 )
 
+// Action defines the name of an action (sub-command) supported by a
+// credential-helper binary. It is an alias for "string", and mostly
+// for convenience.
+type Action = string
+
+// List of actions (sub-commands) supported by credential-helper binaries.
+const (
+	ActionStore   Action = "store"
+	ActionGet     Action = "get"
+	ActionErase   Action = "erase"
+	ActionList    Action = "list"
+	ActionVersion Action = "version"
+)
+
 // Credentials holds the information shared between docker and the credentials store.
 type Credentials struct {
 	ServerURL string
@@ -74,17 +88,17 @@ func usage() string {
 }
 
 // HandleCommand runs a helper to execute a credential action.
-func HandleCommand(helper Helper, action string, in io.Reader, out io.Writer) error {
+func HandleCommand(helper Helper, action Action, in io.Reader, out io.Writer) error {
 	switch action {
-	case "store":
+	case ActionStore:
 		return Store(helper, in)
-	case "get":
+	case ActionGet:
 		return Get(helper, in, out)
-	case "erase":
+	case ActionErase:
 		return Erase(helper, in)
-	case "list":
+	case ActionList:
 		return List(helper, out)
-	case "version":
+	case ActionVersion:
 		return PrintVersion(out)
 	default:
 		return fmt.Errorf("%s: unknown action: %s", Name, action)
