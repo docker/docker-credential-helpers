@@ -1,6 +1,6 @@
 #include <string.h>
 #include <stdlib.h>
-#include "secretservice_linux.h"
+#include "secretservice.h"
 
 const SecretSchema *docker_get_schema(void)
 {

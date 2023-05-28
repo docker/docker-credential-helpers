@@ -1,9 +1,11 @@
+//go:build linux && cgo
+
 package secretservice
 
 /*
 #cgo pkg-config: libsecret-1
 
-#include "secretservice_linux.h"
+#include "secretservice.h"
 #include <stdlib.h>
 */
 import "C"
