@@ -49,19 +49,19 @@ func SetCredsLabel(label string) {
 // It uses os.Stdin as input and os.Stdout as output.
 // This function terminates the program with os.Exit(1) if there is an error.
 func Serve(helper Helper) {
-	var err error
 	if len(os.Args) != 2 {
-		err = fmt.Errorf("Usage: %s <store|get|erase|list|version>", Name)
+		_, _ = fmt.Fprintln(os.Stdout, usage())
+		os.Exit(1)
 	}
 
-	if err == nil {
-		err = HandleCommand(helper, os.Args[1], os.Stdin, os.Stdout)
-	}
-
-	if err != nil {
+	if err := HandleCommand(helper, os.Args[1], os.Stdin, os.Stdout); err != nil {
 		_, _ = fmt.Fprintln(os.Stdout, err)
 		os.Exit(1)
 	}
+}
+
+func usage() string {
+	return fmt.Sprintf("Usage: %s <store|get|erase|list|version>", Name)
 }
 
 // HandleCommand uses a helper and a key to run a credential action.
