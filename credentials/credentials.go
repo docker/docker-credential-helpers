@@ -51,7 +51,7 @@ func SetCredsLabel(label string) {
 func Serve(helper Helper) {
 	var err error
 	if len(os.Args) != 2 {
-		err = fmt.Errorf("Usage: %s <store|get|erase|list|version>", os.Args[0])
+		err = fmt.Errorf("Usage: %s <store|get|erase|list|version>", Name)
 	}
 
 	if err == nil {
