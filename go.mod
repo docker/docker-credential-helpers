@@ -7,4 +7,9 @@ require (
 	github.com/keybase/go-keychain v0.0.0-20230523030712-b5615109f100
 )
 
-require golang.org/x/sys v0.8.0 // indirect
+require (
+	github.com/keybase/dbus v0.0.0-20220506165403-5aa21ea2c23a // indirect
+	github.com/pkg/errors v0.9.1 // indirect
+	golang.org/x/crypto v0.1.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
+)
