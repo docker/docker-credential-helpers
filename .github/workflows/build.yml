@@ -59,14 +59,19 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache: true
       -
-        name: Install deps
+        name: Install deps (ubuntu)
         if: startsWith(matrix.os, 'ubuntu-')
         run: |
           sudo apt-get update
           sudo apt-get install -y dbus-x11 gnome-keyring libsecret-1-dev pass
       -
+        name: Install deps (macOS)
+        if: startsWith(matrix.os, 'macOS-')
+        run: |
+          brew install pass
+      -
         name: GPG conf
-        if: startsWith(matrix.os, 'ubuntu-')
+        if: ${{ !startsWith(matrix.os, 'windows-') }}
         uses: actions/github-script@v6
         id: gpg
         with:
@@ -83,18 +88,21 @@ jobs:
             core.setOutput('passphrase', fs.readFileSync('.github/workflows/fixtures/7D851EB72D73BDA0.pass', {encoding: 'utf8'}));
       -
         name: Import GPG key
-        if: startsWith(matrix.os, 'ubuntu-')
+        if: ${{ !startsWith(matrix.os, 'windows-') }}
         uses: crazy-max/ghaction-import-gpg@v5
         with:
           gpg_private_key: ${{ steps.gpg.outputs.key }}
           passphrase: ${{ steps.gpg.outputs.passphrase }}
       -
+        name: Init pass
+        if: ${{ !startsWith(matrix.os, 'windows-') }}
+        run: |
+          echo -e "trust\n5\ny" | gpg --batch --no-tty --command-fd 0 --edit-key 7D851EB72D73BDA0
+          pass init 7D851EB72D73BDA0
+        shell: bash
+      -
         name: Test
         run: |
-          if [[ "${{ matrix.os }}" = ubuntu-* ]]; then
-            echo -e "trust\n5\ny" | gpg --batch --no-tty --command-fd 0 --edit-key 7D851EB72D73BDA0
-            pass init 7D851EB72D73BDA0
-          fi
           make test COVERAGEDIR=${{ env.DESTDIR }}
         shell: bash
       -
