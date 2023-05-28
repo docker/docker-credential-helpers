@@ -64,9 +64,9 @@ func usage() string {
 	return fmt.Sprintf("Usage: %s <store|get|erase|list|version>", Name)
 }
 
-// HandleCommand uses a helper and a key to run a credential action.
-func HandleCommand(helper Helper, key string, in io.Reader, out io.Writer) error {
-	switch key {
+// HandleCommand runs a helper to execute a credential action.
+func HandleCommand(helper Helper, action string, in io.Reader, out io.Writer) error {
+	switch action {
 	case "store":
 		return Store(helper, in)
 	case "get":
@@ -77,8 +77,9 @@ func HandleCommand(helper Helper, key string, in io.Reader, out io.Writer) error
 		return List(helper, out)
 	case "version":
 		return PrintVersion(out)
+	default:
+		return fmt.Errorf("%s: unknown action: %s", Name, action)
 	}
-	return fmt.Errorf("Unknown credential action `%s`", key)
 }
 
 // Store uses a helper and an input reader to save credentials.
