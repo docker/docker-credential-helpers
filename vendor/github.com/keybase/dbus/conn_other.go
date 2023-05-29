@@ -1,4 +1,3 @@
-//go:build !darwin
 // +build !darwin
 
 package dbus
@@ -19,7 +18,8 @@ var execCommand = exec.Command
 
 func getSessionBusPlatformAddress() (string, error) {
 	cmd := execCommand("dbus-launch")
-	b, err := cmd.Output()
+	b, err := cmd.CombinedOutput()
+
 	if err != nil {
 		return "", err
 	}
