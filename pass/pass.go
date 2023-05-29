@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -104,11 +105,11 @@ func (p Pass) Delete(serverURL string) error {
 }
 
 func getPassDir() string {
-	passDir := "$HOME/.password-store"
-	if envDir := os.Getenv("PASSWORD_STORE_DIR"); envDir != "" {
-		passDir = envDir
+	if passDir := os.Getenv("PASSWORD_STORE_DIR"); passDir != "" {
+		return passDir
 	}
-	return os.ExpandEnv(passDir)
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".password-store")
 }
 
 // listPassDir lists all the contents of a directory in the password store.
