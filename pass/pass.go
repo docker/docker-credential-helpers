@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -107,7 +108,8 @@ func getPassDir() string {
 	if passDir := os.Getenv("PASSWORD_STORE_DIR"); passDir != "" {
 		return passDir
 	}
-	return os.ExpandEnv("$HOME/.password-store")
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".password-store")
 }
 
 // listPassDir lists all the contents of a directory in the password store.
