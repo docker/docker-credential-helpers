@@ -1,10 +1,12 @@
+//go:build darwin && cgo
+
 package osxkeychain
 
 /*
 #cgo CFLAGS: -x objective-c
 #cgo LDFLAGS: -framework Security -framework Foundation
 
-#include "osxkeychain_darwin.h"
+#include "osxkeychain.h"
 #include <stdlib.h>
 */
 import "C"
