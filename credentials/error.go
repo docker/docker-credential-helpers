@@ -1,5 +1,7 @@
 package credentials
 
+import "errors"
+
 const (
 	// ErrCredentialsNotFound standardizes the not found error, so every helper returns
 	// the same message and docker can handle it properly.
@@ -30,8 +32,8 @@ func NewErrCredentialsNotFound() error {
 // IsErrCredentialsNotFound returns true if the error
 // was caused by not having a set of credentials in a store.
 func IsErrCredentialsNotFound(err error) bool {
-	_, ok := err.(errCredentialsNotFound)
-	return ok
+	var target errCredentialsNotFound
+	return errors.As(err, &target)
 }
 
 // IsErrCredentialsNotFoundMessage returns true if the error
@@ -78,8 +80,8 @@ func NewErrCredentialsMissingUsername() error {
 // IsCredentialsMissingServerURL returns true if the error
 // was an errCredentialsMissingServerURL.
 func IsCredentialsMissingServerURL(err error) bool {
-	_, ok := err.(errCredentialsMissingServerURL)
-	return ok
+	var target errCredentialsMissingServerURL
+	return errors.As(err, &target)
 }
 
 // IsCredentialsMissingServerURLMessage checks for an
@@ -91,8 +93,8 @@ func IsCredentialsMissingServerURLMessage(err string) bool {
 // IsCredentialsMissingUsername returns true if the error
 // was an errCredentialsMissingUsername.
 func IsCredentialsMissingUsername(err error) bool {
-	_, ok := err.(errCredentialsMissingUsername)
-	return ok
+	var target errCredentialsMissingUsername
+	return errors.As(err, &target)
 }
 
 // IsCredentialsMissingUsernameMessage checks for an
