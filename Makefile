@@ -62,18 +62,6 @@ fmt:
 .PHONY: validate
 validate: lint validate-vendor fmt
 
-BUILDIMG:=docker-credential-secretservice-$(VERSION)
-.PHONY: deb
-deb:
-	mkdir -p release
-	docker build -f deb/Dockerfile \
-		--build-arg VERSION=$(patsubst v%,%,$(VERSION)) \
-		--build-arg REVISION=$(REVISION) \
-		--tag $(BUILDIMG) \
-		.
-	docker run --rm --net=none $(BUILDIMG) tar cf - /release | tar xf -
-	docker rmi $(BUILDIMG)
-
 .PHONY: vendor
 vendor:
 	$(eval $@_TMP_OUT := $(shell mktemp -d -t docker-output.XXXXXXXXXX))
