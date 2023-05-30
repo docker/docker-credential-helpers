@@ -88,7 +88,7 @@ func TestStoreMissingServerURL(t *testing.T) {
 
 	h := newMemoryStore()
 
-	if err := Store(h, in); IsCredentialsMissingServerURL(err) == false {
+	if err := Store(h, in); !IsCredentialsMissingServerURL(err) {
 		t.Error(err)
 	}
 }
@@ -108,7 +108,7 @@ func TestStoreMissingUsername(t *testing.T) {
 
 	h := newMemoryStore()
 
-	if err := Store(h, in); IsCredentialsMissingUsername(err) == false {
+	if err := Store(h, in); !IsCredentialsMissingUsername(err) {
 		t.Error(err)
 	}
 }
@@ -176,7 +176,7 @@ func TestGetMissingServerURL(t *testing.T) {
 	buf := strings.NewReader("")
 	w := new(bytes.Buffer)
 
-	if err := Get(h, buf, w); IsCredentialsMissingServerURL(err) == false {
+	if err := Get(h, buf, w); !IsCredentialsMissingServerURL(err) {
 		t.Error(err)
 	}
 }
@@ -229,8 +229,8 @@ func TestEraseMissingServerURL(t *testing.T) {
 	}
 
 	buf := strings.NewReader("")
-	if err := Erase(h, buf); IsCredentialsMissingServerURL(err) == false {
-		t.Fatal(err)
+	if err := Erase(h, buf); !IsCredentialsMissingServerURL(err) {
+		t.Error(err)
 	}
 }
 
