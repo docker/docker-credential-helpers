@@ -11,7 +11,7 @@ import (
 
 func TestPassHelper(t *testing.T) {
 	creds := &credentials.Credentials{
-		ServerURL: "https://foobar.docker.io:2376/v1",
+		ServerURL: "https://foobar.example.com:2376/v1",
 		Username:  "nothing",
 		Secret:    "isthebestmeshuggahalbum",
 	}
@@ -54,12 +54,12 @@ func TestPassHelperCheckInit(t *testing.T) {
 func TestPassHelperList(t *testing.T) {
 	creds := []*credentials.Credentials{
 		{
-			ServerURL: "https://foobar.docker.io:2376/v1",
+			ServerURL: "https://foobar.example.com:2376/v1",
 			Username:  "foo",
 			Secret:    "isthebestmeshuggahalbum",
 		},
 		{
-			ServerURL: "https://foobar.docker.io:2375/v1",
+			ServerURL: "https://foobar.example.com:2375/v1",
 			Username:  "bar",
 			Secret:    "isthebestmeshuggahalbum",
 		},

@@ -11,11 +11,11 @@ import (
 )
 
 const (
-	validServerAddress   = "https://index.docker.io/v1"
+	validServerAddress   = "https://registry.example.com/v1"
 	validUsername        = "linus"
 	validServerAddress2  = "https://example.com:5002"
 	invalidServerAddress = "https://foobar.example.com"
-	missingCredsAddress  = "https://missing.docker.io/v1"
+	missingCredsAddress  = "https://missing.example.com/v1"
 )
 
 var errProgramExited = fmt.Errorf("exited 1")

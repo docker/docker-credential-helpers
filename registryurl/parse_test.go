@@ -14,39 +14,39 @@ func TestHelperParseURL(t *testing.T) {
 		err         error
 	}{
 		{
-			url:         "foobar.docker.io",
-			expectedURL: "//foobar.docker.io",
+			url:         "foobar.example.com",
+			expectedURL: "//foobar.example.com",
 		},
 		{
-			url:         "foobar.docker.io:2376",
-			expectedURL: "//foobar.docker.io:2376",
+			url:         "foobar.example.com:2376",
+			expectedURL: "//foobar.example.com:2376",
 		},
 		{
-			url:         "//foobar.docker.io:2376",
-			expectedURL: "//foobar.docker.io:2376",
+			url:         "//foobar.example.com:2376",
+			expectedURL: "//foobar.example.com:2376",
 		},
 		{
-			url:         "http://foobar.docker.io:2376",
-			expectedURL: "http://foobar.docker.io:2376",
+			url:         "http://foobar.example.com:2376",
+			expectedURL: "http://foobar.example.com:2376",
 		},
 		{
-			url:         "https://foobar.docker.io:2376",
-			expectedURL: "https://foobar.docker.io:2376",
+			url:         "https://foobar.example.com:2376",
+			expectedURL: "https://foobar.example.com:2376",
 		},
 		{
-			url:         "https://foobar.docker.io:2376/some/path",
-			expectedURL: "https://foobar.docker.io:2376/some/path",
+			url:         "https://foobar.example.com:2376/some/path",
+			expectedURL: "https://foobar.example.com:2376/some/path",
 		},
 		{
-			url:         "https://foobar.docker.io:2376/some/other/path?foo=bar",
-			expectedURL: "https://foobar.docker.io:2376/some/other/path",
+			url:         "https://foobar.example.com:2376/some/other/path?foo=bar",
+			expectedURL: "https://foobar.example.com:2376/some/other/path",
 		},
 		{
-			url: "/foobar.docker.io",
+			url: "/foobar.example.com",
 			err: errors.New("no hostname in URL"),
 		},
 		{
-			url: "ftp://foobar.docker.io:2376",
+			url: "ftp://foobar.example.com:2376",
 			err: errors.New("unsupported scheme: ftp"),
 		},
 	}
