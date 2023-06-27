@@ -234,7 +234,7 @@ func TestWinCredHelperStoreRetrieve(t *testing.T) {
 		{url: "https://foobar.example.com:2376"},
 		{url: "http://foobar.example.com:2376"},
 		{url: "https://foobar.example.com:2376/some/path"},
-		// {url: "https://foobar.example.com:2376/some/other/path"},
+		{url: "https://foobar.example.com:2376/some/other/path"},
 		{url: "https://foobar.example.com:2376/some/other/path?foo=bar"},
 	}
 
