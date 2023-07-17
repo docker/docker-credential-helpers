@@ -1,10 +1,10 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.20.5
+ARG GO_VERSION=1.20.6
 ARG DISTRO=ubuntu
 ARG SUITE=focal
 
-FROM golang:${GO_VERSION}-buster AS golang
+FROM golang:${GO_VERSION}-bullseye AS golang
 
 FROM ${DISTRO}:${SUITE}
 
