@@ -46,6 +46,7 @@ jobs:
         os:
           - ubuntu-22.04
           - ubuntu-20.04
+          - macOS-12
           - macOS-11
           - windows-2022
     steps:
@@ -103,7 +104,7 @@ jobs:
       -
         name: Test
         run: |
-          make test COVERAGEDIR=${{ env.DESTDIR }}
+          make test COVERAGEDIR=${{ env.DESTDIR }} TEST_TAGS=skip_secretservice_tests
         shell: bash
       -
         name: Upload coverage
