@@ -7,6 +7,13 @@ GO_LDFLAGS = -s -w -X ${GO_PKG}/credentials.Version=${VERSION} -X ${GO_PKG}/cred
 
 BUILDX_CMD ?= docker buildx
 DESTDIR ?= ./bin/build
+COVERAGEDIR ?= ./bin/coverage
+
+# 10.11 is the minimum supported version for osxkeychain
+export MACOSX_DEPLOYMENT_TARGET = 10.11
+ifeq "$(shell go env GOOS)" "darwin"
+	export CGO_CFLAGS = -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
+endif
 
 .PHONY: all
 all: cross
@@ -35,8 +42,10 @@ release: # create release
 	./hack/release
 
 .PHONY: test
-test: # tests all packages except vendor
-	go test -v `go list ./... | grep -v /vendor/`
+test:
+	mkdir -p $(COVERAGEDIR)
+	go test -short -v -coverprofile=$(COVERAGEDIR)/coverage.txt -covermode=atomic ./...
+	go tool cover -func=$(COVERAGEDIR)/coverage.txt
 
 .PHONY: lint
 lint:
@@ -72,3 +81,6 @@ vendor:
 	rm -rf ./vendor
 	cp -R "$($@_TMP_OUT)"/* .
 	rm -rf "$($@_TMP_OUT)"
+
+.PHONY: print-%
+print-%: ; @echo $($*)

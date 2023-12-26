@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -28,11 +29,12 @@ type Pass struct{}
 // Ideally these would be stored as members of Pass, but since all of Pass's
 // methods have value receivers, not pointer receivers, and changing that is
 // backwards incompatible, we assume that all Pass instances share the same configuration
-
-// initializationMutex is held while initializing so that only one 'pass'
-// round-tripping is done to check pass is functioning.
-var initializationMutex sync.Mutex
-var passInitialized bool
+var (
+	// initializationMutex is held while initializing so that only one 'pass'
+	// round-tripping is done to check pass is functioning.
+	initializationMutex sync.Mutex
+	passInitialized     bool
+)
 
 // CheckInitialized checks whether the password helper can be used. It
 // internally caches and so may be safely called multiple times with no impact
@@ -103,11 +105,11 @@ func (p Pass) Delete(serverURL string) error {
 }
 
 func getPassDir() string {
-	passDir := "$HOME/.password-store"
-	if envDir := os.Getenv("PASSWORD_STORE_DIR"); envDir != "" {
-		passDir = envDir
+	if passDir := os.Getenv("PASSWORD_STORE_DIR"); passDir != "" {
+		return passDir
 	}
-	return os.ExpandEnv(passDir)
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".password-store")
 }
 
 // listPassDir lists all the contents of a directory in the password store.

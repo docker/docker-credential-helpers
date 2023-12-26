@@ -13,34 +13,61 @@ func TestHelperParseURL(t *testing.T) {
 		expectedURL string
 		err         error
 	}{
-		{url: "foobar.docker.io", expectedURL: "//foobar.docker.io"},
-		{url: "foobar.docker.io:2376", expectedURL: "//foobar.docker.io:2376"},
-		{url: "//foobar.docker.io:2376", expectedURL: "//foobar.docker.io:2376"},
-		{url: "http://foobar.docker.io:2376", expectedURL: "http://foobar.docker.io:2376"},
-		{url: "https://foobar.docker.io:2376", expectedURL: "https://foobar.docker.io:2376"},
-		{url: "https://foobar.docker.io:2376/some/path", expectedURL: "https://foobar.docker.io:2376/some/path"},
-		{url: "https://foobar.docker.io:2376/some/other/path?foo=bar", expectedURL: "https://foobar.docker.io:2376/some/other/path"},
-		{url: "/foobar.docker.io", err: errors.New("no hostname in URL")},
-		{url: "ftp://foobar.docker.io:2376", err: errors.New("unsupported scheme: ftp")},
+		{
+			url:         "foobar.example.com",
+			expectedURL: "//foobar.example.com",
+		},
+		{
+			url:         "foobar.example.com:2376",
+			expectedURL: "//foobar.example.com:2376",
+		},
+		{
+			url:         "//foobar.example.com:2376",
+			expectedURL: "//foobar.example.com:2376",
+		},
+		{
+			url:         "http://foobar.example.com:2376",
+			expectedURL: "http://foobar.example.com:2376",
+		},
+		{
+			url:         "https://foobar.example.com:2376",
+			expectedURL: "https://foobar.example.com:2376",
+		},
+		{
+			url:         "https://foobar.example.com:2376/some/path",
+			expectedURL: "https://foobar.example.com:2376/some/path",
+		},
+		{
+			url:         "https://foobar.example.com:2376/some/other/path?foo=bar",
+			expectedURL: "https://foobar.example.com:2376/some/other/path",
+		},
+		{
+			url: "/foobar.example.com",
+			err: errors.New("no hostname in URL"),
+		},
+		{
+			url: "ftp://foobar.example.com:2376",
+			err: errors.New("unsupported scheme: ftp"),
+		},
 	}
 
-	for _, te := range tests {
-		u, err := Parse(te.url)
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.url, func(t *testing.T) {
+			u, err := Parse(tc.url)
 
-		if te.err == nil && err != nil {
-			t.Errorf("Error: failed to parse URL %q: %s", te.url, err)
-			continue
-		}
-		if te.err != nil && err == nil {
-			t.Errorf("Error: expected error %q, got none when parsing URL %q", te.err, te.url)
-			continue
-		}
-		if te.err != nil && err.Error() != te.err.Error() {
-			t.Errorf("Error: expected error %q, got %q when parsing URL %q", te.err, err, te.url)
-			continue
-		}
-		if u != nil && u.String() != te.expectedURL {
-			t.Errorf("Error: expected URL: %q, but got %q for URL: %q", te.expectedURL, u.String(), te.url)
-		}
+			if tc.err == nil && err != nil {
+				t.Fatalf("Error: failed to parse URL %q: %s", tc.url, err)
+			}
+			if tc.err != nil && err == nil {
+				t.Fatalf("Error: expected error %q, got none when parsing URL %q", tc.err, tc.url)
+			}
+			if tc.err != nil && err.Error() != tc.err.Error() {
+				t.Fatalf("Error: expected error %q, got %q when parsing URL %q", tc.err, err, tc.url)
+			}
+			if u != nil && u.String() != tc.expectedURL {
+				t.Errorf("Error: expected URL: %q, but got %q for URL: %q", tc.expectedURL, u.String(), tc.url)
+			}
+		})
 	}
 }

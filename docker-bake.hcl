@@ -1,5 +1,5 @@
 variable "GO_VERSION" {
-  default = "1.20.3"
+  default = "1.20.6"
 }
 
 # Defines the output folder
@@ -62,7 +62,8 @@ target "binaries" {
     "linux/arm/v6",
     "linux/ppc64le",
     "linux/s390x",
-    "windows/amd64"
+    "windows/amd64",
+    "windows/arm64"
   ]
 }
 
