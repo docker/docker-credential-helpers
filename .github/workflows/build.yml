@@ -29,10 +29,10 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Run
         run: |
@@ -51,13 +51,12 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
-          cache: true
       -
         name: Install deps (ubuntu)
         if: startsWith(matrix.os, 'ubuntu-')
@@ -72,7 +71,7 @@ jobs:
       -
         name: GPG conf
         if: ${{ !startsWith(matrix.os, 'windows-') }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         id: gpg
         with:
           script: |
@@ -89,7 +88,7 @@ jobs:
       -
         name: Import GPG key
         if: ${{ !startsWith(matrix.os, 'windows-') }}
-        uses: crazy-max/ghaction-import-gpg@v5
+        uses: crazy-max/ghaction-import-gpg@v6
         with:
           gpg_private_key: ${{ steps.gpg.outputs.key }}
           passphrase: ${{ steps.gpg.outputs.passphrase }}
@@ -107,7 +106,7 @@ jobs:
         shell: bash
       -
         name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ${{ env.DESTDIR }}/coverage.txt
 
@@ -116,13 +115,13 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Test
-        uses: docker/bake-action@v2
+        uses: docker/bake-action@v4
         with:
           targets: test
           set: |
@@ -130,7 +129,7 @@ jobs:
             *.cache-to=type=gha,scope=test,mode=max
       -
         name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           file: ${{ env.DESTDIR }}//coverage.txt
 
@@ -139,15 +138,15 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
         name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       -
         name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       -
         name: Build
         run: |
@@ -165,7 +164,7 @@ jobs:
           find ${{ env.DESTDIR }} -type f -exec file -e ascii -e text -- {} +
       -
         name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: docker-credential-helpers
           path: ${{ env.DESTDIR }}/*
@@ -173,7 +172,7 @@ jobs:
       -
         name: GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@1e07f4398721186383de40550babbdf2b84acfc5
+        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844  # v0.1.15
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -185,7 +184,7 @@ jobs:
     steps:
       -
         name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       -
