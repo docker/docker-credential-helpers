@@ -109,6 +109,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           file: ${{ env.DESTDIR }}/coverage.txt
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   test-sandboxed:
     runs-on: ubuntu-22.04
@@ -132,6 +133,7 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           file: ${{ env.DESTDIR }}//coverage.txt
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
     runs-on: ubuntu-22.04
