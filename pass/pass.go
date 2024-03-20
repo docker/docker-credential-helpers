@@ -87,9 +87,9 @@ func (p Pass) Add(creds *credentials.Credentials) error {
 		return errors.New("missing credentials")
 	}
 
-	encoded := base64.URLEncoding.EncodeToString([]byte(creds.ServerURL))
-
-	_, err := p.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
+	encodedServerURL := base64.URLEncoding.EncodeToString([]byte(creds.ServerURL))
+	encodedUsername := base64.URLEncoding.EncodeToString([]byte(creds.Username))
+	_, err := p.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encodedServerURL, encodedUsername))
 	return err
 }
 
@@ -99,8 +99,8 @@ func (p Pass) Delete(serverURL string) error {
 		return errors.New("missing server url")
 	}
 
-	encoded := base64.URLEncoding.EncodeToString([]byte(serverURL))
-	_, err := p.runPass("", "rm", "-rf", path.Join(PASS_FOLDER, encoded))
+	encodedServerURL := base64.URLEncoding.EncodeToString([]byte(serverURL))
+	_, err := p.runPass("", "rm", "-rf", path.Join(PASS_FOLDER, encodedServerURL))
 	return err
 }
 
@@ -142,9 +142,8 @@ func (p Pass) Get(serverURL string) (string, string, error) {
 		return "", "", errors.New("missing server url")
 	}
 
-	encoded := base64.URLEncoding.EncodeToString([]byte(serverURL))
-
-	if _, err := os.Stat(path.Join(getPassDir(), PASS_FOLDER, encoded)); err != nil {
+	encodedServerURL := base64.URLEncoding.EncodeToString([]byte(serverURL))
+	if _, err := os.Stat(path.Join(getPassDir(), PASS_FOLDER, encodedServerURL)); err != nil {
 		if os.IsNotExist(err) {
 			return "", "", credentials.NewErrCredentialsNotFound()
 		}
@@ -152,7 +151,7 @@ func (p Pass) Get(serverURL string) (string, string, error) {
 		return "", "", err
 	}
 
-	usernames, err := listPassDir(encoded)
+	usernames, err := listPassDir(encodedServerURL)
 	if err != nil {
 		return "", "", err
 	}
@@ -162,8 +161,12 @@ func (p Pass) Get(serverURL string) (string, string, error) {
 	}
 
 	actual := strings.TrimSuffix(usernames[0].Name(), ".gpg")
-	secret, err := p.runPass("", "show", path.Join(PASS_FOLDER, encoded, actual))
-	return actual, secret, err
+	username := actual
+	if decodedUsername, err := base64.URLEncoding.DecodeString(actual); err == nil {
+		username = string(decodedUsername)
+	}
+	secret, err := p.runPass("", "show", path.Join(PASS_FOLDER, encodedServerURL, actual))
+	return username, secret, err
 }
 
 // List returns the stored URLs and corresponding usernames for a given credentials label
@@ -194,7 +197,11 @@ func (p Pass) List() (map[string]string, error) {
 			return nil, fmt.Errorf("no usernames for %s", serverURL)
 		}
 
-		resp[string(serverURL)] = strings.TrimSuffix(usernames[0].Name(), ".gpg")
+		username := strings.TrimSuffix(usernames[0].Name(), ".gpg")
+		resp[string(serverURL)] = username
+		if decodedUsername, err := base64.URLEncoding.DecodeString(username); err == nil {
+			resp[string(serverURL)] = string(decodedUsername)
+		}
 	}
 
 	return resp, nil

@@ -3,13 +3,76 @@
 package pass
 
 import (
+	"encoding/base64"
+	"path"
 	"strings"
 	"testing"
 
 	"github.com/docker/docker-credential-helpers/credentials"
 )
 
+func TestPassHelperCheckInit(t *testing.T) {
+	helper := Pass{}
+	if v := helper.CheckInitialized(); !v {
+		t.Errorf("expected true, actual: %v", v)
+	}
+}
+
 func TestPassHelper(t *testing.T) {
+	tests := []struct {
+		name  string
+		creds *credentials.Credentials
+	}{
+		{
+			name: "create nothing",
+			creds: &credentials.Credentials{
+				ServerURL: "https://foobar.docker.io:2376/v1",
+				Username:  "nothing",
+				Secret:    "isthebestmeshuggahalbum",
+			},
+		},
+		{
+			name: "create foo/bar",
+			creds: &credentials.Credentials{
+				ServerURL: "https://foobar.docker.io:2376/v1",
+				Username:  "foo/bar",
+				Secret:    "foobarbaz",
+			},
+		},
+	}
+
+	helper := Pass{}
+	if err := helper.checkInitialized(); err != nil {
+		t.Error(err)
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			if err := helper.Add(tc.creds); err != nil {
+				t.Error(err)
+			}
+			u, s, err := helper.Get(tc.creds.ServerURL)
+			if err != nil {
+				t.Error(err)
+			}
+			if u != tc.creds.Username {
+				t.Errorf("invalid username %s", u)
+			}
+			if s != tc.creds.Secret {
+				t.Errorf("invalid secret: %s", s)
+			}
+			if err := helper.Delete(tc.creds.ServerURL); err != nil {
+				t.Error(err)
+			}
+			if _, _, err := helper.Get(tc.creds.ServerURL); !credentials.IsErrCredentialsNotFound(err) {
+				t.Errorf("expected credentials not found, actual: %v", err)
+			}
+		})
+	}
+}
+
+func TestPassHelperBackwardCompat(t *testing.T) {
 	creds := &credentials.Credentials{
 		ServerURL: "https://foobar.example.com:2376/v1",
 		Username:  "nothing",
@@ -21,7 +84,9 @@ func TestPassHelper(t *testing.T) {
 		t.Error(err)
 	}
 
-	if err := helper.Add(creds); err != nil {
+	// add a credential with the old format
+	encodedServerURL := base64.URLEncoding.EncodeToString([]byte(creds.ServerURL))
+	if _, err := helper.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encodedServerURL, creds.Username)); err != nil {
 		t.Error(err)
 	}
 
@@ -41,13 +106,6 @@ func TestPassHelper(t *testing.T) {
 	}
 	if _, _, err := helper.Get(creds.ServerURL); !credentials.IsErrCredentialsNotFound(err) {
 		t.Errorf("expected credentials not found, actual: %v", err)
-	}
-}
-
-func TestPassHelperCheckInit(t *testing.T) {
-	helper := Pass{}
-	if v := helper.CheckInitialized(); !v {
-		t.Errorf("expected true, actual: %v", v)
 	}
 }
 
