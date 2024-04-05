@@ -37,12 +37,12 @@ func (m *memoryStore) Get(serverURL string) (string, string, error) {
 }
 
 func (m *memoryStore) List() (map[string]string, error) {
-	//Simply a placeholder to let memoryStore be a valid implementation of Helper interface
+	// Simply a placeholder to let memoryStore be a valid implementation of Helper interface
 	return nil, nil
 }
 
 func TestStore(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -65,11 +65,11 @@ func TestStore(t *testing.T) {
 	}
 
 	if c.Username != "foo" {
-		t.Fatalf("expected username foo, got %s\n", c.Username)
+		t.Errorf("expected username foo, got %s\n", c.Username)
 	}
 
 	if c.Secret != "bar" {
-		t.Fatalf("expected username bar, got %s\n", c.Secret)
+		t.Errorf("expected username bar, got %s\n", c.Secret)
 	}
 }
 
@@ -88,14 +88,14 @@ func TestStoreMissingServerURL(t *testing.T) {
 
 	h := newMemoryStore()
 
-	if err := Store(h, in); IsCredentialsMissingServerURL(err) == false {
-		t.Fatal(err)
+	if err := Store(h, in); !IsCredentialsMissingServerURL(err) {
+		t.Error(err)
 	}
 }
 
 func TestStoreMissingUsername(t *testing.T) {
 	creds := &Credentials{
-		ServerURL: "https://index.docker.io/v1/",
+		ServerURL: "https://registry.example.com/v1/",
 		Username:  "",
 		Secret:    "bar",
 	}
@@ -108,13 +108,13 @@ func TestStoreMissingUsername(t *testing.T) {
 
 	h := newMemoryStore()
 
-	if err := Store(h, in); IsCredentialsMissingUsername(err) == false {
-		t.Fatal(err)
+	if err := Store(h, in); !IsCredentialsMissingUsername(err) {
+		t.Error(err)
 	}
 }
 
 func TestGet(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -147,16 +147,16 @@ func TestGet(t *testing.T) {
 	}
 
 	if c.Username != "foo" {
-		t.Fatalf("expected username foo, got %s\n", c.Username)
+		t.Errorf("expected username foo, got %s\n", c.Username)
 	}
 
 	if c.Secret != "bar" {
-		t.Fatalf("expected username bar, got %s\n", c.Secret)
+		t.Errorf("expected username bar, got %s\n", c.Secret)
 	}
 }
 
 func TestGetMissingServerURL(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -176,13 +176,13 @@ func TestGetMissingServerURL(t *testing.T) {
 	buf := strings.NewReader("")
 	w := new(bytes.Buffer)
 
-	if err := Get(h, buf, w); IsCredentialsMissingServerURL(err) == false {
-		t.Fatal(err)
+	if err := Get(h, buf, w); !IsCredentialsMissingServerURL(err) {
+		t.Error(err)
 	}
 }
 
 func TestErase(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -206,12 +206,12 @@ func TestErase(t *testing.T) {
 
 	w := new(bytes.Buffer)
 	if err := Get(h, buf, w); err == nil {
-		t.Fatal("expected error getting missing creds, got empty")
+		t.Error("expected error getting missing creds, got empty")
 	}
 }
 
 func TestEraseMissingServerURL(t *testing.T) {
-	serverURL := "https://index.docker.io/v1/"
+	const serverURL = "https://registry.example.com/v1/"
 	creds := &Credentials{
 		ServerURL: serverURL,
 		Username:  "foo",
@@ -229,21 +229,21 @@ func TestEraseMissingServerURL(t *testing.T) {
 	}
 
 	buf := strings.NewReader("")
-	if err := Erase(h, buf); IsCredentialsMissingServerURL(err) == false {
-		t.Fatal(err)
+	if err := Erase(h, buf); !IsCredentialsMissingServerURL(err) {
+		t.Error(err)
 	}
 }
 
 func TestList(t *testing.T) {
-	//This tests that there is proper input an output into the byte stream
-	//Individual stores are very OS specific and have been tested in osxkeychain and secretservice respectively
+	// This tests that there is proper input an output into the byte stream
+	// Individual stores are very OS specific and have been tested in osxkeychain and secretservice respectively
 	out := new(bytes.Buffer)
 	h := newMemoryStore()
 	if err := List(h, out); err != nil {
 		t.Fatal(err)
 	}
-	//testing that there is an output
+	// testing that there is an output
 	if out.Len() == 0 {
-		t.Fatalf("expected output in the writer, got %d", 0)
+		t.Error("expected output in the writer, got 0")
 	}
 }

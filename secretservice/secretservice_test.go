@@ -1,3 +1,5 @@
+//go:build linux && cgo
+
 package secretservice
 
 import (
@@ -11,7 +13,7 @@ func TestSecretServiceHelper(t *testing.T) {
 	t.Skip("test requires gnome-keyring but travis CI doesn't have it")
 
 	creds := &credentials.Credentials{
-		ServerURL: "https://foobar.docker.io:2376/v1",
+		ServerURL: "https://foobar.example.com:2376/v1",
 		Username:  "foobar",
 		Secret:    "foobarbaz",
 	}
@@ -28,7 +30,6 @@ func TestSecretServiceHelper(t *testing.T) {
 	// remove them as they probably come from a previous failed test
 	for k, v := range oldAuths {
 		if strings.Compare(k, creds.ServerURL) == 0 && strings.Compare(v, creds.Username) == 0 {
-
 			if err := helper.Delete(creds.ServerURL); err != nil {
 				t.Fatal(err)
 			}

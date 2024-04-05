@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.20.3
-ARG XX_VERSION=1.2.1
+ARG GO_VERSION=1.21.6
+ARG XX_VERSION=1.4.0
 ARG OSXCROSS_VERSION=11.3-r7-debian
-ARG GOLANGCI_LINT_VERSION=v1.51.1
+ARG GOLANGCI_LINT_VERSION=v1.55.2
 ARG DEBIAN_FRONTEND=noninteractive
 
 ARG PACKAGE=github.com/docker/docker-credential-helpers
@@ -86,8 +86,8 @@ RUN --mount=type=bind,target=. \
   gpg -k
 
   mkdir /out
-  xx-go test -short -v -coverprofile=/out/coverage.txt -covermode=atomic ./...
-  xx-go tool cover -func=/out/coverage.txt
+  xx-go --wrap
+  make test COVERAGEDIR=/out
 EOT
 
 FROM scratch AS test-coverage
@@ -120,6 +120,7 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version \
     --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
   set -ex
+  export MACOSX_VERSION_MIN=$(make print-MACOSX_DEPLOYMENT_TARGET)
   xx-go --wrap
   go install std
   make build-osxkeychain build-pass PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
