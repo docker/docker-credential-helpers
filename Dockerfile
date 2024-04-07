@@ -20,6 +20,10 @@ ARG OSXCROSS_VERSION=11.3-r8-debian
 # It must be a valid tag in the docker.io/golangci/golangci-lint image repository.
 ARG GOLANGCI_LINT_VERSION=v2.11
 
+# GOPASS_VERSION sets the version of gopass to use.
+# It must be a valid tag in the github.com/gopasspw/gopass repository.
+ARG GOPASS_VERSION=v1.16.1
+
 # PACKAGE sets the package name to print in the "--version" output.
 # It sets the "github.com/docker/docker-credential-helpers/credentials.Package
 # variable at compile time.
@@ -81,12 +85,19 @@ ARG TARGETPLATFORM
 RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
 
 FROM base AS test
+ARG GOPASS_VERSION
 RUN xx-apt-get install -y dbus-x11 gnome-keyring gpg-agent gpgconf libsecret-1-dev pass
+RUN --mount=type=bind,target=. \
+    --mount=type=cache,target=/root/.cache \
+    --mount=type=cache,target=/go/pkg/mod \
+    GOFLAGS='' go install github.com/gopasspw/gopass@${GOPASS_VERSION}
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod <<EOT
   set -e
+
   cp -r .github/workflows/fixtures /root/.gnupg
+  chmod 0400 /root/.gnupg
   gpg-connect-agent "RELOADAGENT" /bye
   gpg --import --batch --yes /root/.gnupg/7D851EB72D73BDA0.key
   gpg --update-trustdb
@@ -95,7 +106,20 @@ RUN --mount=type=bind,target=. \
   gpg-connect-agent "KEYINFO 3E2D1142AA59E08E16B7E2C64BA6DDC773B1A627" /bye
   gpg-connect-agent "PRESET_PASSPHRASE BA83FC8947213477F28ADC019F6564A956456163 -1 77697468207374757069642070617373706872617365" /bye
   gpg-connect-agent "KEYINFO BA83FC8947213477F28ADC019F6564A956456163" /bye
+
+  # initialize password store for `pass`
   pass init 7D851EB72D73BDA0
+
+  # initialize password store for `gopass`
+  gopass config mounts.path /root/.gopass-password-store 1>/dev/null
+  gopass config core.autopush false 1>/dev/null
+  gopass config core.autosync false 1>/dev/null
+  gopass config core.exportkeys false 1>/dev/null
+  gopass config core.notifications false 1>/dev/null
+  gopass config core.color false 1>/dev/null
+  gopass config core.nopager true 1>/dev/null
+  gopass init --crypto gpgcli --storage fs 7D851EB72D73BDA0
+
   gpg -k
 
   mkdir /out
@@ -123,18 +147,22 @@ RUN --mount=type=bind,target=. \
   xx-go --wrap
   case "$(xx-info os)" in
     linux)
-      make build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+      make build-gopass build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+      xx-verify /out/docker-credential-gopass
       xx-verify /out/docker-credential-pass
       xx-verify /out/docker-credential-secretservice
       ;;
     darwin)
       go install std
-      make build-osxkeychain build-pass PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+      make build-gopass build-pass build-osxkeychain PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+      xx-verify /out/docker-credential-gopass
       xx-verify /out/docker-credential-osxkeychain
       xx-verify /out/docker-credential-pass
       ;;
     windows)
-      make build-wincred PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+      make build-gopass build-wincred PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+      mv /out/docker-credential-gopass /out/docker-credential-gopass.exe
+      xx-verify /out/docker-credential-gopass.exe
       mv /out/docker-credential-wincred /out/docker-credential-wincred.exe
       xx-verify /out/docker-credential-wincred.exe
       ;;
