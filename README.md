@@ -80,15 +80,26 @@ You can see examples of each function in the [client](https://godoc.org/github.c
 
 ### Available programs
 
-1. osxkeychain: Provides a helper to use the OS X keychain as credentials store.
-2. secretservice: Provides a helper to use the D-Bus secret service as credentials store.
-3. wincred: Provides a helper to use Windows credentials manager as store.
-4. pass: Provides a helper to use `pass` as credentials store.
+- gopass: Provides a helper to use `gopass` as credentials store.
+- osxkeychain: Provides a helper to use the OS X keychain as credentials store.
+- pass: Provides a helper to use `pass` as credentials store.
+- secretservice: Provides a helper to use the D-Bus secret service as credentials store.
+- wincred: Provides a helper to use Windows credentials manager as store.
 
-#### Note
+#### Note regarding `gopass`
 
-`pass` needs to be configured for `docker-credential-pass` to work properly.
-It must be initialized with a `gpg2` key ID. Make sure your GPG key exists is in `gpg2` keyring as `pass` uses `gpg2` instead of the regular `gpg`.
+`gopass` requires manual intervention in order for `docker-credential-gopass` to
+work properly: a password store must be initialized. Please ensure to review the
+upstream [quick start guide][gopass-quick-start] for more information.
+
+[gopass-quick-start]: https://github.com/gopasspw/gopass#quick-start-guide
+
+#### Note regarding `pass`
+
+`pass` requires manual interview in order for `docker-credential-pass` to
+work properly. It must be initialized with a `gpg2` key ID. Make sure your GPG
+key exists is in `gpg2` keyring as `pass` uses `gpg2` instead of the regular
+`gpg`.
 
 ## Development
 
