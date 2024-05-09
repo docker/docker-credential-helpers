@@ -158,7 +158,7 @@ func (p Pass) Get(serverURL string) (string, string, error) {
 	}
 
 	if len(usernames) < 1 {
-		return "", "", fmt.Errorf("no usernames for %s", serverURL)
+		return "", "", credentials.NewErrCredentialsNotFound()
 	}
 
 	actual := strings.TrimSuffix(usernames[0].Name(), ".gpg")
@@ -191,7 +191,7 @@ func (p Pass) List() (map[string]string, error) {
 		}
 
 		if len(usernames) < 1 {
-			return nil, fmt.Errorf("no usernames for %s", serverURL)
+			continue
 		}
 
 		resp[string(serverURL)] = strings.TrimSuffix(usernames[0].Name(), ".gpg")

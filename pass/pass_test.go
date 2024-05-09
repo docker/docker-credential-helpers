@@ -3,6 +3,9 @@
 package pass
 
 import (
+	"encoding/base64"
+	"os"
+	"path"
 	"strings"
 	"testing"
 
@@ -113,6 +116,75 @@ func TestPassHelperList(t *testing.T) {
 	}
 	if len(credsList) != 0 {
 		t.Error("didn't delete all creds?")
+	}
+}
+
+// TestPassHelperWithEmptyServer verifies that empty directories (servers
+// without credentials) are ignored, but still returns credentials for other
+// servers.
+func TestPassHelperWithEmptyServer(t *testing.T) {
+	helper := Pass{}
+	if err := helper.checkInitialized(); err != nil {
+		t.Error(err)
+	}
+
+	creds := []*credentials.Credentials{
+		{
+			ServerURL: "https://myreqistry.example.com:2375/v1",
+			Username:  "foo",
+			Secret:    "isthebestmeshuggahalbum",
+		},
+		{
+			ServerURL: "https://index.example.com/v1//access-token",
+		},
+	}
+
+	t.Cleanup(func() {
+		for _, cred := range creds {
+			_ = helper.Delete(cred.ServerURL)
+		}
+	})
+
+	for _, cred := range creds {
+		if cred.Username != "" {
+			if err := helper.Add(cred); err != nil {
+				t.Error(err)
+			}
+		} else {
+			// No credentials; create an empty directory for this server.
+			serverURL := base64.URLEncoding.EncodeToString([]byte(cred.ServerURL))
+			p := path.Join(getPassDir(), PASS_FOLDER, serverURL)
+			if err := os.Mkdir(p, 0o755); err != nil {
+				t.Error(err)
+			}
+		}
+	}
+
+	credsList, err := helper.List()
+	if err != nil {
+		t.Error(err)
+	}
+	if len(credsList) == 0 {
+		t.Error("expected credentials to be returned, but got none")
+	}
+	for _, cred := range creds {
+		if cred.Username != "" {
+			userName, secret, err := helper.Get(cred.ServerURL)
+			if err != nil {
+				t.Error(err)
+			}
+			if userName != cred.Username {
+				t.Errorf("expected username %q, actual: %q", cred.Username, userName)
+			}
+			if secret != cred.Secret {
+				t.Errorf("expected secret %q, actual: %q", cred.Secret, secret)
+			}
+		} else {
+			_, _, err := helper.Get(cred.ServerURL)
+			if !credentials.IsErrCredentialsNotFound(err) {
+				t.Errorf("expected credentials not found, actual: %v", err)
+			}
+		}
 	}
 }
 
