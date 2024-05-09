@@ -3,7 +3,6 @@
 package pass
 
 import (
-	"encoding/base64"
 	"os"
 	"path"
 	"strings"
@@ -152,7 +151,7 @@ func TestPassHelperWithEmptyServer(t *testing.T) {
 			}
 		} else {
 			// No credentials; create an empty directory for this server.
-			serverURL := base64.URLEncoding.EncodeToString([]byte(cred.ServerURL))
+			serverURL := encodeServerURL(cred.ServerURL)
 			p := path.Join(getPassDir(), PASS_FOLDER, serverURL)
 			if err := os.Mkdir(p, 0o755); err != nil {
 				t.Error(err)
