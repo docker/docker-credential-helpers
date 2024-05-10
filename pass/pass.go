@@ -87,8 +87,7 @@ func (p Pass) Add(creds *credentials.Credentials) error {
 		return errors.New("missing credentials")
 	}
 
-	encoded := base64.URLEncoding.EncodeToString([]byte(creds.ServerURL))
-
+	encoded := encodeServerURL(creds.ServerURL)
 	_, err := p.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
 	return err
 }
@@ -99,7 +98,7 @@ func (p Pass) Delete(serverURL string) error {
 		return errors.New("missing server url")
 	}
 
-	encoded := base64.URLEncoding.EncodeToString([]byte(serverURL))
+	encoded := encodeServerURL(serverURL)
 	_, err := p.runPass("", "rm", "-rf", path.Join(PASS_FOLDER, encoded))
 	return err
 }
@@ -142,7 +141,7 @@ func (p Pass) Get(serverURL string) (string, string, error) {
 		return "", "", errors.New("missing server url")
 	}
 
-	encoded := base64.URLEncoding.EncodeToString([]byte(serverURL))
+	encoded := encodeServerURL(serverURL)
 
 	if _, err := os.Stat(path.Join(getPassDir(), PASS_FOLDER, encoded)); err != nil {
 		if os.IsNotExist(err) {
@@ -180,7 +179,7 @@ func (p Pass) List() (map[string]string, error) {
 			continue
 		}
 
-		serverURL, err := base64.URLEncoding.DecodeString(server.Name())
+		serverURL, err := decodeServerURL(server.Name())
 		if err != nil {
 			return nil, err
 		}
@@ -194,8 +193,24 @@ func (p Pass) List() (map[string]string, error) {
 			continue
 		}
 
-		resp[string(serverURL)] = strings.TrimSuffix(usernames[0].Name(), ".gpg")
+		resp[serverURL] = strings.TrimSuffix(usernames[0].Name(), ".gpg")
 	}
 
 	return resp, nil
+}
+
+// encodeServerURL returns the serverURL in base64-URL encoding to use
+// as directory-name in pass storage.
+func encodeServerURL(serverURL string) string {
+	return base64.URLEncoding.EncodeToString([]byte(serverURL))
+}
+
+// decodeServerURL decodes base64-URL encoded serverURL. ServerURLs are
+// used in encoded format for directory-names in pass storage.
+func decodeServerURL(encodedServerURL string) (string, error) {
+	serverURL, err := base64.URLEncoding.DecodeString(encodedServerURL)
+	if err != nil {
+		return "", err
+	}
+	return string(serverURL), nil
 }
