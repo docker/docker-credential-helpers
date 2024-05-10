@@ -142,15 +142,6 @@ func (p Pass) Get(serverURL string) (string, string, error) {
 	}
 
 	encoded := encodeServerURL(serverURL)
-
-	if _, err := os.Stat(path.Join(getPassDir(), PASS_FOLDER, encoded)); err != nil {
-		if os.IsNotExist(err) {
-			return "", "", credentials.NewErrCredentialsNotFound()
-		}
-
-		return "", "", err
-	}
-
 	usernames, err := listPassDir(encoded)
 	if err != nil {
 		return "", "", err
