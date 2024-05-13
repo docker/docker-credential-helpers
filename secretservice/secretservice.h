@@ -6,7 +6,7 @@ const SecretSchema *docker_get_schema(void) G_GNUC_CONST;
 
 #define DOCKER_SCHEMA docker_get_schema()
 
-GError *add(char *label, char *server, char *username, char *secret);
+GError *add(char *label, char *server, char *username, char *secret, char *displaylabel);
 GError *delete(char *server);
 GError *get(char *server, char **username, char **secret);
 GError *list(char *label, char *** paths, char *** accts, unsigned int *list_l);
