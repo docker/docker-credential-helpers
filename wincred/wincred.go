@@ -7,6 +7,9 @@ import (
 	"net/url"
 
 	winc "github.com/danieljoos/wincred"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
+
 	"github.com/docker/docker-credential-helpers/credentials"
 	"github.com/docker/docker-credential-helpers/registryurl"
 )
@@ -20,9 +23,16 @@ type Wincred struct{}
 func (h Wincred) Add(creds *credentials.Credentials) error {
 	g := winc.NewGenericCredential(creds.ServerURL)
 	g.UserName = creds.Username
-	g.CredentialBlob = []byte(creds.Secret)
 	g.Persist = winc.PersistLocalMachine
 	g.Attributes = []winc.CredentialAttribute{{Keyword: "label", Value: credsLabel}}
+
+	encoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewEncoder()
+	blob, _, err := transform.Bytes(encoder, []byte(creds.Secret))
+	if err != nil {
+		return err
+	}
+
+	g.CredentialBlob = blob
 
 	return g.Write()
 }
@@ -55,7 +65,12 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 
 	for _, attr := range g.Attributes {
 		if attr.Keyword == "label" && bytes.Equal(attr.Value, credsLabel) {
-			return g.UserName, string(g.CredentialBlob), nil
+			encoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewDecoder()
+			creds, _, err := transform.String(encoder, string(g.CredentialBlob))
+			if err != nil {
+				return "", "", err
+			}
+			return g.UserName, creds, nil
 		}
 	}
 	return "", "", credentials.NewErrCredentialsNotFound()
