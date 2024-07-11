@@ -108,6 +108,7 @@ jobs:
       -
         name: Upload coverage
         uses: codecov/codecov-action@v4
+        if: github.repository == 'docker/docker-credential-helpers'
         with:
           file: ${{ env.DESTDIR }}/coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -132,6 +133,7 @@ jobs:
       -
         name: Upload coverage
         uses: codecov/codecov-action@v4
+        if: github.repository == 'docker/docker-credential-helpers'
         with:
           file: ${{ env.DESTDIR }}//coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -174,7 +176,9 @@ jobs:
           if-no-files-found: error
       -
         name: GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
+        if: |
+          startsWith(github.ref, 'refs/tags/v') &&
+          github.repository == 'docker/docker-credential-helpers'
         uses: softprops/action-gh-release@69320dbe05506a9a39fc8ae11030b214ec2d1f87  # v2.0.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
