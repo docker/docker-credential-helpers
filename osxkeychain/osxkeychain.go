@@ -24,6 +24,10 @@ import (
 // when the credentials are not in the keychain.
 const errCredentialsNotFound = "The specified item could not be found in the keychain."
 
+// errCredentialsAlreadyExist is the specific error message returned by OS X
+// when the credentials are already in the keychain.
+const errCredentialsAlreadyExist = "The specified item already exists in the keychain."
+
 // errCredentialsNotFound is the specific error message returned by OS X
 // when environment does not allow showing dialog to unlock keychain.
 const errInteractionNotAllowed = "User interaction is not allowed."
@@ -54,7 +58,16 @@ func (h Osxkeychain) Add(creds *credentials.Credentials) error {
 	errMsg := C.keychain_add(s, label, username, secret)
 	if errMsg != nil {
 		defer C.free(unsafe.Pointer(errMsg))
-		return errors.New(C.GoString(errMsg))
+		switch goMsg := C.GoString(errMsg); goMsg {
+		case errCredentialsAlreadyExist:
+			// If docker login is called in parallel, we may try to
+			// save the same credentials twice. In that case, return
+			// ok, because although we lost the race, the desired
+			// credentials were saved by another process.
+			return nil
+		default:
+			return errors.New(goMsg)
+		}
 	}
 
 	return nil
