@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 
 ARG GO_VERSION=1.21.10
+ARG DEBIAN_VERSION=bookworm
+
 ARG XX_VERSION=1.4.0
 ARG OSXCROSS_VERSION=11.3-r7-debian
 ARG GOLANGCI_LINT_VERSION=v1.55.2
@@ -14,7 +16,7 @@ FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
 # osxcross contains the MacOSX cross toolchain for xx
 FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
 
-FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-bullseye AS gobase
+FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-${DEBIAN_VERSION} AS gobase
 COPY --from=xx / /
 ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm make pkg-config rsync
@@ -55,7 +57,7 @@ EOT
 FROM golangci/golangci-lint:${GOLANGCI_LINT_VERSION} AS golangci-lint
 FROM gobase AS lint
 ARG DEBIAN_FRONTEND
-RUN apt-get install -y binutils gcc libc6-dev libgcc-10-dev libsecret-1-dev pkg-config
+RUN apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=from=golangci-lint,source=/usr/bin/golangci-lint,target=/usr/bin/golangci-lint \
@@ -64,7 +66,7 @@ RUN --mount=type=bind,target=. \
 FROM gobase AS base
 ARG TARGETPLATFORM
 ARG DEBIAN_FRONTEND
-RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-10-dev libsecret-1-dev pkg-config
+RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
 
 FROM base AS test
 ARG DEBIAN_FRONTEND
