@@ -107,7 +107,7 @@ jobs:
         shell: bash
       -
         name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           file: ${{ env.DESTDIR }}/coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -131,7 +131,7 @@ jobs:
             *.cache-to=type=gha,scope=test,mode=max
       -
         name: Upload coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           file: ${{ env.DESTDIR }}//coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
