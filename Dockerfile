@@ -70,7 +70,7 @@ RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev p
 
 FROM base AS test
 ARG DEBIAN_FRONTEND
-RUN xx-apt-get install -y dbus-x11 gnome-keyring gpg-agent gpgconf libsecret-1-dev pass
+RUN xx-apt-get install -y dbus-x11 gnome-keyring gpg-agent gpgconf keyutils libsecret-1-dev pass
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=type=cache,target=/go/pkg/mod <<EOT
@@ -108,7 +108,8 @@ RUN --mount=type=bind,target=. \
     --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
   set -ex
   xx-go --wrap
-  make build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  make build-keyctl build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+  xx-verify /out/docker-credential-keyctl
   xx-verify /out/docker-credential-pass
   xx-verify /out/docker-credential-secretservice
 EOT

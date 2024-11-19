@@ -1,0 +1,15 @@
+branches:
+  only:
+    - master
+language: go
+go:
+  - 1.11
+  - tip
+install:
+  - go get golang.org/x/crypto/openpgp
+  - go get golang.org/x/crypto/cast5
+  - go get golang.org/x/crypto/ssh/terminal
+  - go get golang.org/x/tools/cmd/cover
+  - go build -v ./...
+script:
+  - go test -v -cover
