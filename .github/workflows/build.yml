@@ -109,7 +109,7 @@ jobs:
         name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
-          file: ${{ env.DESTDIR }}/coverage.txt
+          files: ${{ env.DESTDIR }}/coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
 
   test-sandboxed:
@@ -133,7 +133,7 @@ jobs:
         name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
-          file: ${{ env.DESTDIR }}//coverage.txt
+          files: ${{ env.DESTDIR }}//coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
 
   build:
