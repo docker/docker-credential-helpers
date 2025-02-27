@@ -83,6 +83,9 @@ GError *get(char *server, char **username, char **secret) {
 				}
 				g_free(value);
 				secretValue = secret_item_get_secret(l->data);
+				if (secretValue == NULL) {
+					continue;
+				}
 				if (secret != NULL) {
 					*secret = strdup(secret_value_get(secretValue, &length));
 					secret_value_unref(secretValue);
