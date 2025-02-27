@@ -12,7 +12,22 @@ COVERAGEDIR ?= ./bin/coverage
 # 10.11 is the minimum supported version for osxkeychain
 export MACOSX_DEPLOYMENT_TARGET = 10.11
 ifeq "$(shell go env GOOS)" "darwin"
-	export CGO_CFLAGS = -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
+	export CGO_CFLAGS = -Wno-atomic-alignment -mmacosx-version-min=$(MACOSX_DEPLOYMENT_TARGET)
+else
+	# prevent warnings; see https://github.com/docker/docker-credential-helpers/pull/340#issuecomment-2437593837
+	# gcc_libinit.c:44:8: error: large atomic operation may incur significant performance penalty; the access size (4 bytes) exceeds the max lock-free size (0  bytes) [-Werror,-Watomic-alignment]
+	export CGO_CFLAGS = -Wno-atomic-alignment
+endif
+
+ifeq "$(shell go env GOOS)/$(shell go env GOARCH)/$(shell go env GOARM)" "linux/arm/6"
+	# Neither the CGo compiler, nor the C toolchain automatically link to
+	# libatomic when the architecture doesn't support atomic intrinsics, as is
+	# the case for arm/v6.
+	#
+	# Here's the error we get when this is not done (see https://github.com/docker/docker-credential-helpers/pull/340#issuecomment-2437593837):
+	#
+	# gcc_libinit.c:44:8: error: large atomic operation may incur significant performance penalty; the access size (4 bytes) exceeds the max lock-free size (0  bytes) [-Werror,-Watomic-alignment]
+	export CGO_LDFLAGS=-latomic
 endif
 
 .PHONY: all
