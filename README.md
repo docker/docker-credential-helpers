@@ -34,20 +34,20 @@ $ docker buildx bake
 
 Or if the toolchain is already installed on your machine:
 
-1 - Download the source.
+1. Download the source.
 
 ```shell
 $ git clone https://github.com/docker/docker-credential-helpers.git
 $ cd docker-credential-helpers
 ```
 
-2 - Use `make` to build the program you want. That will leave an executable in the `bin` directory inside the repository.
+2.  Use `make` to build the program you want. That will leave an executable in the `bin` directory inside the repository.
 
 ```shell
 $ make osxkeychain
 ```
 
-3 - Put that binary in your `$PATH`, so Docker can find it.
+3.  Put that binary in your `$PATH`, so Docker can find it.
 
 ```shell
 $ cp bin/build/docker-credential-osxkeychain /usr/local/bin/
