@@ -117,8 +117,6 @@ func (h Osxkeychain) List() (map[string]string, error) {
 		default:
 			return nil, err
 		}
-	} else if len(res) == 0 {
-		return nil, credentials.NewErrCredentialsNotFound()
 	}
 
 	resp := make(map[string]string)
