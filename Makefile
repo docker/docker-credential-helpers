@@ -8,6 +8,7 @@ GO_LDFLAGS = -s -w -X ${GO_PKG}/credentials.Version=${VERSION} -X ${GO_PKG}/cred
 BUILDX_CMD ?= docker buildx
 DESTDIR ?= ./bin/build
 COVERAGEDIR ?= ./bin/coverage
+TEST_TAGS ?=
 
 # 10.11 is the minimum supported version for osxkeychain
 export MACOSX_DEPLOYMENT_TARGET = 10.11
@@ -59,7 +60,7 @@ release: # create release
 .PHONY: test
 test:
 	mkdir -p $(COVERAGEDIR)
-	go test -short -v -coverprofile=$(COVERAGEDIR)/coverage.txt -covermode=atomic ./...
+	go test -tags $(TEST_TAGS) -short -v -coverprofile=$(COVERAGEDIR)/coverage.txt -covermode=atomic ./...
 	go tool cover -func=$(COVERAGEDIR)/coverage.txt
 
 .PHONY: lint
