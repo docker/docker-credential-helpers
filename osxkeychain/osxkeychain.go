@@ -129,14 +129,22 @@ func (h Osxkeychain) List() (map[string]string, error) {
 	return resp, nil
 }
 
+const (
+	// Hardcoded protocol types matching their Objective-C equivalents.
+	// https://developer.apple.com/documentation/security/ksecattrprotocolhttps?language=objc
+	kSecProtocolTypeHTTPS = "htps" // This is NOT a typo.
+	// https://developer.apple.com/documentation/security/ksecattrprotocolhttp?language=objc
+	kSecProtocolTypeHTTP = "http"
+)
+
 func splitServer(serverURL string, item keychain.Item) error {
 	u, err := registryurl.Parse(serverURL)
 	if err != nil {
 		return err
 	}
-	item.SetProtocol("https")
+	item.SetProtocol(kSecProtocolTypeHTTPS)
 	if u.Scheme == "http" {
-		item.SetProtocol("http")
+		item.SetProtocol(kSecProtocolTypeHTTP)
 	}
 	item.SetServer(u.Hostname())
 	if p := u.Port(); p != "" {
