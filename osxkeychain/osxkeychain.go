@@ -12,6 +12,7 @@ import "C"
 
 import (
 	"errors"
+	"net/url"
 	"strconv"
 
 	"github.com/docker/docker-credential-helpers/credentials"
@@ -121,10 +122,20 @@ func (h Osxkeychain) List() (map[string]string, error) {
 
 	resp := make(map[string]string)
 	for _, r := range res {
-		if r.Path == "" {
-			continue
+		proto := "http"
+		if r.Protocol == kSecProtocolTypeHTTPS {
+			proto = "https"
 		}
-		resp[r.Path] = r.Account
+		host := r.Server
+		if r.Port != 0 {
+			host += ":" + strconv.Itoa(int(r.Port))
+		}
+		u := url.URL{
+			Scheme: proto,
+			Host:   host,
+			Path:   r.Path,
+		}
+		resp[u.String()] = r.Account
 	}
 	return resp, nil
 }
