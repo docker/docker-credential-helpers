@@ -50,10 +50,15 @@ jobs:
           - macOS-14
           - macOS-13
           - windows-2022
+    env:
+      TEST_BC_BASE_VERSION: 0.8.2
     steps:
       -
         name: Checkout
         uses: actions/checkout@v4
+        with:
+          # fetch-tags is required for backward compatibility tests
+          fetch-tags: true
       -
         name: Set up Go
         uses: actions/setup-go@v5
@@ -106,6 +111,72 @@ jobs:
         run: |
           make test COVERAGEDIR=${{ env.DESTDIR }}
         shell: bash
+      -
+        name: Test backward compatibility (pass)
+        if: always() && (startsWith(matrix.os, 'ubuntu-') || startsWith(matrix.os, 'macOS-'))
+        run: |
+          export TMPDIR=${TMPDIR:-/tmp}
+          export helper=pass
+
+          wget -O ${TMPDIR}/docker-credential-${helper} https://github.com/docker/docker-credential-helpers/releases/download/v${TEST_BC_BASE_VERSION}/docker-credential-${helper}-v${TEST_BC_BASE_VERSION}.$(go env GOOS)-$(go env GOARCH)
+          chmod +x ${TMPDIR}/docker-credential-${helper}
+
+          make build-${helper}
+
+          export TEST_BC_PREVIOUS_COMMAND=${TMPDIR}/docker-credential-${helper}
+          export TEST_BC_COMMAND=$(realpath ${DESTDIR}/docker-credential-${helper})
+
+          make test-backward-compatibility
+        shell: bash
+      -
+        name: Test backward compatibility (secretservice)
+        if: always() && startsWith(matrix.os, 'ubuntu-')
+        run: |
+          export TMPDIR=${TMPDIR:-/tmp}
+          export helper=secretservice
+
+          wget -O ${TMPDIR}/docker-credential-${helper} https://github.com/docker/docker-credential-helpers/releases/download/v${TEST_BC_BASE_VERSION}/docker-credential-${helper}-v${TEST_BC_BASE_VERSION}.$(go env GOOS)-$(go env GOARCH)
+          chmod +x ${TMPDIR}/docker-credential-${helper}
+
+          make build-${helper}
+
+          export TEST_BC_PREVIOUS_COMMAND=${TMPDIR}/docker-credential-${helper}
+          export TEST_BC_COMMAND=$(realpath ${DESTDIR}/docker-credential-${helper})
+
+          make test-backward-compatibility
+        shell: bash
+      -
+        name: Test backward compatibility (osxkeychain)
+        if: always() && startsWith(matrix.os, 'macOS-')
+        run: |
+          export TMPDIR=${TMPDIR:-/tmp}
+          export helper=osxkeychain
+
+          wget -O ${TMPDIR}/docker-credential-${helper} https://github.com/docker/docker-credential-helpers/releases/download/v${TEST_BC_BASE_VERSION}/docker-credential-${helper}-v${TEST_BC_BASE_VERSION}.$(go env GOOS)-$(go env GOARCH)
+          chmod +x ${TMPDIR}/docker-credential-${helper}
+
+          make build-${helper}
+
+          export TEST_BC_PREVIOUS_COMMAND=${TMPDIR}/docker-credential-${helper}
+          export TEST_BC_COMMAND=$(realpath ${DESTDIR}/docker-credential-${helper})
+
+          # security -v unlock-keychain ~/Library/Keychains/login.keychain-db
+          sudo security authorizationdb write com.apple.trust-settings.admin allow
+
+          make test-backward-compatibility
+        shell: bash
+      -
+        name: Test backward compatibility (wincred)
+        if: always() && startsWith(matrix.os, 'windows-')
+        run: |
+          export helper=wincred
+
+          Invoke-WebRequest -OutFile ${TMPDIR}/docker-credential-${helper}.exe https://github.com/docker/docker-credential-helpers/releases/download/v${TEST_BC_BASE_VERSION}/docker-credential-${helper}-v${TEST_BC_BASE_VERSION}.$(go env GOOS)-$(go env GOARCH).exe
+
+          export TEST_BC_PREVIOUS_COMMAND=${TMPDIR}/docker-credential-${helper}.exe
+          export TEST_BC_COMMAND=$(Resolve-Path ${DESTDIR}/docker-credential-${helper}.exe)
+
+          make test-backward-compatibility
       -
         name: Upload coverage
         uses: codecov/codecov-action@v5

@@ -62,6 +62,10 @@ test:
 	go test -short -v -coverprofile=$(COVERAGEDIR)/coverage.txt -covermode=atomic ./...
 	go tool cover -func=$(COVERAGEDIR)/coverage.txt
 
+.PHONY: test-backward-compatibility
+test-backward-compatibility:
+	go test -short -v ./tests/backward_compatibility
+
 .PHONY: lint
 lint:
 	$(BUILDX_CMD) bake lint
