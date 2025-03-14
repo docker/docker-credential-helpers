@@ -46,6 +46,17 @@ func (h Osxkeychain) Add(creds *credentials.Credentials) error {
 	item.SetLabel(credentials.CredsLabel)
 	item.SetAccount(creds.Username)
 	item.SetData([]byte(creds.Secret))
+	// Prior to v0.9, the credential helper was searching for credentials with
+	// the "dflt" authentication type (see [1]). Since v0.9.0, Get doesn't use
+	// that attribute anymore, and v0.9.0 - v0.9.2 were not setting it here
+	// either.
+	//
+	// In order to keep compatibility with older versions, we need to store
+	// credentials with this attribute set. This way, credentials stored with
+	// newer versions can be retrieved by older versions.
+	//
+	// [1]: https://github.com/docker/docker-credential-helpers/blob/v0.8.2/osxkeychain/osxkeychain.c#L66
+	item.SetAuthenticationType("dflt")
 	if err := splitServer(creds.ServerURL, item); err != nil {
 		return err
 	}
