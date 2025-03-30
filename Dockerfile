@@ -89,7 +89,7 @@ RUN --mount=type=bind,target=. \
 
   mkdir /out
   xx-go --wrap
-  make test COVERAGEDIR=/out
+  make test COVERAGEDIR=/out TEST_TAGS=skip_secretservice_tests
 EOT
 
 FROM scratch AS test-coverage
