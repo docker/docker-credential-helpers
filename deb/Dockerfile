@@ -21,10 +21,11 @@ COPY --from=golang /usr/local/go /usr/local/go
 
 COPY Makefile .
 COPY credentials credentials
-COPY secretservice secretservice
-COPY pass pass
-COPY deb/debian ./debian
 COPY deb/build-deb .
+COPY deb/debian ./debian
+COPY gopass gopass
+COPY pass pass
+COPY secretservice secretservice
 
 ARG VERSION
 ENV VERSION=${VERSION}

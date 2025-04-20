@@ -1,0 +1,90 @@
+linters:
+  enable:
+  - asciicheck
+  - bidichk
+  - bodyclose
+  - contextcheck
+  - dogsled
+  - dupl
+  - durationcheck
+  - errcheck
+  - errname
+  - errorlint
+  - exhaustive
+  - exportloopref
+  - forcetypeassert
+  - gci
+  - gochecknoinits
+  - gocognit
+  - gocritic
+  - gocyclo
+  - godot
+  - goerr113
+  - gofmt
+  - gofumpt
+  - goheader
+  - goimports
+  - gomoddirectives
+  - gomodguard
+  - goprintffuncname
+  - gosec
+  - gosimple
+  - govet
+  - importas
+  - ineffassign
+  - ireturn
+  - makezero
+  - misspell
+  - nilerr
+  - nilnil
+  - noctx
+  - nolintlint
+  - prealloc
+  - predeclared
+  - promlinter
+  - revive
+  - rowserrcheck
+  - sqlclosecheck
+  - staticcheck
+  - stylecheck
+  - tagliatelle
+  - tenv
+  - thelper
+  - typecheck
+  - unconvert
+  - unparam
+  - unused
+  - wastedassign
+  - whitespace
+  disable:
+  - cyclop
+  - depguard
+  - exhaustivestruct
+  - forbidigo
+  - funlen
+  - gochecknoglobals
+  - goconst
+  - godox
+  - gomnd
+  - lll
+  - nakedret
+  - nestif
+  - nlreturn
+  - paralleltest
+  - testpackage
+  - tparallel
+  - varnamelen
+  - wrapcheck
+  - wsl
+
+linters-settings:
+  gci:
+    sections:
+    - standard
+    - default
+    - prefix(github.com/twpayne/go-pinentry)
+  gofumpt:
+    extra-rules: true
+    module-path: github.com/twpayne/go-pinentry
+  goimports:
+    local-prefixes: github.com/twpayne/go-pinentry
