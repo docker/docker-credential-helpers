@@ -17,11 +17,11 @@ const SecretSchema *docker_get_schema(void)
 	return &docker_schema;
 }
 
-GError *add(char *label, char *server, char *username, char *secret) {
+GError *add(char *label, char *server, char *username, char *secret, char *displaylabel) {
 	GError *err = NULL;
 
 	secret_password_store_sync (DOCKER_SCHEMA, SECRET_COLLECTION_DEFAULT,
-			server, secret, NULL, &err,
+			displaylabel, secret, NULL, &err,
 			"label", label,
 			"server", server,
 			"username", username,
@@ -83,6 +83,9 @@ GError *get(char *server, char **username, char **secret) {
 				}
 				g_free(value);
 				secretValue = secret_item_get_secret(l->data);
+				if (secretValue == NULL) {
+					continue;
+				}
 				if (secret != NULL) {
 					*secret = strdup(secret_value_get(secretValue, &length));
 					secret_value_unref(secretValue);

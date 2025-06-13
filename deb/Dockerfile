@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.20.6
+ARG GO_VERSION=1.23.6
 ARG DISTRO=ubuntu
 ARG SUITE=focal
 
