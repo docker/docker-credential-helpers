@@ -15,7 +15,7 @@ on:
 
 env:
   DESTDIR: ./bin
-  GO_VERSION: 1.23.6
+  GO_VERSION: 1.23.12
 
 jobs:
   validate:
