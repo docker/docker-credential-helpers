@@ -2,7 +2,7 @@
 
 ARG GO_VERSION=1.23.12
 ARG DISTRO=ubuntu
-ARG SUITE=focal
+ARG SUITE=jammy
 
 FROM golang:${GO_VERSION}-bookworm AS golang
 
