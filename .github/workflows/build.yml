@@ -46,9 +46,9 @@ jobs:
         os:
           - ubuntu-24.04
           - ubuntu-22.04
+          - macOS-15-intel
           - macOS-15
           - macOS-14
-          - macOS-13
           - windows-2022
     steps:
       -
