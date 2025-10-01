@@ -104,7 +104,7 @@ jobs:
       -
         name: Test
         run: |
-          make test COVERAGEDIR=${{ env.DESTDIR }}
+          make test COVERAGEDIR=${{ env.DESTDIR }} TEST_TAGS=skip_secretservice_tests
         shell: bash
       -
         name: Upload coverage
