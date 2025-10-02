@@ -8,7 +8,7 @@ retract (
 )
 
 require (
-	github.com/danieljoos/wincred v1.2.2
+	github.com/danieljoos/wincred v1.2.3
 	github.com/keybase/go-keychain v0.0.1
 )
 
