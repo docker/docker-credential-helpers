@@ -165,7 +165,7 @@ jobs:
           find ${{ env.DESTDIR }} -type f -exec file -e ascii -e text -- {} +
       -
         name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: docker-credential-helpers
           path: ${{ env.DESTDIR }}/*
