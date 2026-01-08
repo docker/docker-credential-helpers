@@ -7,8 +7,6 @@ ARG SUITE=jammy
 FROM golang:${GO_VERSION}-bookworm AS golang
 
 FROM ${DISTRO}:${SUITE}
-
-ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -yy debhelper dh-make libsecret-1-dev
 RUN mkdir -p /build
 

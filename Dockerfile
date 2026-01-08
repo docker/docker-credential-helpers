@@ -6,7 +6,6 @@ ARG DEBIAN_VERSION=bookworm
 ARG XX_VERSION=1.7.0
 ARG OSXCROSS_VERSION=11.3-r8-debian
 ARG GOLANGCI_LINT_VERSION=v2.8
-ARG DEBIAN_FRONTEND=noninteractive
 
 ARG PACKAGE=github.com/docker/docker-credential-helpers
 
@@ -18,7 +17,6 @@ FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
 
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-${DEBIAN_VERSION} AS gobase
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm make pkg-config rsync
 ENV GOFLAGS="-mod=vendor"
 ENV CGO_ENABLED="1"
@@ -56,7 +54,6 @@ EOT
 
 FROM golangci/golangci-lint:${GOLANGCI_LINT_VERSION} AS golangci-lint
 FROM gobase AS lint
-ARG DEBIAN_FRONTEND
 RUN apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
@@ -65,11 +62,9 @@ RUN --mount=type=bind,target=. \
 
 FROM gobase AS base
 ARG TARGETPLATFORM
-ARG DEBIAN_FRONTEND
 RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
 
 FROM base AS test
-ARG DEBIAN_FRONTEND
 RUN xx-apt-get install -y dbus-x11 gnome-keyring gpg-agent gpgconf libsecret-1-dev pass
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
