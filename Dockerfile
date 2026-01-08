@@ -5,7 +5,7 @@ ARG DEBIAN_VERSION=bookworm
 
 ARG XX_VERSION=1.7.0
 ARG OSXCROSS_VERSION=11.3-r8-debian
-ARG GOLANGCI_LINT_VERSION=v2.5
+ARG GOLANGCI_LINT_VERSION=v2.8
 ARG DEBIAN_FRONTEND=noninteractive
 
 ARG PACKAGE=github.com/docker/docker-credential-helpers
