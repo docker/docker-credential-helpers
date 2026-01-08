@@ -1,10 +1,12 @@
 # syntax=docker/dockerfile:1
 
 ARG GO_VERSION=1.25.6
+ARG DEBIAN_VERSION=trixie
+
 ARG DISTRO=ubuntu
 ARG SUITE=jammy
 
-FROM golang:${GO_VERSION}-bookworm AS golang
+FROM golang:${GO_VERSION}-${DEBIAN_VERSION} AS golang
 
 FROM ${DISTRO}:${SUITE}
 RUN apt-get update && apt-get install -yy debhelper dh-make libsecret-1-dev
