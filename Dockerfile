@@ -6,7 +6,7 @@ ARG GO_VERSION=1.25.7
 
 # BASE_DEBIAN_DISTRO sets the golang base image debian variant to use.
 # It must be a valid variant in the docker.io/library/golang image repository.
-ARG BASE_DEBIAN_DISTRO=bookworm
+ARG BASE_DEBIAN_DISTRO=trixie
 
 # XX_VERSION sets the version of the xx utility to use.
 # It must be a valid tag in the docker.io/tonistiigi/xx image repository.
@@ -70,7 +70,7 @@ EOT
 
 FROM golangci/golangci-lint:${GOLANGCI_LINT_VERSION} AS golangci-lint
 FROM gobase AS lint
-RUN apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
+RUN apt-get install -y binutils gcc libc6-dev libgcc-12-dev libsecret-1-dev pkg-config
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=from=golangci-lint,source=/usr/bin/golangci-lint,target=/usr/bin/golangci-lint \
@@ -78,7 +78,7 @@ RUN --mount=type=bind,target=. \
 
 FROM gobase AS base
 ARG TARGETPLATFORM
-RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
+RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-12-dev libsecret-1-dev pkg-config
 
 FROM base AS test
 RUN xx-apt-get install -y dbus-x11 gnome-keyring gpg-agent gpgconf libsecret-1-dev pass
