@@ -4,7 +4,7 @@ ARG GO_VERSION=1.25.6
 ARG DEBIAN_VERSION=trixie
 
 ARG DISTRO=ubuntu
-ARG SUITE=jammy
+ARG SUITE=noble
 
 FROM golang:${GO_VERSION}-${DEBIAN_VERSION} AS golang
 
