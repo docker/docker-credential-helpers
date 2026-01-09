@@ -1,5 +1,14 @@
 name: build
 
+# Default to 'contents: read', which grants actions to read commits.
+#
+# If any permission is set, any permission not included in the list is
+# implicitly set to "none".
+#
+# see https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -8,7 +17,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'master'
+      - 'main'
     tags:
       - 'v*'
   pull_request:
@@ -20,6 +29,7 @@ env:
 jobs:
   validate:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30 # guardrails timeout for the whole job
     strategy:
       fail-fast: false
       matrix:
@@ -40,6 +50,7 @@ jobs:
 
   test:
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30 # guardrails timeout for the whole job
     strategy:
       fail-fast: false
       matrix:
@@ -115,6 +126,7 @@ jobs:
 
   test-sandboxed:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30 # guardrails timeout for the whole job
     steps:
       -
         name: Set up Docker Buildx
@@ -136,6 +148,10 @@ jobs:
 
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30 # guardrails timeout for the whole job
+    permissions:
+      # required to create GitHub release
+      contents: write
     steps:
       -
         name: Checkout
@@ -182,6 +198,7 @@ jobs:
 
   build-deb:
     runs-on: ubuntu-24.04
+    timeout-minutes: 30 # guardrails timeout for the whole job
     steps:
       -
         name: Checkout
