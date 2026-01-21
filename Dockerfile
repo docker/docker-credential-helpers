@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 ARG GO_VERSION=1.25.6
-ARG DEBIAN_VERSION=bookworm
+ARG DEBIAN_VERSION=trixie
 
 ARG XX_VERSION=1.7.0
 ARG OSXCROSS_VERSION=11.3-r8-debian
@@ -54,7 +54,7 @@ EOT
 
 FROM golangci/golangci-lint:${GOLANGCI_LINT_VERSION} AS golangci-lint
 FROM gobase AS lint
-RUN apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
+RUN apt-get install -y binutils gcc libc6-dev libgcc-12-dev libsecret-1-dev pkg-config
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
     --mount=from=golangci-lint,source=/usr/bin/golangci-lint,target=/usr/bin/golangci-lint \
@@ -62,7 +62,7 @@ RUN --mount=type=bind,target=. \
 
 FROM gobase AS base
 ARG TARGETPLATFORM
-RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
+RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-12-dev libsecret-1-dev pkg-config
 
 FROM base AS test
 RUN xx-apt-get install -y dbus-x11 gnome-keyring gpg-agent gpgconf libsecret-1-dev pass
