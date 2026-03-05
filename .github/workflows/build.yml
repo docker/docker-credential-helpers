@@ -101,7 +101,7 @@ jobs:
       -
         name: Import GPG key
         if: ${{ !startsWith(matrix.os, 'windows-') }}
-        uses: crazy-max/ghaction-import-gpg@v6
+        uses: crazy-max/ghaction-import-gpg@v7
         with:
           gpg_private_key: ${{ steps.gpg.outputs.key }}
           passphrase: ${{ steps.gpg.outputs.passphrase }}
