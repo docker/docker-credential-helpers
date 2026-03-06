@@ -83,10 +83,10 @@ func TestPassHelperList(t *testing.T) {
 		t.Error(err)
 	}
 	for server, username := range credsList {
-		if !(strings.HasSuffix(server, "2376/v1") || strings.HasSuffix(server, "2375/v1")) {
+		if !strings.HasSuffix(server, "2376/v1") && !strings.HasSuffix(server, "2375/v1") {
 			t.Errorf("invalid url: %s", server)
 		}
-		if !(username == "foo" || username == "bar") {
+		if username != "foo" && username != "bar" {
 			t.Errorf("invalid username: %v", username)
 		}
 

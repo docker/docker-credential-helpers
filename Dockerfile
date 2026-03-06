@@ -1,12 +1,11 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.23.6
+ARG GO_VERSION=1.25.7
 ARG DEBIAN_VERSION=bookworm
 
-ARG XX_VERSION=1.6.1
-ARG OSXCROSS_VERSION=11.3-r7-debian
-ARG GOLANGCI_LINT_VERSION=v1.64.5
-ARG DEBIAN_FRONTEND=noninteractive
+ARG XX_VERSION=1.7.0
+ARG OSXCROSS_VERSION=11.3-r8-debian
+ARG GOLANGCI_LINT_VERSION=v2.8
 
 ARG PACKAGE=github.com/docker/docker-credential-helpers
 
@@ -18,7 +17,6 @@ FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
 
 FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-${DEBIAN_VERSION} AS gobase
 COPY --from=xx / /
-ARG DEBIAN_FRONTEND
 RUN apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm make pkg-config rsync
 ENV GOFLAGS="-mod=vendor"
 ENV CGO_ENABLED="1"
@@ -56,7 +54,6 @@ EOT
 
 FROM golangci/golangci-lint:${GOLANGCI_LINT_VERSION} AS golangci-lint
 FROM gobase AS lint
-ARG DEBIAN_FRONTEND
 RUN apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
@@ -65,11 +62,9 @@ RUN --mount=type=bind,target=. \
 
 FROM gobase AS base
 ARG TARGETPLATFORM
-ARG DEBIAN_FRONTEND
 RUN xx-apt-get install -y binutils gcc libc6-dev libgcc-11-dev libsecret-1-dev pkg-config
 
 FROM base AS test
-ARG DEBIAN_FRONTEND
 RUN xx-apt-get install -y dbus-x11 gnome-keyring gpg-agent gpgconf libsecret-1-dev pass
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
@@ -99,21 +94,7 @@ FROM gobase AS version
 RUN --mount=target=. \
     echo -n "$(./hack/git-meta version)" | tee /tmp/.version ; echo -n "$(./hack/git-meta revision)" | tee /tmp/.revision
 
-FROM base AS build-linux
-ARG PACKAGE
-RUN --mount=type=bind,target=. \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version \
-    --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
-  set -ex
-  xx-go --wrap
-  make build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
-  xx-verify /out/docker-credential-pass
-  xx-verify /out/docker-credential-secretservice
-EOT
-
-FROM base AS build-darwin
+FROM base AS build
 ARG PACKAGE
 RUN --mount=type=bind,target=. \
     --mount=type=cache,target=/root/.cache \
@@ -124,27 +105,25 @@ RUN --mount=type=bind,target=. \
   set -ex
   export MACOSX_VERSION_MIN=$(make print-MACOSX_DEPLOYMENT_TARGET)
   xx-go --wrap
-  go install std
-  make build-osxkeychain build-pass PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
-  xx-verify /out/docker-credential-osxkeychain
-  xx-verify /out/docker-credential-pass
+  case "$(xx-info os)" in
+    linux)
+      make build-pass build-secretservice PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+      xx-verify /out/docker-credential-pass
+      xx-verify /out/docker-credential-secretservice
+      ;;
+    darwin)
+      go install std
+      make build-osxkeychain build-pass PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+      xx-verify /out/docker-credential-osxkeychain
+      xx-verify /out/docker-credential-pass
+      ;;
+    windows)
+      make build-wincred PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
+      mv /out/docker-credential-wincred /out/docker-credential-wincred.exe
+      xx-verify /out/docker-credential-wincred.exe
+      ;;
+  esac
 EOT
-
-FROM base AS build-windows
-ARG PACKAGE
-RUN --mount=type=bind,target=. \
-    --mount=type=cache,target=/root/.cache \
-    --mount=type=cache,target=/go/pkg/mod \
-    --mount=type=bind,source=/tmp/.version,target=/tmp/.version,from=version \
-    --mount=type=bind,source=/tmp/.revision,target=/tmp/.revision,from=version <<EOT
-  set -ex
-  xx-go --wrap
-  make build-wincred PACKAGE=$PACKAGE VERSION=$(cat /tmp/.version) REVISION=$(cat /tmp/.revision) DESTDIR=/out
-  mv /out/docker-credential-wincred /out/docker-credential-wincred.exe
-  xx-verify /out/docker-credential-wincred.exe
-EOT
-
-FROM build-$TARGETOS AS build
 
 FROM scratch AS binaries
 COPY --from=build /out /
