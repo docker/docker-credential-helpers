@@ -133,7 +133,7 @@ func (h *Handler) Get(url string) (string, string, error) {
 		base64.URLEncoding.EncodeToString([]byte(url)),
 	)
 
-	matches, err := h.listByPrefix(prefix)
+	matches, err := h.listByPrefix(prefix+"/")
 	if err != nil {
 		return "", "", err
 	}
