@@ -2,7 +2,7 @@
 
 # GO_VERSION sets the version of the golang base image to use.
 # It must be a valid tag in the docker.io/library/golang image repository.
-ARG GO_VERSION=1.25.8
+ARG GO_VERSION=1.25.9
 
 # BASE_DEBIAN_DISTRO sets the golang base image debian variant to use.
 # It must be a valid variant in the docker.io/library/golang image repository.
