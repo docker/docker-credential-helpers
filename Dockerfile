@@ -10,7 +10,7 @@ ARG BASE_DEBIAN_DISTRO=bookworm
 
 # XX_VERSION sets the version of the xx utility to use.
 # It must be a valid tag in the docker.io/tonistiigi/xx image repository.
-ARG XX_VERSION=1.7.0
+ARG XX_VERSION=1.9.0
 
 # OSXCROSS_VERSION sets the MacOSX cross toolchain to use.
 # It must be a valid tag in the docker.io/crazymax/osxcross image repository.
