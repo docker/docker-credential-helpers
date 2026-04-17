@@ -18,7 +18,7 @@ ARG OSXCROSS_VERSION=11.3-r8-debian
 
 # GOLANGCI_LINT_VERSION sets the version of the golangci-lint image to use.
 # It must be a valid tag in the docker.io/golangci/golangci-lint image repository.
-ARG GOLANGCI_LINT_VERSION=v2.8
+ARG GOLANGCI_LINT_VERSION=v2.11
 
 # PACKAGE sets the package name to print in the "--version" output.
 # It sets the "github.com/docker/docker-credential-helpers/credentials.Package
