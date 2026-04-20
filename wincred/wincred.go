@@ -26,8 +26,7 @@ func (h Wincred) Add(creds *credentials.Credentials) error {
 	g.Persist = winc.PersistLocalMachine
 	g.Attributes = []winc.CredentialAttribute{{Keyword: "label", Value: credsLabel}}
 
-	encoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewEncoder()
-	blob, _, err := transform.Bytes(encoder, []byte(creds.Secret))
+	blob, err := encodeUTF16LE(creds.Secret)
 	if err != nil {
 		return err
 	}
@@ -65,10 +64,14 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 
 	for _, attr := range g.Attributes {
 		if attr.Keyword == "label" && bytes.Equal(attr.Value, credsLabel) {
-			encoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewDecoder()
-			creds, _, err := transform.String(encoder, string(g.CredentialBlob))
-			if err != nil {
-				return "", "", err
+			// Older versions of the wincred credential-helper stored the password blob
+			// as raw string bytes. Newer versions store it as UTF-16LE. Try decoding from
+			// UTF-16LE, otherwise assume creds were stored as raw bytes.
+			//
+			// See https://github.com/docker/docker-credential-helpers/pull/335
+			creds := string(g.CredentialBlob)
+			if p, ok := tryDecodeUTF16LE(g.CredentialBlob); ok {
+				creds = p
 			}
 			return g.UserName, creds, nil
 		}
@@ -159,4 +162,46 @@ func (h Wincred) List() (map[string]string, error) {
 	}
 
 	return resp, nil
+}
+
+func tryDecodeUTF16LE(blob []byte) (string, bool) {
+	if len(blob)%2 != 0 {
+		return "", false
+	}
+
+	decoded, err := decodeUTF16LE(blob)
+	if err != nil {
+		return "", false
+	}
+
+	s := string(decoded)
+	encoded, err := encodeUTF16LE(s)
+	if err != nil {
+		return "", false
+	}
+
+	// round-trip the value to verify it was indeed valid UTF-16LE.
+	if !bytes.Equal(encoded, blob) {
+		return "", false
+	}
+
+	return s, true
+}
+
+func decodeUTF16LE(blob []byte) ([]byte, error) {
+	decoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewDecoder()
+	decoded, _, err := transform.Bytes(decoder, blob)
+	if err != nil {
+		return nil, err
+	}
+	return decoded, nil
+}
+
+func encodeUTF16LE(s string) ([]byte, error) {
+	encoder := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM).NewEncoder()
+	encoded, _, err := transform.Bytes(encoder, []byte(s))
+	if err != nil {
+		return nil, err
+	}
+	return encoded, nil
 }
