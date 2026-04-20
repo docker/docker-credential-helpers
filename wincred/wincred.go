@@ -11,17 +11,18 @@ import (
 	"github.com/docker/docker-credential-helpers/registryurl"
 )
 
+var credsLabel = []byte(credentials.CredsLabel)
+
 // Wincred handles secrets using the Windows credential service.
 type Wincred struct{}
 
 // Add adds new credentials to the windows credentials manager.
 func (h Wincred) Add(creds *credentials.Credentials) error {
-	credsLabels := []byte(credentials.CredsLabel)
 	g := winc.NewGenericCredential(creds.ServerURL)
 	g.UserName = creds.Username
 	g.CredentialBlob = []byte(creds.Secret)
 	g.Persist = winc.PersistLocalMachine
-	g.Attributes = []winc.CredentialAttribute{{Keyword: "label", Value: credsLabels}}
+	g.Attributes = []winc.CredentialAttribute{{Keyword: "label", Value: credsLabel}}
 
 	return g.Write()
 }
@@ -53,7 +54,7 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 	}
 
 	for _, attr := range g.Attributes {
-		if attr.Keyword == "label" && bytes.Equal(attr.Value, []byte(credentials.CredsLabel)) {
+		if attr.Keyword == "label" && bytes.Equal(attr.Value, credsLabel) {
 			return g.UserName, string(g.CredentialBlob), nil
 		}
 	}
@@ -74,7 +75,7 @@ func getTarget(serverURL string) (string, error) {
 	var targets []string
 	for _, cred := range creds {
 		for _, attr := range cred.Attributes {
-			if attr.Keyword == "label" && bytes.Equal(attr.Value, []byte(credentials.CredsLabel)) {
+			if attr.Keyword == "label" && bytes.Equal(attr.Value, credsLabel) {
 				targets = append(targets, cred.TargetName)
 			}
 		}
@@ -135,7 +136,7 @@ func (h Wincred) List() (map[string]string, error) {
 
 	for _, cred := range creds {
 		for _, attr := range cred.Attributes {
-			if attr.Keyword == "label" && bytes.Equal(attr.Value, []byte(credentials.CredsLabel)) {
+			if attr.Keyword == "label" && bytes.Equal(attr.Value, credsLabel) {
 				resp[cred.TargetName] = cred.UserName
 				break
 			}
