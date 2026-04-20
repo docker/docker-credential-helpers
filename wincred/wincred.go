@@ -5,7 +5,6 @@ package wincred
 import (
 	"bytes"
 	"net/url"
-	"strings"
 
 	winc "github.com/danieljoos/wincred"
 	"github.com/docker/docker-credential-helpers/credentials"
@@ -54,9 +53,7 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 	}
 
 	for _, attr := range g.Attributes {
-		if strings.Compare(attr.Keyword, "label") == 0 &&
-			bytes.Compare(attr.Value, []byte(credentials.CredsLabel)) == 0 {
-
+		if attr.Keyword == "label" && bytes.Equal(attr.Value, []byte(credentials.CredsLabel)) {
 			return g.UserName, string(g.CredentialBlob), nil
 		}
 	}
@@ -75,11 +72,10 @@ func getTarget(serverURL string) (string, error) {
 	}
 
 	var targets []string
-	for i := range creds {
-		attrs := creds[i].Attributes
-		for _, attr := range attrs {
+	for _, cred := range creds {
+		for _, attr := range cred.Attributes {
 			if attr.Keyword == "label" && bytes.Equal(attr.Value, []byte(credentials.CredsLabel)) {
-				targets = append(targets, creds[i].TargetName)
+				targets = append(targets, cred.TargetName)
 			}
 		}
 	}
@@ -136,16 +132,14 @@ func (h Wincred) List() (map[string]string, error) {
 	}
 
 	resp := make(map[string]string)
-	for i := range creds {
-		attrs := creds[i].Attributes
-		for _, attr := range attrs {
-			if strings.Compare(attr.Keyword, "label") == 0 &&
-				bytes.Compare(attr.Value, []byte(credentials.CredsLabel)) == 0 {
 
-				resp[creds[i].TargetName] = creds[i].UserName
+	for _, cred := range creds {
+		for _, attr := range cred.Attributes {
+			if attr.Keyword == "label" && bytes.Equal(attr.Value, []byte(credentials.CredsLabel)) {
+				resp[cred.TargetName] = cred.UserName
+				break
 			}
 		}
-
 	}
 
 	return resp, nil
