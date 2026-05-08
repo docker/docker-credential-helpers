@@ -6,10 +6,10 @@ ARG GO_VERSION=1.26.3
 
 # BASE_DEBIAN_DISTRO sets the golang base image debian variant to use.
 # It must be a valid variant in the docker.io/library/golang image repository.
-ARG BASE_DEBIAN_DISTRO=bookworm
+ARG BASE_DEBIAN_DISTRO=trixie
 
 ARG DISTRO=ubuntu
-ARG SUITE=jammy
+ARG SUITE=noble
 
 FROM golang:${GO_VERSION}-${BASE_DEBIAN_DISTRO} AS gobase
 
