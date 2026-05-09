@@ -87,7 +87,7 @@ You can see examples of each function in the [client](https://godoc.org/github.c
 
 #### Note
 
-`pass` needs to be configured for `docker-credential-pass` to work properly.
+[`pass`](https://www.passwordstore.org/) needs to be installed and configured for `docker-credential-pass` to work properly.
 It must be initialized with a `gpg2` key ID. Make sure your GPG key exists is in `gpg2` keyring as `pass` uses `gpg2` instead of the regular `gpg`.
 
 ## Development
