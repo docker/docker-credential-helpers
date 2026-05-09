@@ -10,7 +10,7 @@ docker-credential-helpers is a suite of programs to use native stores to keep Do
 
 ## Installation
 
-Go to the [Releases](https://github.com/docker/docker-credential-helpers/releases) page and download the binary that works better for you. Put that binary in your `$PATH`, so Docker can find it.
+Go to the [Releases](https://github.com/docker/docker-credential-helpers/releases) page and download the binary that works better for you. Put that binary - removing the portion of the name that specifies the version, OS, and architecture, leaving it named "docker-credential-_X_" (where _X_ is pass, secretservice, osxkeychain, or wincred) - in your `$PATH`, so Docker can find it.
 
 ## Building
 
