@@ -10,7 +10,7 @@ docker-credential-helpers is a suite of programs to use native stores to keep Do
 
 ## Installation
 
-Go to the [Releases](https://github.com/docker/docker-credential-helpers/releases) page and download the binary that works better for you. Put that binary in your `$PATH`, so Docker can find it.
+Go to the [Releases](https://github.com/docker/docker-credential-helpers/releases) page and download the binary that works better for you. Put that binary - removing the portion of the name that specifies the version, OS, and architecture, leaving it named "docker-credential-_X_" (where _X_ is pass, secretservice, osxkeychain, or wincred) - in your `$PATH`, so Docker can find it.
 
 ## Building
 
@@ -87,7 +87,7 @@ You can see examples of each function in the [client](https://godoc.org/github.c
 
 #### Note
 
-`pass` needs to be configured for `docker-credential-pass` to work properly.
+[`pass`](https://www.passwordstore.org/) needs to be installed and configured for `docker-credential-pass` to work properly.
 It must be initialized with a `gpg2` key ID. Make sure your GPG key exists is in `gpg2` keyring as `pass` uses `gpg2` instead of the regular `gpg`.
 
 ## Development
