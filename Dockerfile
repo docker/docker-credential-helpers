@@ -30,13 +30,37 @@ ARG GOPASS_VERSION=v1.16.1
 ARG PACKAGE=github.com/docker/docker-credential-helpers
 
 # xx is a helper for cross-compilation
-FROM --platform=$BUILDPLATFORM tonistiigi/xx:${XX_VERSION} AS xx
+FROM --platform=$BUILDPLATFORM docker.io/tonistiigi/xx:${XX_VERSION} AS xx
 
 # osxcross contains the MacOSX cross toolchain for xx
-FROM crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
+FROM docker.io/crazymax/osxcross:${OSXCROSS_VERSION} AS osxcross
 
-FROM --platform=$BUILDPLATFORM golang:${GO_VERSION}-${BASE_DEBIAN_DISTRO} AS gobase
+FROM --platform=$BUILDPLATFORM docker.io/library/golang:${GO_VERSION}-${BASE_DEBIAN_DISTRO} AS gobase
 COPY --from=xx / /
+# Drop the *-security apt source. This is a build-only toolchain image (gcc,
+# binutils, libc6-dev, libsecret-1-dev, pkg-config, ...); nothing from it
+# ships in the resulting binaries. This avoids failures cross-compiling for
+# s390x and armel:
+#
+#   libc6-dev:s390x depends on linux-libc-dev:s390x but it is
+#   not going to be installed
+#
+# This comes from mixing two independently-updated apt sources (main/updates and
+# security) and requiring linux-libc-dev -- a Multi-Arch: same package -- to
+# resolve to an identical version across every architecture apt pulls in.
+# Debian's buildds rebuild each source package one architecture at a time, so a
+# security upload can leave slower architectures briefly out of sync with
+# main/updates. Removing the security source removes that specific collision
+# path.
+RUN if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+      awk -v RS="" -v ORS="\n\n" '! /[Ss]ecurity/' /etc/apt/sources.list.d/debian.sources > /tmp/debian.sources \
+        && mv /tmp/debian.sources /etc/apt/sources.list.d/debian.sources; \
+    fi; \
+    rm -f /etc/apt/sources.list.d/*security*.sources /etc/apt/sources.list.d/*security*.list; \
+    if [ -f /etc/apt/sources.list ]; then \
+      grep -v -- '-security' /etc/apt/sources.list > /tmp/sources.list || true; \
+      mv /tmp/sources.list /etc/apt/sources.list; \
+    fi
 RUN apt-get update && apt-get install -y --no-install-recommends clang dpkg-dev file git lld llvm make pkg-config rsync
 ENV GOFLAGS="-mod=vendor"
 ENV CGO_ENABLED="1"
@@ -172,7 +196,7 @@ EOT
 FROM scratch AS binaries
 COPY --from=build /out /
 
-FROM --platform=$BUILDPLATFORM alpine AS releaser
+FROM --platform=$BUILDPLATFORM docker.io/library/alpine AS releaser
 WORKDIR /work
 ARG TARGETOS
 ARG TARGETARCH
