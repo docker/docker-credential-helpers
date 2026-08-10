@@ -13,8 +13,9 @@ EOF
 
 mkdir -p src/github.com/docker/docker-credential-helpers
 ln -s /build/credentials /build/src/github.com/docker/docker-credential-helpers/credentials
-ln -s /build/secretservice /build/src/github.com/docker/docker-credential-helpers/secretservice
+ln -s /build/gopass /build/src/github.com/docker/docker-credential-helpers/gopass
 ln -s /build/pass /build/src/github.com/docker/docker-credential-helpers/pass
+ln -s /build/secretservice /build/src/github.com/docker/docker-credential-helpers/secretservice
 
 dpkg-buildpackage -us -uc
 

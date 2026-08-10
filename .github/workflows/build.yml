@@ -76,6 +76,11 @@ jobs:
         run: |
           brew install pass
       -
+        name: Install gopass
+        env:
+          GOPASS_VERSION: v1.16.1
+        run: go install github.com/gopasspw/gopass@${{ env.GOPASS_VERSION }}
+      -
         name: GPG conf
         if: ${{ !startsWith(matrix.os, 'windows-') }}
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -83,11 +88,12 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            const gnupgfolder = `${require('os').homedir()}/.gnupg`;
+            const sep = require('path').sep;
+            const gnupgfolder = `${require('os').homedir()}${sep}.gnupg`;
             if (!fs.existsSync(gnupgfolder)){
               fs.mkdirSync(gnupgfolder);
             }
-            fs.copyFile('.github/workflows/fixtures/gpg.conf', `${gnupgfolder}/gpg.conf`, (err) => {
+            fs.copyFile('.github/workflows/fixtures/gpg.conf', `${gnupgfolder}${sep}gpg.conf`, (err) => {
               if (err) throw err;
             });
             core.setOutput('key', fs.readFileSync('.github/workflows/fixtures/7D851EB72D73BDA0.key', {encoding: 'utf8'}));
@@ -107,6 +113,19 @@ jobs:
           pass init 7D851EB72D73BDA0
         shell: bash
       -
+        name: Init gopass
+        if: ${{ !startsWith(matrix.os, 'windows-') }}
+        run: |
+          gopass config mounts.path "${HOME}/.gopass-password-store" 1>/dev/null
+          gopass config core.autopush false 1>/dev/null
+          gopass config core.autosync false 1>/dev/null
+          gopass config core.exportkeys false 1>/dev/null
+          gopass config core.notifications false 1>/dev/null
+          gopass config core.color false 1>/dev/null
+          gopass config core.nopager true 1>/dev/null
+          gopass init --crypto gpgcli --storage fs 7D851EB72D73BDA0
+        shell: bash
+      -
         name: Test
         run: |
           make test COVERAGEDIR=${{ env.DESTDIR }}
@@ -114,6 +133,7 @@ jobs:
       -
         name: Upload coverage
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        if: github.repository == 'docker/docker-credential-helpers'
         with:
           files: ${{ env.DESTDIR }}/coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -136,6 +156,7 @@ jobs:
       -
         name: Upload coverage
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        if: github.repository == 'docker/docker-credential-helpers'
         with:
           files: ${{ env.DESTDIR }}//coverage.txt
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -182,8 +203,10 @@ jobs:
           if-no-files-found: error
       -
         name: GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b  # v3.0.1
+        if: |
+          startsWith(github.ref, 'refs/tags/v') &&
+          github.repository == 'docker/docker-credential-helpers'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
