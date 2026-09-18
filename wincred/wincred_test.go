@@ -12,12 +12,12 @@ import (
 
 func TestWinCredHelper(t *testing.T) {
 	creds := &credentials.Credentials{
-		ServerURL: "https://foobar.docker.io:2376/v1",
+		ServerURL: "https://foobar.example.com:2376/v1",
 		Username:  "foobar",
 		Secret:    "foobarbaz",
 	}
 	creds1 := &credentials.Credentials{
-		ServerURL: "https://foobar.docker.io:2376/v2",
+		ServerURL: "https://foobar.example.com:2376/v2",
 		Username:  "foobarbaz",
 		Secret:    "foobar",
 	}
@@ -99,18 +99,18 @@ func TestWinCredHelperRetrieveAliases(t *testing.T) {
 	}{
 		{
 			doc:      "stored with port, retrieved without",
-			storeURL: "https://foobar.docker.io:2376",
-			readURL:  "https://foobar.docker.io",
+			storeURL: "https://foobar.example.com:2376",
+			readURL:  "https://foobar.example.com",
 		},
 		{
 			doc:      "stored as https, retrieved without scheme",
-			storeURL: "https://foobar.docker.io",
-			readURL:  "foobar.docker.io",
+			storeURL: "https://foobar.example.com",
+			readURL:  "foobar.example.com",
 		},
 		{
 			doc:      "stored with path, retrieved without",
-			storeURL: "https://foobar.docker.io/one/two",
-			readURL:  "https://foobar.docker.io",
+			storeURL: "https://foobar.example.com/one/two",
+			readURL:  "https://foobar.example.com",
 		},
 	}
 
@@ -157,35 +157,35 @@ func TestWinCredHelperRetrieveStrict(t *testing.T) {
 	}{
 		{
 			doc:      "stored as https, retrieved using http",
-			storeURL: "https://foobar.docker.io:2376",
-			readURL:  "http://foobar.docker.io:2376",
+			storeURL: "https://foobar.example.com:2376",
+			readURL:  "http://foobar.example.com:2376",
 		},
 		{
 			doc:      "stored as http, retrieved using https",
-			storeURL: "http://foobar.docker.io:2376",
-			readURL:  "https://foobar.docker.io:2376",
+			storeURL: "http://foobar.example.com:2376",
+			readURL:  "https://foobar.example.com:2376",
 		},
 		{
 			// stored as http, retrieved without a scheme specified (hence, using the default https://)
 			doc:      "stored as http, retrieved without scheme",
-			storeURL: "http://foobar.docker.io",
-			readURL:  "foobar.docker.io:5678",
+			storeURL: "http://foobar.example.com",
+			readURL:  "foobar.example.com:5678",
 		},
 		{
 			doc:      "non-matching ports",
-			storeURL: "https://foobar.docker.io:1234",
-			readURL:  "https://foobar.docker.io:5678",
+			storeURL: "https://foobar.example.com:1234",
+			readURL:  "https://foobar.example.com:5678",
 		},
 		// TODO: is this desired behavior? The other way round does work
 		// {
 		// 	doc:      "non-matching ports (stored without port)",
-		// 	storeURL: "https://foobar.docker.io",
-		// 	readURL:  "https://foobar.docker.io:5678",
+		// 	storeURL: "https://foobar.example.com",
+		// 	readURL:  "https://foobar.example.com:5678",
 		// },
 		{
 			doc:      "non-matching paths",
-			storeURL: "https://foobar.docker.io:1234/one/two",
-			readURL:  "https://foobar.docker.io:1234/five/six",
+			storeURL: "https://foobar.example.com:1234/one/two",
+			readURL:  "https://foobar.example.com:1234/five/six",
 		},
 	}
 
@@ -228,14 +228,14 @@ func TestWinCredHelperStoreRetrieve(t *testing.T) {
 	tests := []struct {
 		url string
 	}{
-		{url: "foobar.docker.io"},
-		{url: "foobar.docker.io:2376"},
-		{url: "//foobar.docker.io:2376"},
-		{url: "https://foobar.docker.io:2376"},
-		{url: "http://foobar.docker.io:2376"},
-		{url: "https://foobar.docker.io:2376/some/path"},
-		{url: "https://foobar.docker.io:2376/some/other/path"},
-		{url: "https://foobar.docker.io:2376/some/other/path?foo=bar"},
+		{url: "foobar.example.com"},
+		{url: "foobar.example.com:2376"},
+		{url: "//foobar.example.com:2376"},
+		{url: "https://foobar.example.com:2376"},
+		{url: "http://foobar.example.com:2376"},
+		{url: "https://foobar.example.com:2376/some/path"},
+		{url: "https://foobar.example.com:2376/some/other/path"},
+		{url: "https://foobar.example.com:2376/some/other/path?foo=bar"},
 	}
 
 	helper := Wincred{}
