@@ -66,9 +66,9 @@ func (h Secretservice) Get(serverURL string) (string, string, error) {
 		return "", "", errors.New("missing server url")
 	}
 	var username *C.char
-	defer C.free(unsafe.Pointer(username))
+	defer func() { C.free(unsafe.Pointer(username)) }()
 	var secret *C.char
-	defer C.free(unsafe.Pointer(secret))
+	defer func() { C.free(unsafe.Pointer(secret)) }()
 	server := C.CString(serverURL)
 	defer C.free(unsafe.Pointer(server))
 
@@ -92,9 +92,9 @@ func (h Secretservice) List() (map[string]string, error) {
 	defer C.free(unsafe.Pointer(credsLabelC))
 
 	var pathsC **C.char
-	defer C.free(unsafe.Pointer(pathsC))
+	defer func() { C.free(unsafe.Pointer(pathsC)) }()
 	var acctsC **C.char
-	defer C.free(unsafe.Pointer(acctsC))
+	defer func() { C.free(unsafe.Pointer(acctsC)) }()
 	var listLenC C.uint
 	err := C.list(credsLabelC, &pathsC, &acctsC, &listLenC)
 	defer C.freeListData(&pathsC, listLenC)
