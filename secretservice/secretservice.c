@@ -46,15 +46,18 @@ char *get_attribute(const char *attribute, SecretItem *item) {
 	GHashTable *attributes;
 	GHashTableIter iter;
 	gchar *value, *key;
+	char *result = NULL;
 
 	attributes = secret_item_get_attributes(item);
 	g_hash_table_iter_init(&iter, attributes);
 	while (g_hash_table_iter_next(&iter, (void **)&key, (void **)&value)) {
-		if (strncmp(key, attribute, strlen(key)) == 0)
-			return (char *)value;
+		if (strncmp(key, attribute, strlen(key)) == 0) {
+			result = strdup(value);
+			break;
+		}
 	}
 	g_hash_table_unref(attributes);
-	return NULL;
+	return result;
 }
 
 GError *get(char *server, char **username, char **secret) {
@@ -136,7 +139,7 @@ GError *list(char *ref_label, char *** paths, char *** accts, unsigned int *list
 		// you cannot have a key without a label in the gnome keyring
 		char *acctTmp = get_attribute("username",current->data);
 		if (acctTmp==NULL) {
-			acctTmp = "account not defined";
+			acctTmp = strdup("account not defined");
 		}
 
 		tmp_paths[listNumber] = (char *) calloc(1, sizeof(char)*(strlen(pathTmp)+1));
@@ -144,6 +147,7 @@ GError *list(char *ref_label, char *** paths, char *** accts, unsigned int *list
 
 		memcpy(tmp_paths[listNumber], pathTmp, sizeof(char)*(strlen(pathTmp)+1));
 		memcpy(tmp_accts[listNumber], acctTmp, sizeof(char)*(strlen(acctTmp)+1));
+		free(acctTmp);
 
 		listNumber = listNumber + 1;
 	}
