@@ -49,6 +49,8 @@ char *get_attribute(const char *attribute, SecretItem *item) {
 	char *result = NULL;
 
 	attributes = secret_item_get_attributes(item);
+	if (attributes == NULL)
+		return NULL;
 	g_hash_table_iter_init(&iter, attributes);
 	while (g_hash_table_iter_next(&iter, (void **)&key, (void **)&value)) {
 		if (strncmp(key, attribute, strlen(key)) == 0) {
