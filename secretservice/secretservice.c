@@ -44,20 +44,15 @@ GError *delete(char *server) {
 
 char *get_attribute(const char *attribute, SecretItem *item) {
 	GHashTable *attributes;
-	GHashTableIter iter;
-	gchar *value, *key;
+	gchar *value;
 	char *result = NULL;
 
 	attributes = secret_item_get_attributes(item);
 	if (attributes == NULL)
 		return NULL;
-	g_hash_table_iter_init(&iter, attributes);
-	while (g_hash_table_iter_next(&iter, (void **)&key, (void **)&value)) {
-		if (strncmp(key, attribute, strlen(key)) == 0) {
-			result = strdup(value);
-			break;
-		}
-	}
+	value = g_hash_table_lookup(attributes, attribute);
+	if (value != NULL)
+		result = strdup(value);
 	g_hash_table_unref(attributes);
 	return result;
 }
