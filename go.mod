@@ -10,6 +10,7 @@ retract (
 require (
 	github.com/danieljoos/wincred v1.2.3
 	github.com/keybase/go-keychain v0.0.1
+	golang.org/x/text v0.16.0
 )
 
 require golang.org/x/sys v0.20.0 // indirect
