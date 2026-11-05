@@ -43,6 +43,9 @@ jobs:
           make ${{ matrix.target }}
 
   test:
+    permissions:
+      contents: read
+      id-token: write # needed for CodeCov; https://github.com/codecov/codecov-action/blob/v7.1.1/README.md#using-oidc
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30 # guardrails timeout for the whole job
     strategy:
@@ -116,9 +119,12 @@ jobs:
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ${{ env.DESTDIR }}/coverage.txt
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true
 
   test-sandboxed:
+    permissions:
+      contents: read
+      id-token: write # needed for CodeCov; https://github.com/codecov/codecov-action/blob/v7.1.1/README.md#using-oidc
     runs-on: ubuntu-24.04
     timeout-minutes: 30 # guardrails timeout for the whole job
     steps:
@@ -138,7 +144,7 @@ jobs:
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
         with:
           files: ${{ env.DESTDIR }}//coverage.txt
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true
 
   build:
     runs-on: ubuntu-24.04
