@@ -5,6 +5,8 @@ package wincred
 import (
 	"bytes"
 	"net/url"
+	"strconv"
+	"strings"
 
 	winc "github.com/danieljoos/wincred"
 	"github.com/docker/docker-credential-helpers/credentials"
@@ -16,14 +18,25 @@ type Wincred struct{}
 
 // Add adds new credentials to the windows credentials manager.
 func (h Wincred) Add(creds *credentials.Credentials) error {
+	blob, chunks, err := splitSecret([]byte(creds.Secret))
+	if err != nil {
+		return err
+	}
+
 	g := winc.NewGenericCredential(creds.ServerURL)
 	g.UserName = creds.Username
-	g.CredentialBlob = []byte(creds.Secret)
+	g.CredentialBlob = blob
 	g.Persist = winc.PersistLocalMachine
 	g.Attributes = append(g.Attributes, winc.CredentialAttribute{
 		Keyword: "label",
 		Value:   []byte(credentials.CredsLabel),
 	})
+	for index, chunk := range chunks {
+		g.Attributes = append(g.Attributes, winc.CredentialAttribute{
+			Keyword: secretChunkAttributePrefix + strconv.Itoa(index),
+			Value:   chunk,
+		})
+	}
 
 	return g.Write()
 }
@@ -56,10 +69,26 @@ func (h Wincred) Get(serverURL string) (string, string, error) {
 
 	for _, attr := range g.Attributes {
 		if attr.Keyword == "label" && bytes.Equal(attr.Value, []byte(credentials.CredsLabel)) {
-			return g.UserName, string(g.CredentialBlob), nil
+			secret, err := joinSecret(g.CredentialBlob, secretChunks(g.Attributes))
+			if err != nil {
+				return "", "", err
+			}
+			return g.UserName, string(secret), nil
 		}
 	}
 	return "", "", credentials.NewErrCredentialsNotFound()
+}
+
+// secretChunks returns the credential attributes that hold parts of a secret
+// that did not fit in the credential blob, keyed by their keyword.
+func secretChunks(attributes []winc.CredentialAttribute) map[string][]byte {
+	chunks := make(map[string][]byte, len(attributes))
+	for _, attr := range attributes {
+		if strings.HasPrefix(attr.Keyword, secretChunkAttributePrefix) {
+			chunks[attr.Keyword] = attr.Value
+		}
+	}
+	return chunks
 }
 
 func getTarget(serverURL string) (string, error) {
