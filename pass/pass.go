@@ -88,8 +88,23 @@ func (p Pass) Add(creds *credentials.Credentials) error {
 	}
 
 	encoded := encodeServerURL(creds.ServerURL)
-	_, err := p.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username))
-	return err
+	if _, err := p.runPass(creds.Secret, "insert", "-f", "-m", path.Join(PASS_FOLDER, encoded, creds.Username)); err != nil {
+		return err
+	}
+
+	usernames, err := listPassDir(encoded)
+	if err != nil {
+		return err
+	}
+	for _, entry := range usernames {
+		username := strings.TrimSuffix(entry.Name(), ".gpg")
+		if username != creds.Username {
+			if _, err := p.runPass("", "rm", "-f", path.Join(PASS_FOLDER, encoded, username)); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // Delete removes credentials from the store.

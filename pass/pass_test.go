@@ -193,3 +193,36 @@ func TestMissingCred(t *testing.T) {
 		t.Errorf("expected credentials not found, actual: %v", err)
 	}
 }
+
+func TestPassHelperReplace(t *testing.T) {
+	helper := Pass{}
+	serverURL := "https://replace.example.com/v1"
+	t.Cleanup(func() {
+		if err := helper.Delete(serverURL); err != nil {
+			t.Error(err)
+		}
+	})
+	for _, username := range []string{"alice", "zoe"} {
+		if err := helper.Add(&credentials.Credentials{
+			ServerURL: serverURL,
+			Username:  username,
+			Secret:    username + "-token",
+		}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	username, secret, err := helper.Get(serverURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if username != "zoe" || secret != "zoe-token" {
+		t.Errorf("Get returned %q, %q; want zoe, zoe-token", username, secret)
+	}
+	stored, err := helper.List()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stored[serverURL] != "zoe" {
+		t.Errorf("List returned %q; want zoe", stored[serverURL])
+	}
+}
