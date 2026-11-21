@@ -9,7 +9,7 @@ docker-credential-helpers is a suite of programs to use native stores to keep Do
 
 ## Installation
 
-Go to the [Releases](https://github.com/docker/docker-credential-helpers/releases) page and download the binary that works better for you. Put that binary in your `$PATH`, so Docker can find it.
+Go to the [Releases](https://github.com/docker/docker-credential-helpers/releases) page and download the binary that works better for you. Docker looks up credential helpers using the name `docker-credential-<credsStore suffix>`; if the release asset name includes version or platform text, rename it to that name before adding it to your `$PATH` (for example, rename `docker-credential-pass-v<version>.<platform>` to `docker-credential-pass`).
 
 ## Building
 
